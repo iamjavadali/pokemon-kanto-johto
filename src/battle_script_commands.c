@@ -459,8 +459,6 @@ static void Cmd_setatkhptozero(void);
 static void Cmd_jumpifnexttargetvalid(void);
 static void Cmd_tryhealhalfhealth(void);
 static void Cmd_setfieldweather(void);
-static void Cmd_setreflect(void);
-static void Cmd_setseeded(void);
 static void Cmd_manipulatedamage(void);
 static void Cmd_trysetrest(void);
 static void Cmd_jumpifuproarwakes(void);
@@ -472,8 +470,6 @@ static void Cmd_initmultihitstring(void);
 static void Cmd_forcerandomswitch(void);
 static void Cmd_tryconversiontypechange(void);
 static void Cmd_givepaydaymoney(void);
-static void Cmd_setlightscreen(void);
-static void Cmd_tryKO(void);
 static void Cmd_checknonvolatiletrigger(void);
 static void Cmd_animatewildpokemonafterfailedpokeball(void);
 static void Cmd_tryinfatuating(void);
@@ -499,7 +495,6 @@ static void Cmd_setvolatile(void);
 static void Cmd_trysetperishsong(void);
 static void Cmd_jumpifconfusedandstatmaxed(void);
 static void Cmd_setembargo(void);
-static void Cmd_setsafeguard(void);
 static void Cmd_jumpifnopursuitswitchdmg(void);
 static void Cmd_tryactivateitem(void);
 static void Cmd_copyfoestats(void);
@@ -517,7 +512,6 @@ static void Cmd_tryswapitems(void);
 static void Cmd_trycopyability(void);
 static void Cmd_trywish(void);
 static void Cmd_settoxicspikes(void);
-static void Cmd_setgastroacid(void);
 static void Cmd_setyawn(void);
 static void Cmd_setroom(void);
 static void Cmd_tryswapabilities(void);
@@ -672,8 +666,6 @@ void (*const gBattleScriptingCommandsTable[])(void) =
     [B_SCR_OP_JUMPIFNEXTTARGETVALID]                 = Cmd_jumpifnexttargetvalid,
     [B_SCR_OP_TRYHEALHALFHEALTH]                     = Cmd_tryhealhalfhealth,
     [B_SCR_OP_SETFIELDWEATHER]                       = Cmd_setfieldweather,
-    [B_SCR_OP_SETREFLECT]                            = Cmd_setreflect,
-    [B_SCR_OP_SETSEEDED]                             = Cmd_setseeded,
     [B_SCR_OP_MANIPULATEDAMAGE]                      = Cmd_manipulatedamage,
     [B_SCR_OP_TRYSETREST]                            = Cmd_trysetrest,
     [B_SCR_OP_JUMPIFUPROARWAKES]                     = Cmd_jumpifuproarwakes,
@@ -685,8 +677,6 @@ void (*const gBattleScriptingCommandsTable[])(void) =
     [B_SCR_OP_FORCERANDOMSWITCH]                     = Cmd_forcerandomswitch,
     [B_SCR_OP_TRYCONVERSIONTYPECHANGE]               = Cmd_tryconversiontypechange,
     [B_SCR_OP_GIVEPAYDAYMONEY]                       = Cmd_givepaydaymoney,
-    [B_SCR_OP_SETLIGHTSCREEN]                        = Cmd_setlightscreen,
-    [B_SCR_OP_TRYKO]                                 = Cmd_tryKO,
     [B_SCR_OP_CHECKNONVOLATILETRIGGER]               = Cmd_checknonvolatiletrigger,
     [B_SCR_OP_ANIMATEWILDPOKEMONAFTERFAILEDPOKEBALL] = Cmd_animatewildpokemonafterfailedpokeball,
     [B_SCR_OP_TRYINFATUATING]                        = Cmd_tryinfatuating,
@@ -712,7 +702,6 @@ void (*const gBattleScriptingCommandsTable[])(void) =
     [B_SCR_OP_TRYSETPERISHSONG]                      = Cmd_trysetperishsong,
     [B_SCR_OP_JUMPIFCONFUSEDANDSTATMAXED]            = Cmd_jumpifconfusedandstatmaxed,
     [B_SCR_OP_SETEMBARGO]                            = Cmd_setembargo,
-    [B_SCR_OP_SETSAFEGUARD]                          = Cmd_setsafeguard,
     [B_SCR_OP_JUMPIFNOPURSUITSWITCHDMG]              = Cmd_jumpifnopursuitswitchdmg,
     [B_SCR_OP_TRYACTIVATEITEM]                       = Cmd_tryactivateitem,
     [B_SCR_OP_COPYFOESTATS]                          = Cmd_copyfoestats,
@@ -730,7 +719,6 @@ void (*const gBattleScriptingCommandsTable[])(void) =
     [B_SCR_OP_TRYCOPYABILITY]                        = Cmd_trycopyability,
     [B_SCR_OP_TRYWISH]                               = Cmd_trywish,
     [B_SCR_OP_SETTOXICSPIKES]                        = Cmd_settoxicspikes,
-    [B_SCR_OP_SETGASTROACID]                         = Cmd_setgastroacid,
     [B_SCR_OP_SETYAWN]                               = Cmd_setyawn,
     [B_SCR_OP_SETROOM]                               = Cmd_setroom,
     [B_SCR_OP_TRYSWAPABILITIES]                      = Cmd_tryswapabilities,
@@ -809,6 +797,13 @@ void (*const gBattleScriptingCommandsTable[])(void) =
     [B_SCR_OP_UNUSED_40]                             = Cmd_dummy,
     [B_SCR_OP_UNUSED_41]                             = Cmd_dummy,
     [B_SCR_OP_UNUSED_42]                             = Cmd_dummy,
+    [B_SCR_OP_UNUSED_43]                             = Cmd_dummy,
+    [B_SCR_OP_UNUSED_44]                             = Cmd_dummy,
+    [B_SCR_OP_UNUSED_45]                             = Cmd_dummy,
+    [B_SCR_OP_UNUSED_46]                             = Cmd_dummy,
+    [B_SCR_OP_UNUSED_47]                             = Cmd_dummy,
+    [B_SCR_OP_UNUSED_48]                             = Cmd_dummy,
+
     [B_SCR_OP_CALLNATIVE]                            = Cmd_callnative,
 };
 
@@ -1614,48 +1609,6 @@ void StealTargetItem(enum BattlerId battlerStealer, enum BattlerId itemBattler, 
     TrySaveExchangedItem(itemBattler, gLastUsedItem);
 }
 
-bool32 TrySetReflect(enum BattlerId battler)
-{
-    enum BattleSide side = GetBattlerSide(battler);
-    if (!(gSideStatuses[side] & SIDE_STATUS_REFLECT))
-    {
-        gSideStatuses[side] |= SIDE_STATUS_REFLECT;
-        if (GetBattlerHoldEffect(battler) == HOLD_EFFECT_LIGHT_CLAY)
-            gSideTimers[side].reflectTimer = 8;
-        else
-            gSideTimers[side].reflectTimer = 5;
-
-        if (IsDoubleBattle() && CountAliveMonsInBattle(BATTLE_ALIVE_SIDE, battler) == 2)
-            gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SET_REFLECT_DOUBLE;
-        else
-            gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SET_REFLECT_SINGLE;
-
-        return TRUE;
-    }
-    return FALSE;
-}
-
-bool32 TrySetLightScreen(enum BattlerId battler)
-{
-    enum BattleSide side = GetBattlerSide(battler);
-    if (!(gSideStatuses[side] & SIDE_STATUS_LIGHTSCREEN))
-    {
-        gSideStatuses[side] |= SIDE_STATUS_LIGHTSCREEN;
-        if (GetBattlerHoldEffect(battler) == HOLD_EFFECT_LIGHT_CLAY)
-            gSideTimers[side].lightscreenTimer = 8;
-        else
-            gSideTimers[side].lightscreenTimer = 5;
-
-        if (IsDoubleBattle() && CountAliveMonsInBattle(BATTLE_ALIVE_SIDE, battler) == 2)
-            gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SET_LIGHTSCREEN_DOUBLE;
-        else
-            gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SET_LIGHTSCREEN_SINGLE;
-
-        return TRUE;
-    }
-    return FALSE;
-}
-
 void TrySynchronizeActivation(enum BattlerId battlerAtk, enum BattlerId effectBattler, enum MoveEffect effect)
 {
     if (battlerAtk == effectBattler || gBattleStruct->synchronizeState == SYNCH_STATE_SET_STATUS)
@@ -1801,7 +1754,7 @@ static void Cmd_setadditionaleffects(void)
 {
     CMD_ARGS();
 
-    if (!IsBattlerUnaffectedByMove(gBattlerTarget))
+    if (!IsBattlerUnaffectedByMove(gBattlerTarget) || IsBattleMoveStatus(gCurrentMove))
     {
         struct BattleCalcValues cv = {0};
         cv.battlerAtk = gBattlerAttacker;
@@ -1809,6 +1762,7 @@ static void Cmd_setadditionaleffects(void)
         cv.move = gCurrentMove;
         cv.abilities[cv.battlerAtk] = GetBattlerAbility(cv.battlerAtk);
         cv.abilities[cv.battlerDef] = GetBattlerAbility(cv.battlerDef);
+        cv.isStatusMove = IsBattleMoveStatus(cv.move);
 
         struct SetEffect se = {0};
 
@@ -5227,41 +5181,6 @@ static void Cmd_setfieldweather(void)
         BattleScriptCall(BattleScript_FailOnPrimalWeather);
 }
 
-static void Cmd_setreflect(void)
-{
-    CMD_ARGS();
-    if (!TrySetReflect(gBattlerAttacker))
-    {
-        gBattleStruct->moveResultFlags[gBattlerTarget] |= MOVE_RESULT_MISSED;
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SIDE_STATUS_FAILED;
-    }
-
-    gBattlescriptCurrInstr = cmd->nextInstr;
-}
-
-static void Cmd_setseeded(void)
-{
-    CMD_ARGS();
-
-    if (IsBattlerUnaffectedByMove(gBattlerTarget) || gBattleMons[gBattlerTarget].volatiles.leechSeed)
-    {
-        gBattleStruct->moveResultFlags[gBattlerTarget] |= MOVE_RESULT_MISSED;
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_LEECH_SEED_MISS;
-    }
-    else if (IS_BATTLER_OF_TYPE(gBattlerTarget, TYPE_GRASS))
-    {
-        gBattleStruct->moveResultFlags[gBattlerTarget] |= MOVE_RESULT_MISSED;
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_LEECH_SEED_FAIL;
-    }
-    else
-    {
-        gBattleMons[gBattlerTarget].volatiles.leechSeed = LEECHSEEDED_BY(gBattlerAttacker);
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_LEECH_SEED_SET;
-    }
-
-    gBattlescriptCurrInstr = cmd->nextInstr;
-}
-
 static void Cmd_manipulatedamage(void)
 {
     CMD_ARGS(u8 mode);
@@ -5743,23 +5662,6 @@ static void Cmd_givepaydaymoney(void)
     {
         gBattlescriptCurrInstr = cmd->nextInstr;
     }
-}
-
-static void Cmd_setlightscreen(void)
-{
-    CMD_ARGS();
-
-    if (!TrySetLightScreen(gBattlerAttacker))
-    {
-        gBattleStruct->moveResultFlags[gBattlerTarget] |= MOVE_RESULT_MISSED;
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SIDE_STATUS_FAILED;
-    }
-
-    gBattlescriptCurrInstr = cmd->nextInstr;
-}
-
-static void Cmd_tryKO(void)
-{
 }
 
 static void Cmd_checknonvolatiletrigger(void)
@@ -6620,25 +6522,6 @@ static void Cmd_setembargo(void)
     }
 }
 
-static void Cmd_setsafeguard(void)
-{
-    CMD_ARGS();
-
-    if (gSideStatuses[GetBattlerSide(gBattlerAttacker)] & SIDE_STATUS_SAFEGUARD)
-    {
-        gBattleStruct->moveResultFlags[gBattlerTarget] |= MOVE_RESULT_MISSED;
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SIDE_STATUS_FAILED;
-    }
-    else
-    {
-        gSideStatuses[GetBattlerSide(gBattlerAttacker)] |= SIDE_STATUS_SAFEGUARD;
-        gSideTimers[GetBattlerSide(gBattlerAttacker)].safeguardTimer = 5;
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SET_SAFEGUARD;
-    }
-
-    gBattlescriptCurrInstr = cmd->nextInstr;
-}
-
 static void Cmd_jumpifnopursuitswitchdmg(void)
 {
     CMD_ARGS(const u8 *jumpInstr);
@@ -7210,30 +7093,6 @@ static void Cmd_settoxicspikes(void)
         if (gSideTimers[targetSide].toxicSpikesAmount == 0)
             PushHazardTypeToQueue(targetSide, HAZARDS_TOXIC_SPIKES);
         gSideTimers[targetSide].toxicSpikesAmount++;
-        gBattlescriptCurrInstr = cmd->nextInstr;
-    }
-}
-
-static void Cmd_setgastroacid(void)
-{
-    CMD_ARGS(const u8 *failInstr);
-
-    if (gAbilitiesInfo[gBattleMons[gBattlerTarget].ability].cantBeSuppressed)
-    {
-        gBattlescriptCurrInstr = cmd->failInstr;
-    }
-    else if (GetBattlerHoldEffectIgnoreAbility(gBattlerTarget) == HOLD_EFFECT_ABILITY_SHIELD)
-    {
-        RecordItemEffectBattle(gBattlerTarget, HOLD_EFFECT_ABILITY_SHIELD);
-        gBattlescriptCurrInstr = cmd->failInstr;
-    }
-    else
-    {
-        if (gBattleMons[gBattlerTarget].volatiles.neutralizingGas)
-            gSpecialStatuses[gBattlerTarget].neutralizingGasRemoved = TRUE;
-
-        RemoveRuinAbilityFlags(gBattlerTarget);
-        gBattleMons[gBattlerTarget].volatiles.gastroAcid = TRUE;
         gBattlescriptCurrInstr = cmd->nextInstr;
     }
 }
@@ -11744,33 +11603,6 @@ void BS_TryTrainerSlideMsgLastOn(void)
     default:
         break;
     }
-}
-
-// Potential bug with failing message and missed result on wrong battler
-void BS_SetAuroraVeil(void)
-{
-    NATIVE_ARGS();
-    enum BattleSide side = GetBattlerSide(gBattlerAttacker);
-    if (gSideStatuses[side] & SIDE_STATUS_AURORA_VEIL)
-    {
-        gBattleStruct->moveResultFlags[gBattlerTarget] |= MOVE_RESULT_MISSED;
-        gBattleCommunication[MULTISTRING_CHOOSER] = 0;
-    }
-    else
-    {
-        gSideStatuses[side] |= SIDE_STATUS_AURORA_VEIL;
-        if (GetBattlerHoldEffect(gBattlerAttacker) == HOLD_EFFECT_LIGHT_CLAY)
-            gSideTimers[GetBattlerSide(gBattlerAttacker)].auroraVeilTimer = 8;
-        else
-            gSideTimers[GetBattlerSide(gBattlerAttacker)].auroraVeilTimer = 5;
-
-        if (IsDoubleBattle() && CountAliveMonsInBattle(BATTLE_ALIVE_SIDE, gBattlerAttacker) == 2)
-            gBattleCommunication[MULTISTRING_CHOOSER] = 5;
-        else
-            gBattleCommunication[MULTISTRING_CHOOSER] = 5;
-        gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_SET_AURORA_VEIL;
-    }
-    gBattlescriptCurrInstr = cmd->nextInstr;
 }
 
 void BS_TryThirdType(void)
