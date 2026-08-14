@@ -1,4 +1,4 @@
-name: Prototype FireRed Build
+name: Prototype FireRed Development
 
 on:
   push:
@@ -20,10 +20,13 @@ env:
 jobs:
   build-firered-prototype:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install ARM toolchain and build dependencies
         run: |
@@ -55,8 +58,49 @@ jobs:
             tools/wav2agb/wav2agb
           key: prototype-tools-${{ runner.os }}-${{ hashFiles('tools/*/Makefile', 'tools/**/*.c', 'tools/**/*.cpp', 'tools/**/*.h') }}
 
+      - name: Fast preflight
+        shell: bash
+        run: |
+          set -o pipefail
+          : > preflight.log
+
+          echo "== Documentation index validation ==" | tee -a preflight.log
+          .github/docs_validate/inclusive_summary.py 2>&1 | tee -a preflight.log
+
+          base_sha=$(git merge-base HEAD origin/master)
+          mapfile -t changed_c < <(git diff --name-only "$base_sha"...HEAD -- ':(glob)src/*.c' ':(glob)src/**/*.c')
+
+          if ((${#changed_c[@]} == 0)); then
+            echo "No C source changes versus master; skipping targeted object compilation." | tee -a preflight.log
+            exit 0
+          fi
+
+          targets=()
+          for source in "${changed_c[@]}"; do
+            target="build/firered/${source%.c}.o"
+            targets+=("$target")
+            echo "Preflight target: $source -> $target" | tee -a preflight.log
+          done
+
+          echo "== Targeted FireRed object compilation ==" | tee -a preflight.log
+          make BUILD=firered -j$(nproc) -O "${targets[@]}" 2>&1 | tee -a preflight.log
+
       - name: Build FireRed target
-        run: make firered -j$(nproc) -O
+        shell: bash
+        run: |
+          set -o pipefail
+          make firered -j$(nproc) -O 2>&1 | tee firered-build.log
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firered-build-diagnostics-${{ github.sha }}
+          path: |
+            preflight.log
+            firered-build.log
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Verify ROM output
         run: |
