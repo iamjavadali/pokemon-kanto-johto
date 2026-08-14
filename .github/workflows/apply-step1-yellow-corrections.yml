@@ -20,25 +20,21 @@ jobs:
           ref: prototype/v0.1
           fetch-depth: 0
 
-      - name: Apply guarded corrections
+      - name: Apply guarded right-exit correction
         run: python3 .github/scripts/apply_step1_yellow_corrections.py
 
       - name: Validate patch
         run: |
           git diff --check
+          grep -q 'PalletTown_ProfessorOaksLab_Movement_YellowRivalExitRight' data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc
           grep -q 'SPECIES_EEVEE' data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc
           grep -q 'setmonmove 0, 0, MOVE_THUNDER_SHOCK' data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc
           grep -q '^Eevee$' src/data/trainers_frlg.party
 
-      - name: Commit corrected Step 1
+      - name: Commit corrected right exit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            src/oak_speech.c \
-            data/maps/PalletTown_Frlg/scripts.inc \
-            data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc \
-            src/data/trainers_frlg.party \
-            docs/projects/KANTO_JOHTO_MASTER_RULES.md
-          git commit -m "fix: align Step 1 opening with Yellow story"
+          git add data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc
+          git commit -m "fix: route first rival cleanly through lab exit"
           git push origin HEAD:prototype/v0.1
