@@ -81,6 +81,21 @@ Prototype v0.1 is an architecture and build-validation milestone, not the full g
 - Do not commit generated `.gba` ROMs to Git; publish test builds as private GitHub Actions artifacts.
 - Preserve upstream attribution/licenses/credits and document custom assets and code as they are introduced.
 
+## Development validation workflow
+- Draft prototype pull requests are the active implementation/manual-test lane. They must not run the full Emerald + FireRed + LeafGreen + release + test matrix on every push.
+- Prototype branch pushes use the dedicated FireRed development workflow as the iteration gate.
+- The FireRed development workflow first validates the documentation index, then shallow-fetches `master`, detects C source changes relative to the baseline, and compiles only the affected FireRed C objects as a fast preflight.
+- If preflight fails, the full FireRed ROM build must not start. Fix the failure immediately and push a correction.
+- If preflight passes, build the FireRed target, verify `pokefirered.gba`, generate a SHA-256 checksum, and upload the ROM as a private Actions artifact.
+- Build/preflight logs are uploaded as diagnostic artifacts even when the build fails so compiler errors are available without creating temporary diagnostic workflows.
+- Superseded prototype builds are cancelled automatically when a newer branch commit is pushed.
+- Documentation-only changes and changes isolated to the full CI workflow do not trigger a prototype ROM build.
+- The prototype development job has a 20-minute timeout. A normal FireRed build is expected to finish substantially earlier; investigate instead of waiting indefinitely if runtime materially exceeds the established baseline.
+- A successful targeted FireRed artifact is enough to begin manual gameplay testing. Do not wait for the complete cross-target regression matrix before giving the player a test ROM.
+- Full CI is the candidate/acceptance gate. Run it when a prototype PR is marked ready for review, by manual dispatch when needed, and on protected upstream-style branch pushes.
+- Full CI retains parallel Emerald, FireRed, LeafGreen, release, test, and docs validation so accepted candidates receive broad regression coverage without slowing ordinary iteration.
+- Never continue waiting on unrelated CI jobs after the targeted development target has already failed; diagnose and correct the failing head first.
+
 ## Prototype v0.1 implementation status
 
 ### Gameplay Step 1 — The Beginning
