@@ -26,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Install ARM toolchain and build dependencies
         run: |
@@ -67,8 +67,10 @@ jobs:
           echo "== Documentation index validation ==" | tee -a preflight.log
           .github/docs_validate/inclusive_summary.py 2>&1 | tee -a preflight.log
 
-          base_sha=$(git merge-base HEAD origin/master)
-          mapfile -t changed_c < <(git diff --name-only "$base_sha"...HEAD -- ':(glob)src/*.c' ':(glob)src/**/*.c')
+          echo "== Fetch prototype comparison base ==" | tee -a preflight.log
+          git fetch --no-tags --depth=1 origin master 2>&1 | tee -a preflight.log
+
+          mapfile -t changed_c < <(git diff --name-only FETCH_HEAD HEAD -- ':(glob)src/*.c' ':(glob)src/**/*.c')
 
           if ((${#changed_c[@]} == 0)); then
             echo "No C source changes versus master; skipping targeted object compilation." | tee -a preflight.log
