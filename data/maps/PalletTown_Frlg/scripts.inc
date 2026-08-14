@@ -204,21 +204,13 @@ PalletTown_EventScript_OakTrigger::
 	delay 30
 	msgbox PalletTown_Text_OakGrassUnsafeNeedMon
 	closemessage
-	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_ShowWildPikachuLeft
-	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_ShowWildPikachuRight
-	playmoncry SPECIES_PIKACHU, CRY_MODE_ENCOUNTER
-	waitmoncry
-	msgbox PalletTown_Text_WildPikachuAppeared
-	closemessage
-	delay 20
-	msgbox PalletTown_Text_OakCatchPikachu
-	closemessage
-	playse SE_BALL_THROW
-	delay 40
-	removeobject LOCALID_YELLOW_PIKACHU
-	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
-	delay 30
-	msgbox PalletTown_Text_OakCaughtPikachu
+	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_FaceYellowGrassLeft
+	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_FaceYellowGrassRight
+	special StartYellowPikachuCaptureBattle
+	waitstate
+	lockall
+	textcolor NPC_TEXT_COLOR_MALE
+	msgbox PalletTown_Text_OakWhew
 	msgbox PalletTown_Text_OakComeWithMeYellow
 	closemessage
 	delay 20
@@ -245,21 +237,13 @@ PalletTown_EventScript_OakTrigger::
 	releaseall
 	end
 
-PalletTown_EventScript_ShowWildPikachuLeft::
-	setobjectxyperm LOCALID_YELLOW_PIKACHU, 13, 1
-	setobjectmovementtype LOCALID_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_LEFT
-	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
-	addobject LOCALID_YELLOW_PIKACHU
+PalletTown_EventScript_FaceYellowGrassLeft::
 	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
 	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceRight
 	waitmovement 0
 	return
 
-PalletTown_EventScript_ShowWildPikachuRight::
-	setobjectxyperm LOCALID_YELLOW_PIKACHU, 12, 1
-	setobjectmovementtype LOCALID_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_RIGHT
-	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
-	addobject LOCALID_YELLOW_PIKACHU
+PalletTown_EventScript_FaceYellowGrassRight::
 	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
 	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceLeft
 	waitmovement 0
@@ -296,6 +280,7 @@ PalletTown_Movement_OakEnterLeft::
 	walk_right
 	walk_up
 	walk_up
+	walk_up
 	step_end
 
 PalletTown_Movement_OakEnterRight::
@@ -306,6 +291,7 @@ PalletTown_Movement_OakEnterRight::
 	walk_up
 	walk_up
 	walk_right
+	walk_up
 	walk_up
 	walk_up
 	step_end
@@ -331,12 +317,14 @@ PalletTown_Movement_OakEnterRight::
 
 PalletTown_Movement_OakWalkToLabLeft::
 	walk_down
+	walk_down
 	walk_to_lab
 	walk_right
 	walk_in_place_faster_up
 	step_end
 
 PalletTown_Movement_OakWalkToLabRight::
+	walk_down
 	walk_down
 	walk_left
 	walk_to_lab
@@ -352,10 +340,12 @@ PalletTown_Movement_OakEnterLab::
 PalletTown_Movement_PlayerWalkToLabLeft::
 	walk_down
 	walk_down
+	walk_down
 	walk_to_lab
 	step_end
 
 PalletTown_Movement_PlayerWalkToLabRight::
+	walk_down
 	walk_down
 	walk_down
 	walk_left
@@ -499,31 +489,18 @@ PalletTown_Text_OakDontGoOut::
 	.string "Don't go out!$"
 
 PalletTown_Text_OakGrassUnsafeNeedMon::
-	.string "OAK: It's unsafe!\n"
-	.string "Wild POKéMON live in tall grass!\p"
-	.string "You need your own POKéMON for\n"
-	.string "your protection.\p"
-	.string "I have one for you at my LAB.\n"
-	.string "Come with me!$"
+	.string "OAK: That was close!\n"
+	.string "Wild POKéMON live in tall grass!$"
 
-PalletTown_Text_WildPikachuAppeared::
-	.string "A wild PIKACHU appeared in the\n"
-	.string "tall grass!$"
-
-PalletTown_Text_OakCatchPikachu::
-	.string "OAK: Whew... Hold on!\p"
-	.string "I'll take care of this one.$"
-
-PalletTown_Text_OakCaughtPikachu::
-	.string "OAK: Got it!\p"
-	.string "That PIKACHU is safely caught.$"
+PalletTown_Text_OakWhew::
+	.string "OAK: Whew...$"
 
 PalletTown_Text_OakComeWithMeYellow::
 	.string "OAK: A POKéMON can appear at any\n"
 	.string "time in tall grass.\p"
 	.string "You need a POKéMON of your own\n"
 	.string "for protection.\p"
-	.string "Come with me to my LAB.$"
+	.string "I know! Come with me!$"
 
 PalletTown_Text_RaisingMonsToo::
 	.string "I'm raising POKéMON, too.\p"

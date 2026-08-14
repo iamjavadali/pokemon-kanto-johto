@@ -59,6 +59,7 @@ static const u8 sText_TheTrainerThat[] = _("The TRAINER that makes the other\nTR
 static const u8 sText_TryBattling[] = _("But rather than talking about it,\nyou'll learn more from experience.\pTry battling and see for yourself.\p");
 static const u8 sText_WinEarnsPrizeMoney[] = _("OAK: Hm! Excellent!\pIf you win, you earn prize money,\nand your POKéMON will grow!\pBattle other TRAINERS and make\nyour POKéMON strong!\p");
 static const u8 gText_WhatWillOldManDo[] = _("What will the\nold man do?");
+static const u8 sText_WhatWillOakDo[] = _("What will\nOAK do?");
 
 static void (*const sOakOldManBufferCommands[CONTROLLER_CMDS_COUNT])(enum BattlerId battler) =
 {
@@ -683,6 +684,13 @@ static void OakOldManHandleDrawTrainerPic(enum BattlerId battler)
 {
     enum TrainerPicID trainerPicId;
 
+    if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)
+    {
+        trainerPicId = TRAINER_PIC_PROFESSOR_OAK_FRLG;
+        BtlController_HandleDrawTrainerPic(battler, trainerPicId, TRUE, 80, 80, 30);
+        return;
+    }
+
     if (gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE)
         trainerPicId = GetPlayerTrainerPic(gSaveBlock2Ptr->playerGender, GAME_VERSION);
     else
@@ -694,6 +702,12 @@ static void OakOldManHandleDrawTrainerPic(enum BattlerId battler)
 static void OakOldManHandleTrainerSlide(enum BattlerId battler)
 {
     enum TrainerPicID trainerPicId;
+
+    if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)
+    {
+        OakOldManBufferExecCompleted(battler);
+        return;
+    }
 
     if (gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE)
         trainerPicId = GetPlayerTrainerPic(gSaveBlock2Ptr->playerGender, GAME_VERSION);
@@ -784,6 +798,8 @@ static void OakOldManHandleChooseAction(enum BattlerId battler)
         PREPARE_MON_NICK_BUFFER(gBattleTextBuff1, battler, gBattlerPartyIndexes[battler]);
         BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillPkmnDo);
     }
+    else if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)
+        BattleStringExpandPlaceholdersToDisplayedString(sText_WhatWillOakDo);
     else
         BattleStringExpandPlaceholdersToDisplayedString(gText_WhatWillOldManDo);
     BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_ACTION_PROMPT);
