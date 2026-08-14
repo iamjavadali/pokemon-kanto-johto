@@ -1,0 +1,590 @@
+name: Apply Canonical Yellow Opening
+
+on:
+  push:
+    branches:
+      - 'prototype/v0.1'
+    paths:
+      - '.github/workflows/apply-yellow-opening.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Apply guarded Yellow opening rewrite
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          def splice(path, start, end, replacement):
+              p = Path(path)
+              text = p.read_text()
+              if text.count(start) != 1 or text.count(end) != 1:
+                  raise SystemExit(f'Guard failed for {path}: {start!r} / {end!r}')
+              a = text.index(start)
+              b = text.index(end, a)
+              p.write_text(text[:a] + replacement + text[b:])
+
+          # Dedicated unused FRLG hide flag for the temporary wild Pikachu.
+          p = Path('include/constants/flags_frlg.h')
+          text = p.read_text()
+          old = '#define FLAG_0x0AF               0x0AF'
+          new = '#define FLAG_HIDE_PALLET_WILD_PIKACHU                    0x0AF'
+          if text.count(old) != 1:
+              raise SystemExit('Expected unused FLAG_0x0AF exactly once.')
+          p.write_text(text.replace(old, new, 1))
+
+          # Add a hidden Pikachu object to Pallet Town. Its position is set dynamically
+          # to the grass tile beside the player when Oak intercepts them.
+          p = Path('data/maps/PalletTown_Frlg/map.json')
+          data = json.loads(p.read_text())
+          if any(o.get('local_id') == 'LOCALID_YELLOW_PIKACHU' for o in data['object_events']):
+              raise SystemExit('Yellow Pikachu object already exists.')
+          data['object_events'].append({
+              'local_id': 'LOCALID_YELLOW_PIKACHU',
+              'type': 'object',
+              'graphics_id': 'OBJ_EVENT_GFX_PIKACHU',
+              'x': 14,
+              'y': 1,
+              'elevation': 3,
+              'movement_type': 'MOVEMENT_TYPE_FACE_LEFT',
+              'movement_range_x': 0,
+              'movement_range_y': 0,
+              'trainer_type': 'TRAINER_TYPE_NONE',
+              'trainer_sight_or_berry_tree_id': '0',
+              'script': '0x0',
+              'flag': 'FLAG_HIDE_PALLET_WILD_PIKACHU'
+          })
+          p.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
+
+          # Keep the temporary Pikachu hidden before the opening event begins.
+          p = Path('data/maps/PalletTown_Frlg/scripts.inc')
+          text = p.read_text()
+          anchor = ('PalletTown_OnTransition::\n'
+                    '\tsetworldmapflag FLAG_WORLD_MAP_PALLET_TOWN\n')
+          replacement = (anchor +
+                    '\tcall_if_eq VAR_MAP_SCENE_PALLET_TOWN_OAK, 0, PalletTown_EventScript_HideYellowPikachu\n')
+          if text.count(anchor) != 1:
+              raise SystemExit('Pallet transition anchor mismatch.')
+          text = text.replace(anchor, replacement, 1)
+          helper_anchor = 'PalletTown_EventScript_TryReadySignLady::\n'
+          helper = ('PalletTown_EventScript_HideYellowPikachu::\n'
+                    '\tsetflag FLAG_HIDE_PALLET_WILD_PIKACHU\n'
+                    '\treturn\n\n')
+          if text.count(helper_anchor) != 1:
+              raise SystemExit('Pallet helper anchor mismatch.')
+          text = text.replace(helper_anchor, helper + helper_anchor, 1)
+          p.write_text(text)
+
+          # Canonical Yellow order in Pallet: Oak intercepts, Pikachu appears in the
+          # grass, Oak catches it, then Oak leads the player to the lab.
+          pallet_opening = '''PalletTown_EventScript_OakTrigger::
+\tfamechecker FAMECHECKER_OAK, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
+\ttextcolor NPC_TEXT_COLOR_MALE
+\tdelay 30
+\tplaybgm MUS_RG_OAK, 0
+\tmessage PalletTown_Text_OakDontGoOut
+\twaitmessage
+\tdelay 85
+\tclosemessage
+\tapplymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
+\twaitmovement 0
+\tplayse SE_PIN
+\tapplymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+\twaitmovement 0
+\tdelay 30
+\taddobject LOCALID_PALLET_PROF_OAK
+\tcall_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_OakEnterLeft
+\tcall_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_OakEnterRight
+\tdelay 30
+\tmsgbox PalletTown_Text_OakGrassUnsafeNeedMon
+\tclosemessage
+\tcall_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_ShowWildPikachuLeft
+\tcall_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_ShowWildPikachuRight
+\tplaymoncry SPECIES_PIKACHU, CRY_MODE_ENCOUNTER
+\twaitmoncry
+\tmsgbox PalletTown_Text_WildPikachuAppeared
+\tclosemessage
+\tdelay 20
+\tmsgbox PalletTown_Text_OakCatchPikachu
+\tclosemessage
+\tplayse SE_BALL_THROW
+\tdelay 40
+\tremoveobject LOCALID_YELLOW_PIKACHU
+\tsetflag FLAG_HIDE_PALLET_WILD_PIKACHU
+\tdelay 30
+\tmsgbox PalletTown_Text_OakCaughtPikachu
+\tmsgbox PalletTown_Text_OakComeWithMeYellow
+\tclosemessage
+\tdelay 20
+\tcall_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_OakLeadPlayerToLabLeft
+\tcall_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_OakLeadPlayerToLabRight
+\topendoor 16, 13
+\twaitdooranim
+\tapplymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakEnterLab
+\tapplymovement LOCALID_PLAYER, PalletTown_Movement_PlayerEnterLab
+\twaitmovement 0
+\tclosedoor 16, 13
+\twaitdooranim
+\tsetvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 1
+\tclearflag FLAG_HIDE_OAK_IN_HIS_LAB
+\tsetvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+\tsetflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+\tsetflag FLAG_HIDE_BULBASAUR_BALL
+\tclearflag FLAG_HIDE_SQUIRTLE_BALL
+\tsetflag FLAG_HIDE_CHARMANDER_BALL
+\tclearflag FLAG_HIDE_RIVAL_IN_LAB
+\tsetflag FLAG_DONT_TRANSITION_MUSIC
+\twarp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
+\twaitstate
+\treleaseall
+\tend
+
+PalletTown_EventScript_ShowWildPikachuLeft::
+\tsetobjectxyperm LOCALID_YELLOW_PIKACHU, 13, 1
+\tsetobjectmovementtype LOCALID_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_LEFT
+\tclearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+\taddobject LOCALID_YELLOW_PIKACHU
+\tapplymovement LOCALID_PLAYER, Common_Movement_FaceRight
+\tapplymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceRight
+\twaitmovement 0
+\treturn
+
+PalletTown_EventScript_ShowWildPikachuRight::
+\tsetobjectxyperm LOCALID_YELLOW_PIKACHU, 12, 1
+\tsetobjectmovementtype LOCALID_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_RIGHT
+\tclearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+\taddobject LOCALID_YELLOW_PIKACHU
+\tapplymovement LOCALID_PLAYER, Common_Movement_FaceLeft
+\tapplymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceLeft
+\twaitmovement 0
+\treturn
+
+'''
+          splice('data/maps/PalletTown_Frlg/scripts.inc',
+                 'PalletTown_EventScript_OakTrigger::\n',
+                 'PalletTown_EventScript_OakEnterLeft::\n',
+                 pallet_opening)
+
+          # Add Pallet dialogue that preserves the Yellow beats without changing later story.
+          p = Path('data/maps/PalletTown_Frlg/scripts.inc')
+          text = p.read_text()
+          text_anchor = 'PalletTown_Text_RaisingMonsToo::\n'
+          yellow_text = '''PalletTown_Text_WildPikachuAppeared::
+\t.string "A wild PIKACHU appeared in the\\n"
+\t.string "tall grass!$"
+
+PalletTown_Text_OakCatchPikachu::
+\t.string "OAK: Whew... Hold on!\\p"
+\t.string "I'll take care of this one.$"
+
+PalletTown_Text_OakCaughtPikachu::
+\t.string "OAK: Got it!\\p"
+\t.string "That PIKACHU is safely caught.$"
+
+PalletTown_Text_OakComeWithMeYellow::
+\t.string "OAK: A POKéMON can appear at any\\n"
+\t.string "time in tall grass.\\p"
+\t.string "You need a POKéMON of your own\\n"
+\t.string "for protection.\\p"
+\t.string "Come with me to my LAB.$"
+
+'''
+          if text.count(text_anchor) != 1:
+              raise SystemExit('Pallet text anchor mismatch.')
+          text = text.replace(text_anchor, yellow_text + text_anchor, 1)
+          p.write_text(text)
+
+          # Lab entry now mirrors Yellow: rival already waiting, one Eevee ball is
+          # offered to the player, and control returns so the player walks to it.
+          lab_intro = '''PalletTown_ProfessorOaksLab_ChooseStarterScene::
+\tlockall
+\ttextcolor NPC_TEXT_COLOR_MALE
+\tapplymovement LOCALID_OAKS_LAB_PROF_OAK, PalletTown_ProfessorOaksLab_Movement_OakEnter
+\twaitmovement 0
+\tremoveobject LOCALID_OAKS_LAB_PROF_OAK
+\tsetobjectxyperm LOCALID_OAKS_LAB_PROF_OAK, 6, 3
+\tsetobjectmovementtype LOCALID_OAKS_LAB_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
+\tclearflag FLAG_HIDE_OAK_IN_HIS_LAB
+\tapplymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerEnter
+\twaitmovement 0
+\tclearflag FLAG_DONT_TRANSITION_MUSIC
+\tfadedefaultbgm
+\tapplymovement LOCALID_OAKS_LAB_RIVAL, Common_Movement_WalkInPlaceFasterDown
+\twaitmovement 0
+\tmsgbox PalletTown_ProfessorOaksLab_Text_RivalFedUpWithWaiting
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakRivalCameEarly
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakTakeBallOnTable
+\tmsgbox PalletTown_ProfessorOaksLab_Text_RivalNoFairWhatAboutMe
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakBePatientYellow
+\tsetvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2
+\treleaseall
+\tend
+
+'''
+          splice('data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc',
+                 'PalletTown_ProfessorOaksLab_ChooseStarterScene::\n',
+                 'PalletTown_ProfessorOaksLab_Movement_OakEnter::\n',
+                 lab_intro)
+
+          # Repurpose the center starter ball as Yellow's single Eevee ball. The rival
+          # pushes in front of the player, takes Eevee, and only then does Oak give the
+          # player the same Pikachu caught outside.
+          eevee_ball = '''PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
+\tlockall
+\ttextcolor NPC_TEXT_COLOR_MALE
+\tgoto_if_ne VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2, PalletTown_ProfessorOaksLab_EventScript_LastPokeBall
+\tapplymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalRushToEevee
+\twaitmovement 0
+\tmsgbox PalletTown_ProfessorOaksLab_Text_RivalWantsEevee
+\tclosemessage
+\tapplymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerPushedFromEevee
+\tapplymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalSnatchEevee
+\twaitmovement 0
+\tremoveobject LOCALID_SQUIRTLE_BALL
+\tsetflag FLAG_HIDE_SQUIRTLE_BALL
+\tplayfanfare MUS_RG_OBTAIN_KEY_ITEM
+\tmsgbox PalletTown_ProfessorOaksLab_Text_RivalSnatchedEevee
+\twaitfanfare
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakRivalWhatDoing
+\tmsgbox PalletTown_ProfessorOaksLab_Text_RivalKeepingEevee
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakAllowsEevee
+\tclosemessage
+\tapplymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerWalkToOakYellow
+\twaitmovement 0
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakGiveCaughtPikachu
+\tsetvar PLAYER_STARTER_NUM, 2
+\tsetvar PLAYER_STARTER_SPECIES, SPECIES_PIKACHU
+\tsetvar RIVAL_STARTER_SPECIES, SPECIES_EEVEE
+\tsetflag FLAG_SYS_POKEMON_GET
+\tsetflag FLAG_PALLET_LADY_NOT_BLOCKING_SIGN
+\tgivemon PLAYER_STARTER_SPECIES, 5
+\tsetmonmove 0, 0, MOVE_THUNDER_SHOCK
+\tsetmonmove 0, 1, MOVE_GROWL
+\tsetmonmove 0, 2, MOVE_NONE
+\tsetmonmove 0, 3, MOVE_NONE
+\tcopyvar VAR_STARTER_MON, PLAYER_STARTER_NUM
+\tbufferspeciesname STR_VAR_1, PLAYER_STARTER_SPECIES
+\tmessage PalletTown_ProfessorOaksLab_Text_ReceivedMonFromOak
+\twaitmessage
+\tplayfanfare MUS_RG_OBTAIN_KEY_ITEM
+\twaitfanfare
+\tmsgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+\tgoto_if_eq VAR_RESULT, YES, PalletTown_ProfessorOaksLab_EventScript_GiveYellowPikachuNickname
+\tgoto PalletTown_ProfessorOaksLab_EventScript_FinishYellowStarterGift
+\tend
+
+PalletTown_ProfessorOaksLab_EventScript_GiveYellowPikachuNickname::
+\tsetvar VAR_0x8004, 0
+\tcall Common_EventScript_NameReceivedPartyMon
+\tgoto PalletTown_ProfessorOaksLab_EventScript_FinishYellowStarterGift
+\tend
+
+PalletTown_ProfessorOaksLab_EventScript_FinishYellowStarterGift::
+\tclosemessage
+\tapplymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalReadyAfterEevee
+\twaitmovement 0
+\tsetvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3
+\tcall_if_set FLAG_OPENED_START_MENU, PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene
+\treleaseall
+\tend
+
+PalletTown_ProfessorOaksLab_Movement_RivalRushToEevee::
+\twalk_down
+\twalk_right
+\twalk_right
+\twalk_right
+\tstep_end
+
+PalletTown_ProfessorOaksLab_Movement_PlayerPushedFromEevee::
+\twalk_right
+\tstep_end
+
+PalletTown_ProfessorOaksLab_Movement_RivalSnatchEevee::
+\twalk_right
+\twalk_in_place_faster_up
+\tstep_end
+
+PalletTown_ProfessorOaksLab_Movement_PlayerWalkToOakYellow::
+\twalk_left
+\twalk_left
+\twalk_left
+\twalk_left
+\twalk_up
+\twalk_in_place_faster_up
+\tstep_end
+
+PalletTown_ProfessorOaksLab_Movement_RivalReadyAfterEevee::
+\twalk_left
+\twalk_left
+\twalk_left
+\twalk_left
+\twalk_in_place_faster_down
+\tstep_end
+
+'''
+          splice('data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc',
+                 'PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::\n',
+                 'PalletTown_ProfessorOaksLab_EventScript_CharmanderBall::\n',
+                 eevee_ball)
+
+          # Rival now begins the exit battle from the standardized Yellow position (x5,y5).
+          p = Path('data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc')
+          text = p.read_text()
+          moves = {
+            '''PalletTown_ProfessorOaksLab_Movement_YellowRivalApproachLeft::
+\twalk_down
+\twalk_down
+\twalk_down
+\tstep_end
+''': '''PalletTown_ProfessorOaksLab_Movement_YellowRivalApproachLeft::
+\twalk_down
+\twalk_down
+\tstep_end
+''',
+            '''PalletTown_ProfessorOaksLab_Movement_YellowRivalApproachMid::
+\twalk_right
+\twalk_down
+\twalk_down
+\twalk_down
+\tstep_end
+''': '''PalletTown_ProfessorOaksLab_Movement_YellowRivalApproachMid::
+\twalk_right
+\twalk_down
+\twalk_down
+\tstep_end
+''',
+            '''PalletTown_ProfessorOaksLab_Movement_YellowRivalApproachRight::
+\twalk_right
+\twalk_right
+\twalk_down
+\twalk_down
+\twalk_down
+\tstep_end
+''': '''PalletTown_ProfessorOaksLab_Movement_YellowRivalApproachRight::
+\twalk_right
+\twalk_right
+\twalk_down
+\twalk_down
+\tstep_end
+'''
+          }
+          for old, new in moves.items():
+              if text.count(old) != 1:
+                  raise SystemExit('Yellow rival approach movement guard failed.')
+              text = text.replace(old, new, 1)
+          p.write_text(text)
+
+          # After battle, reproduce Yellow's final starter beat: Pikachu comes out of its
+          # ball, Oak reacts and explains it dislikes Poké Balls, then follower mode begins.
+          p = Path('data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc')
+          text = p.read_text()
+          old_finish = '''PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
+\tremoveobject LOCALID_OAKS_LAB_RIVAL
+\tplayse SE_EXIT
+\tfadedefaultbgm
+\tsetvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4
+\tsetflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
+\tcallnative UpdateFollowingPokemon
+\treleaseall
+\tend
+'''
+          new_finish = '''PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
+\tremoveobject LOCALID_OAKS_LAB_RIVAL
+\tplayse SE_EXIT
+\tfadedefaultbgm
+\tsetflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
+\tcallnative UpdateFollowingPokemon
+\tdelay 30
+\tplaymoncry SPECIES_PIKACHU, CRY_MODE_NORMAL
+\twaitmoncry
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut
+\tmsgbox PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls
+\tsetvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4
+\treleaseall
+\tend
+'''
+          if text.count(old_finish) != 1:
+              raise SystemExit('Post-rival Yellow finish guard failed.')
+          text = text.replace(old_finish, new_finish, 1)
+
+          # Add the Yellow-specific lab dialogue.
+          text_anchor = 'PalletTown_ProfessorOaksLab_Text_OakReadyForStarter::\n'
+          yellow_lab_text = '''PalletTown_ProfessorOaksLab_Text_OakRivalCameEarly::
+\t.string "OAK: {RIVAL}? You're early.\\p"
+\t.string "I told you to come by later.\\p"
+\t.string "Well, just wait there for now.$"
+
+PalletTown_ProfessorOaksLab_Text_OakTakeBallOnTable::
+\t.string "OAK: {PLAYER}, see that POKé BALL\\n"
+\t.string "on the table?\\p"
+\t.string "There's a POKéMON inside.\\n"
+\t.string "You may have it. Go on, take it!$"
+
+PalletTown_ProfessorOaksLab_Text_OakBePatientYellow::
+\t.string "OAK: Be patient, {RIVAL}.\\p"
+\t.string "I planned to give you a POKéMON,\\n"
+\t.string "too. Just wait.$"
+
+PalletTown_ProfessorOaksLab_Text_RivalWantsEevee::
+\t.string "{RIVAL}: No way!\\p"
+\t.string "{PLAYER}, I want this POKéMON!$"
+
+PalletTown_ProfessorOaksLab_Text_RivalSnatchedEevee::
+\t.string "{RIVAL} pushed ahead and snatched\\n"
+\t.string "the POKé BALL!\\p"
+\t.string "The POKéMON inside is EEVEE!$"
+
+PalletTown_ProfessorOaksLab_Text_OakRivalWhatDoing::
+\t.string "OAK: {RIVAL}! What are you doing?$"
+
+PalletTown_ProfessorOaksLab_Text_RivalKeepingEevee::
+\t.string "{RIVAL}: Gramps, I want this one!$"
+
+PalletTown_ProfessorOaksLab_Text_OakAllowsEevee::
+\t.string "OAK: But I... Oh, all right.\\p"
+\t.string "EEVEE is yours. I was going to\\n"
+\t.string "give you a POKéMON anyway.\\p"
+\t.string "{PLAYER}, come over here.$"
+
+PalletTown_ProfessorOaksLab_Text_OakGiveCaughtPikachu::
+\t.string "OAK: {PLAYER}, this is the POKéMON\\n"
+\t.string "I caught outside earlier.\\p"
+\t.string "You can have it. It's still wild\\n"
+\t.string "at heart and isn't tame yet.$"
+
+PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut::
+\t.string "OAK: What? PIKACHU came out of its\\n"
+\t.string "POKé BALL on its own!$"
+
+PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls::
+\t.string "OAK: Would you look at that!\\p"
+\t.string "It seems your PIKACHU doesn't like\\n"
+\t.string "staying inside POKé BALLS.\\p"
+\t.string "Keep it with you instead. You can\\n"
+\t.string "talk to it and see how it feels.$"
+
+'''
+          if text.count(text_anchor) != 1:
+              raise SystemExit('Yellow lab text anchor mismatch.')
+          text = text.replace(text_anchor, yellow_lab_text + text_anchor, 1)
+          p.write_text(text)
+
+          # Lock the exact opening order in project documentation.
+          p = Path('docs/projects/KANTO_JOHTO_MASTER_RULES.md')
+          text = p.read_text().rstrip() + '\n'
+          heading = '## Canonical Pokémon Yellow opening contract'
+          if heading not in text:
+              text += '''
+## Canonical Pokémon Yellow opening contract
+
+The Kanto opening must preserve the Pokémon Yellow starter sequence in order: the player attempts to leave Pallet Town; Oak stops and approaches the player; a wild level-5 Pikachu appears in the grass and Oak catches it; Oak leads the player to his lab; the rival is already waiting; Oak offers the player the single Poké Ball containing Eevee; the rival pushes ahead and takes Eevee; Oak gives the player the same Pikachu caught outside; the rival challenges the player with Eevee; after the battle the rival leaves; Pikachu refuses to remain in its Poké Ball; Oak explains the behavior; and Pikachu begins following the player. No implementation pass may omit, reorder, or replace these story beats.
+'''
+          p.write_text(text)
+
+          # Structural assertions before attempting an expensive build.
+          checks = {
+              'data/maps/PalletTown_Frlg/scripts.inc': [
+                  'LOCALID_YELLOW_PIKACHU', 'PalletTown_Text_OakCaughtPikachu',
+                  'clearflag FLAG_HIDE_RIVAL_IN_LAB'],
+              'data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc': [
+                  'PalletTown_ProfessorOaksLab_Text_RivalWantsEevee',
+                  'SPECIES_PIKACHU', 'SPECIES_EEVEE',
+                  'PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls'],
+              'include/constants/flags_frlg.h': ['FLAG_HIDE_PALLET_WILD_PIKACHU']
+          }
+          for filename, needles in checks.items():
+              body = Path(filename).read_text()
+              for needle in needles:
+                  if needle not in body:
+                      raise SystemExit(f'Missing required contract token {needle} in {filename}')
+          PY
+
+          git diff --check
+          git diff --stat
+
+      - name: Commit canonical Yellow opening
+        shell: bash
+        run: |
+          git config user.name "Javad"
+          git config user.email "38925895+iamjavadali@users.noreply.github.com"
+          git add -- include/constants/flags_frlg.h data/maps/PalletTown_Frlg/map.json data/maps/PalletTown_Frlg/scripts.inc data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc docs/projects/KANTO_JOHTO_MASTER_RULES.md
+          git diff --cached --check
+          git commit -m "feat: restore canonical Yellow starter sequence"
+          echo "GAMEPLAY_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          git push origin HEAD:prototype/v0.1
+
+      - name: Install ARM toolchain and build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            binutils-arm-none-eabi \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libpng-dev \
+            python3
+
+      - name: Cache build tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            tools/bin2c/bin2c
+            tools/gbafix/gbafix
+            tools/gbagfx/gbagfx
+            tools/jsonproc/jsonproc
+            tools/mapjson/mapjson
+            tools/mid2agb/mid2agb
+            tools/preproc/preproc
+            tools/ramscrgen/ramscrgen
+            tools/rsfont/rsfont
+            tools/scaninc/scaninc
+            tools/trainerproc/trainerproc
+            tools/compresSmol/compresSmol
+            tools/compresSmol/compresSmolTilemap
+            tools/wav2agb/wav2agb
+          key: prototype-tools-${{ runner.os }}-${{ hashFiles('tools/*/Makefile', 'tools/**/*.c', 'tools/**/*.cpp', 'tools/**/*.h') }}
+
+      - name: Validate docs
+        run: .github/docs_validate/inclusive_summary.py
+
+      - name: Build FireRed
+        shell: bash
+        run: |
+          set -o pipefail
+          make firered -j"$(nproc)" -O 2>&1 | tee firered-build.log
+
+      - name: Upload diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yellow-opening-build-diagnostics-${{ env.GAMEPLAY_SHA }}
+          path: firered-build.log
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Verify ROM
+        run: |
+          test -f pokefirered.gba
+          sha256sum pokefirered.gba | tee pokefirered.sha256
+          ls -lh pokefirered.gba
+
+      - name: Upload playable ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-kanto-johto-yellow-opening-${{ env.GAMEPLAY_SHA }}
+          path: |
+            pokefirered.gba
+            pokefirered.sha256
+          if-no-files-found: error
+          retention-days: 1
