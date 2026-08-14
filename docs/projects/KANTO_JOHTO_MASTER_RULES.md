@@ -85,10 +85,12 @@ Prototype v0.1 is an architecture and build-validation milestone, not the full g
 
 ### Gameplay Step 1 — The Beginning
 
-- FRLG new-game protagonist gender/name selection is retained.
+- FRLG new-game protagonist gender selection is retained; protagonist naming now offers preset names or a custom typed name, and no protagonist name is auto-selected.
 - FRLG rival naming is retained; the Kanto rival remains player-named.
 - The original Oak Lab three-starter selection is bypassed.
 - Oak gives the player a normal level 5 Pikachu that can be nicknamed, trained, boxed, and evolved normally.
-- HGSS-style lead-party follower support is enabled and refreshed immediately after Pikachu joins the party.
+- HGSS-style lead-party follower support is enabled; Pikachu begins following after the first rival battle so the opening battle can stage the two trainers face-to-face.
 - Bulbasaur, Charmander, and Squirtle are marked unavailable in Oak's Lab for this opening; their player acquisition remains reserved for later story quests.
-- Prototype note: the existing Squirtle rival branch is reused for the first rival battle to preserve the established FRLG progression while the final Kanto rival team design is still pending.
+- The opening is Yellow-inspired: Oak intercepts the player at the tall grass, brings them to the lab while the three Kanto starter balls are still visible, the player-named rival enters, the three unavailable starter balls are removed, Oak gives Pikachu, and the rival challenges with a level 5 Eevee.
+- Starter Pikachu is level 5 with Yellow-faithful opening moves Thunder Shock and Growl only; later moves are learned normally.
+- The first rival battle uses dedicated positioning so the rival approaches the player directly instead of reusing the obsolete three-starter movement paths.

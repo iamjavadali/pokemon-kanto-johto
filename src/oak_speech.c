@@ -1366,8 +1366,9 @@ static void Task_OakSpeech_YourNameWhatIsIt(u8 taskId)
         else
         {
             tTrainerPicPosX = 0;
+            sOakSpeechResources->hasPlayerBeenNamed = FALSE;
             OakSpeechPrintMessage(gOakSpeech_Text_YourNameWhatIsIt, sOakSpeechResources->textSpeed, FALSE);
-            gTasks[taskId].func = Task_OakSpeech_FadeOutForPlayerNamingScreen;
+            gTasks[taskId].func = Task_OakSpeech_MoveRivalDisplayNameOptions;
         }
     }
 }
@@ -1516,10 +1517,7 @@ static void Task_OakSpeech_HandleConfirmNameInput(u8 taskId)
     case 1: // NO
     case MENU_B_PRESSED:
         PlaySE(SE_SELECT);
-        if (sOakSpeechResources->hasPlayerBeenNamed == FALSE)
-            gTasks[taskId].func = Task_OakSpeech_FadeOutForPlayerNamingScreen;
-        else
-            gTasks[taskId].func = Task_OakSpeech_RepeatNameQuestion;
+        gTasks[taskId].func = Task_OakSpeech_RepeatNameQuestion;
         break;
     }
 }

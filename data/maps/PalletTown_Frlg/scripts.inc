@@ -213,6 +213,7 @@ PalletTown_EventScript_OakTrigger::
 	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
 	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	setflag FLAG_HIDE_RIVAL_IN_LAB
 	setflag FLAG_DONT_TRANSITION_MUSIC
 	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
 	waitstate
@@ -457,8 +458,8 @@ PalletTown_Text_OakGrassUnsafeNeedMon::
 	.string "Wild POKéMON live in tall grass!\p"
 	.string "You need your own POKéMON for\n"
 	.string "your protection.\p"
-	.string "I know!\n"
-	.string "Here, come with me!$"
+	.string "I have one for you at my LAB.\n"
+	.string "Come with me!$"
 
 PalletTown_Text_RaisingMonsToo::
 	.string "I'm raising POKéMON, too.\p"
