@@ -215,14 +215,45 @@ PalletTown_ProfessorOaksLab_ChooseStarterScene::
 	msgbox PalletTown_ProfessorOaksLab_Text_RivalFedUpWithWaiting
 	closemessage
 	delay 60
-	msgbox PalletTown_ProfessorOaksLab_Text_OakThreeMonsChooseOne
+	removeobject LOCALID_BULBASAUR_BALL
+	removeobject LOCALID_SQUIRTLE_BALL
+	removeobject LOCALID_CHARMANDER_BALL
+	setflag FLAG_HIDE_BULBASAUR_BALL
+	setflag FLAG_HIDE_SQUIRTLE_BALL
+	setflag FLAG_HIDE_CHARMANDER_BALL
+	msgbox PalletTown_ProfessorOaksLab_Text_OakStartersAlreadyClaimed
 	closemessage
 	delay 30
-	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalReact
-	waitmovement 0
-	msgbox PalletTown_ProfessorOaksLab_Text_RivalNoFairWhatAboutMe
-	msgbox PalletTown_ProfessorOaksLab_Text_OakBePatientRival
-	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2
+	msgbox PalletTown_ProfessorOaksLab_Text_OakSavedOnePartner
+	setvar PLAYER_STARTER_NUM, 2
+	setvar PLAYER_STARTER_SPECIES, SPECIES_PIKACHU
+	setvar RIVAL_STARTER_SPECIES, SPECIES_SQUIRTLE
+	setflag FLAG_SYS_POKEMON_GET
+	setflag FLAG_PALLET_LADY_NOT_BLOCKING_SIGN
+	givemon PLAYER_STARTER_SPECIES, 5
+	copyvar VAR_STARTER_MON, PLAYER_STARTER_NUM
+	callnative UpdateFollowingPokemon
+	bufferspeciesname STR_VAR_1, PLAYER_STARTER_SPECIES
+	message PalletTown_ProfessorOaksLab_Text_ReceivedMonFromOak
+	waitmessage
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	waitfanfare
+	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, YES, PalletTown_ProfessorOaksLab_EventScript_GivePikachuNickname
+	goto PalletTown_ProfessorOaksLab_EventScript_FinishPikachuStarter
+	end
+
+PalletTown_ProfessorOaksLab_EventScript_GivePikachuNickname::
+	setvar VAR_0x8004, 0
+	call Common_EventScript_NameReceivedPartyMon
+	goto PalletTown_ProfessorOaksLab_EventScript_FinishPikachuStarter
+	end
+
+PalletTown_ProfessorOaksLab_EventScript_FinishPikachuStarter::
+	closemessage
+	msgbox PalletTown_ProfessorOaksLab_Text_RivalAlreadyChose
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3
+	call_if_set FLAG_OPENED_START_MENU, PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene
 	releaseall
 	end
 
@@ -1297,6 +1328,22 @@ PalletTown_ProfessorOaksLab_EventScript_RightSignAlt::
 	msgbox PalletTown_ProfessorOaksLab_Text_AllMonTypesHaveStrongAndWeakPoints
 	releaseall
 	end
+
+PalletTown_ProfessorOaksLab_Text_OakStartersAlreadyClaimed::
+	.string "OAK: Ah... You're late, {PLAYER}!\n"
+	.string "The three POKéMON I prepared have\n"
+	.string "already been claimed by TRAINERS.$"
+
+PalletTown_ProfessorOaksLab_Text_OakSavedOnePartner::
+	.string "But I do have one partner left.\p"
+	.string "It's unusual, and rather spirited.\n"
+	.string "I think the two of you may suit\n"
+	.string "each other.$"
+
+PalletTown_ProfessorOaksLab_Text_RivalAlreadyChose::
+	.string "{RIVAL}: Hah! Took you long enough!\n"
+	.string "I've already got my POKéMON.\p"
+	.string "Let's see what that PIKACHU can do!$"
 
 PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround::
 	.string "{RIVAL}: What, it's only {PLAYER}?\n"

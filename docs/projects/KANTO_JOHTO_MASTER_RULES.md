@@ -80,3 +80,15 @@ Prototype v0.1 is an architecture and build-validation milestone, not the full g
 - Every gameplay pass should build successfully before layering the next major system.
 - Do not commit generated `.gba` ROMs to Git; publish test builds as private GitHub Actions artifacts.
 - Preserve upstream attribution/licenses/credits and document custom assets and code as they are introduced.
+
+## Prototype v0.1 implementation status
+
+### Gameplay Step 1 — The Beginning
+
+- FRLG new-game protagonist gender/name selection is retained.
+- FRLG rival naming is retained; the Kanto rival remains player-named.
+- The original Oak Lab three-starter selection is bypassed.
+- Oak gives the player a normal level 5 Pikachu that can be nicknamed, trained, boxed, and evolved normally.
+- HGSS-style lead-party follower support is enabled and refreshed immediately after Pikachu joins the party.
+- Bulbasaur, Charmander, and Squirtle are marked unavailable in Oak's Lab for this opening; their player acquisition remains reserved for later story quests.
+- Prototype note: the existing Squirtle rival branch is reused for the first rival battle to preserve the established FRLG progression while the final Kanto rival team design is still pending.
