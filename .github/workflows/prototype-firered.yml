@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - 'prototype/**'
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 concurrency:
