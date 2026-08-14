@@ -6,6 +6,7 @@ on:
       - 'prototype/v0.1'
     paths:
       - '.github/workflows/apply-stage1-fix2.yml'
+      - '.github/workflows/apply-stage1-fix2.py'
 
 permissions:
   contents: write
@@ -61,7 +62,6 @@ jobs:
             src/oak_speech.c
           git commit -m "fix: align Stage 1 with canonical Yellow opening [skip ci]"
           git push origin HEAD:prototype/v0.1
-          echo "BUILD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           git rev-parse HEAD | tee stage1-fix2-build-sha.txt
 
       - name: Purge previous development artifacts
