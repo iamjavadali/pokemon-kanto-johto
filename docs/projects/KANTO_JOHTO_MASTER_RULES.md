@@ -110,3 +110,7 @@ Prototype v0.1 is an architecture and build-validation milestone, not the full g
 - The opening is Yellow-inspired: Oak intercepts the player at the tall grass, brings them to the lab while the three Kanto starter balls are still visible, the player-named rival enters, the three unavailable starter balls are removed, Oak gives Pikachu, and the rival challenges with a level 5 Eevee.
 - Starter Pikachu is level 5 with Yellow-faithful opening moves Thunder Shock and Growl only; later moves are learned normally.
 - The first rival battle uses dedicated positioning so the rival approaches the player directly instead of reusing the obsolete three-starter movement paths.
+
+## Canonical Pokémon Yellow opening contract
+
+The Kanto opening must preserve the Pokémon Yellow starter sequence in order: the player attempts to leave Pallet Town; Oak stops and approaches the player; a wild level-5 Pikachu appears in the grass and Oak catches it; Oak leads the player to his lab; the rival is already waiting; Oak offers the player the single Poké Ball containing Eevee; the rival pushes ahead and takes Eevee; Oak gives the player the same Pikachu caught outside; the rival challenges the player with Eevee; after the battle the rival leaves; Pikachu refuses to remain in its Poké Ball; Oak explains the behavior; and Pikachu begins following the player. No implementation pass may omit, reorder, or replace these story beats.

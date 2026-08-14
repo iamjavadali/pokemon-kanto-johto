@@ -7,10 +7,15 @@ PalletTown_Frlg_MapScripts::
 
 PalletTown_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_PALLET_TOWN
+	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_OAK, 0, PalletTown_EventScript_HideYellowPikachu
 	call_if_set FLAG_PALLET_LADY_NOT_BLOCKING_SIGN, PalletTown_EventScript_TryReadySignLady
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 0, PalletTown_EventScript_SetSignLadyPos
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 1, PalletTown_EventScript_SetSignLadyDone
 	end
+
+PalletTown_EventScript_HideYellowPikachu::
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	return
 
 PalletTown_EventScript_TryReadySignLady::
 	goto_if_unset FLAG_OPENED_START_MENU, Common_EventScript_NopReturn
@@ -199,7 +204,24 @@ PalletTown_EventScript_OakTrigger::
 	delay 30
 	msgbox PalletTown_Text_OakGrassUnsafeNeedMon
 	closemessage
+	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_ShowWildPikachuLeft
+	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_ShowWildPikachuRight
+	playmoncry SPECIES_PIKACHU, CRY_MODE_ENCOUNTER
+	waitmoncry
+	msgbox PalletTown_Text_WildPikachuAppeared
+	closemessage
+	delay 20
+	msgbox PalletTown_Text_OakCatchPikachu
+	closemessage
+	playse SE_BALL_THROW
+	delay 40
+	removeobject LOCALID_YELLOW_PIKACHU
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
 	delay 30
+	msgbox PalletTown_Text_OakCaughtPikachu
+	msgbox PalletTown_Text_OakComeWithMeYellow
+	closemessage
+	delay 20
 	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_OakLeadPlayerToLabLeft
 	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_OakLeadPlayerToLabRight
 	opendoor 16, 13
@@ -213,12 +235,35 @@ PalletTown_EventScript_OakTrigger::
 	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
 	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
-	setflag FLAG_HIDE_RIVAL_IN_LAB
+	setflag FLAG_HIDE_BULBASAUR_BALL
+	clearflag FLAG_HIDE_SQUIRTLE_BALL
+	setflag FLAG_HIDE_CHARMANDER_BALL
+	clearflag FLAG_HIDE_RIVAL_IN_LAB
 	setflag FLAG_DONT_TRANSITION_MUSIC
 	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
 	waitstate
 	releaseall
 	end
+
+PalletTown_EventScript_ShowWildPikachuLeft::
+	setobjectxyperm LOCALID_YELLOW_PIKACHU, 13, 1
+	setobjectmovementtype LOCALID_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_LEFT
+	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	addobject LOCALID_YELLOW_PIKACHU
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceRight
+	waitmovement 0
+	return
+
+PalletTown_EventScript_ShowWildPikachuRight::
+	setobjectxyperm LOCALID_YELLOW_PIKACHU, 12, 1
+	setobjectmovementtype LOCALID_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_RIGHT
+	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	addobject LOCALID_YELLOW_PIKACHU
+	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
+	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceLeft
+	waitmovement 0
+	return
 
 PalletTown_EventScript_OakEnterLeft::
 	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakEnterLeft
@@ -460,6 +505,25 @@ PalletTown_Text_OakGrassUnsafeNeedMon::
 	.string "your protection.\p"
 	.string "I have one for you at my LAB.\n"
 	.string "Come with me!$"
+
+PalletTown_Text_WildPikachuAppeared::
+	.string "A wild PIKACHU appeared in the\n"
+	.string "tall grass!$"
+
+PalletTown_Text_OakCatchPikachu::
+	.string "OAK: Whew... Hold on!\p"
+	.string "I'll take care of this one.$"
+
+PalletTown_Text_OakCaughtPikachu::
+	.string "OAK: Got it!\p"
+	.string "That PIKACHU is safely caught.$"
+
+PalletTown_Text_OakComeWithMeYellow::
+	.string "OAK: A POKéMON can appear at any\n"
+	.string "time in tall grass.\p"
+	.string "You need a POKéMON of your own\n"
+	.string "for protection.\p"
+	.string "Come with me to my LAB.$"
 
 PalletTown_Text_RaisingMonsToo::
 	.string "I'm raising POKéMON, too.\p"
