@@ -578,7 +578,7 @@ PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitMid::
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitRight::
 	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepLeftWatchRival
-	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight
+	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitRight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
 	goto PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit
 	end
@@ -594,6 +594,16 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	end
 
 PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight::
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
+PalletTown_ProfessorOaksLab_Movement_YellowRivalExitRight::
+	walk_left
+	walk_left
 	walk_down
 	walk_down
 	walk_down
