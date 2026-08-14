@@ -3,20 +3,15 @@ name: Apply Prototype Step 1 Opening
 on:
   push:
     branches:
-      - prototype/v0.1
+      - 'prototype/v0.1'
     paths:
-      - .github/workflows/apply-step1-opening.yml
+      - '.github/workflows/apply-step1-opening.yml'
 
 permissions:
   contents: write
 
-concurrency:
-  group: apply-step1-opening-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   apply-step1:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout prototype branch
@@ -24,178 +19,13 @@ jobs:
         with:
           ref: prototype/v0.1
 
-      - name: Apply exact Step 1 changes
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
+      - name: Apply guarded Step 1 patch
+        run: python3 .github/scripts/apply_step1_opening.py
 
-          lab_path = Path('data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc')
-          config_path = Path('include/config/overworld.h')
-          docs_path = Path('docs/projects/KANTO_JOHTO_MASTER_RULES.md')
-
-          lab = lab_path.read_text()
-          config = config_path.read_text()
-          docs = docs_path.read_text()
-
-          marker = 'PalletTown_ProfessorOaksLab_EventScript_FinishPikachuStarter::'
-          if marker in lab:
-              print('Step 1 opening is already applied; nothing to do.')
-              raise SystemExit(0)
-
-          old_scene = '''PalletTown_ProfessorOaksLab_ChooseStarterScene::
-          \tlockall
-          \ttextcolor NPC_TEXT_COLOR_MALE
-          \tapplymovement LOCALID_OAKS_LAB_PROF_OAK, PalletTown_ProfessorOaksLab_Movement_OakEnter
-          \twaitmovement 0
-          \tremoveobject LOCALID_OAKS_LAB_PROF_OAK
-          \tsetobjectxyperm LOCALID_OAKS_LAB_PROF_OAK, 6, 3
-          \tsetobjectmovementtype LOCALID_OAKS_LAB_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
-          \tclearflag FLAG_HIDE_OAK_IN_HIS_LAB
-          \tapplymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerEnter
-          \twaitmovement 0
-          \tapplymovement LOCALID_OAKS_LAB_RIVAL, Common_Movement_WalkInPlaceFasterUp
-          \twaitmovement 0
-          \tclearflag FLAG_DONT_TRANSITION_MUSIC
-          \tsavebgm MUS_DUMMY
-          \tfadedefaultbgm
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_RivalFedUpWithWaiting
-          \tclosemessage
-          \tdelay 60
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_OakThreeMonsChooseOne
-          \tclosemessage
-          \tdelay 30
-          \tapplymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalReact
-          \twaitmovement 0
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_RivalNoFairWhatAboutMe
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_OakBePatientRival
-          \tsetvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2
-          \treleaseall
-          \tend
-          '''
-
-          new_scene = '''PalletTown_ProfessorOaksLab_ChooseStarterScene::
-          \tlockall
-          \ttextcolor NPC_TEXT_COLOR_MALE
-          \tapplymovement LOCALID_OAKS_LAB_PROF_OAK, PalletTown_ProfessorOaksLab_Movement_OakEnter
-          \twaitmovement 0
-          \tremoveobject LOCALID_OAKS_LAB_PROF_OAK
-          \tsetobjectxyperm LOCALID_OAKS_LAB_PROF_OAK, 6, 3
-          \tsetobjectmovementtype LOCALID_OAKS_LAB_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
-          \tclearflag FLAG_HIDE_OAK_IN_HIS_LAB
-          \tapplymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerEnter
-          \twaitmovement 0
-          \tapplymovement LOCALID_OAKS_LAB_RIVAL, Common_Movement_WalkInPlaceFasterUp
-          \twaitmovement 0
-          \tclearflag FLAG_DONT_TRANSITION_MUSIC
-          \tsavebgm MUS_DUMMY
-          \tfadedefaultbgm
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_RivalFedUpWithWaiting
-          \tclosemessage
-          \tdelay 60
-          \tremoveobject LOCALID_BULBASAUR_BALL
-          \tremoveobject LOCALID_SQUIRTLE_BALL
-          \tremoveobject LOCALID_CHARMANDER_BALL
-          \tsetflag FLAG_HIDE_BULBASAUR_BALL
-          \tsetflag FLAG_HIDE_SQUIRTLE_BALL
-          \tsetflag FLAG_HIDE_CHARMANDER_BALL
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_OakStartersAlreadyClaimed
-          \tclosemessage
-          \tdelay 30
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_OakSavedOnePartner
-          \tsetvar PLAYER_STARTER_NUM, 2
-          \tsetvar PLAYER_STARTER_SPECIES, SPECIES_PIKACHU
-          \tsetvar RIVAL_STARTER_SPECIES, SPECIES_SQUIRTLE
-          \tsetflag FLAG_SYS_POKEMON_GET
-          \tsetflag FLAG_PALLET_LADY_NOT_BLOCKING_SIGN
-          \tgivemon PLAYER_STARTER_SPECIES, 5
-          \tcopyvar VAR_STARTER_MON, PLAYER_STARTER_NUM
-          \tcallnative UpdateFollowingPokemon
-          \tbufferspeciesname STR_VAR_1, PLAYER_STARTER_SPECIES
-          \tmessage PalletTown_ProfessorOaksLab_Text_ReceivedMonFromOak
-          \twaitmessage
-          \tplayfanfare MUS_RG_OBTAIN_KEY_ITEM
-          \twaitfanfare
-          \tmsgbox gText_NicknameThisPokemon, MSGBOX_YESNO
-          \tgoto_if_eq VAR_RESULT, YES, PalletTown_ProfessorOaksLab_EventScript_GivePikachuNickname
-          \tgoto PalletTown_ProfessorOaksLab_EventScript_FinishPikachuStarter
-          \tend
-
-          PalletTown_ProfessorOaksLab_EventScript_GivePikachuNickname::
-          \tsetvar VAR_0x8004, 0
-          \tcall Common_EventScript_NameReceivedPartyMon
-          \tgoto PalletTown_ProfessorOaksLab_EventScript_FinishPikachuStarter
-          \tend
-
-          PalletTown_ProfessorOaksLab_EventScript_FinishPikachuStarter::
-          \tclosemessage
-          \tmsgbox PalletTown_ProfessorOaksLab_Text_RivalAlreadyChose
-          \tsetvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3
-          \tcall_if_set FLAG_OPENED_START_MENU, PalletTown_ProfessorOaksLab_EventScript_ReadyEndSignLadyScene
-          \treleaseall
-          \tend
-          '''
-
-          if lab.count(old_scene) != 1:
-              raise SystemExit(f'Expected exactly one original starter scene, found {lab.count(old_scene)}')
-          lab = lab.replace(old_scene, new_scene, 1)
-
-          text_anchor = '''PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround::
-          '''
-          new_text = '''PalletTown_ProfessorOaksLab_Text_OakStartersAlreadyClaimed::
-          \t.string "OAK: Ah... You're late, {PLAYER}!\\n"
-          \t.string "The three POKéMON I prepared have\\n"
-          \t.string "already been claimed by TRAINERS.$"
-
-          PalletTown_ProfessorOaksLab_Text_OakSavedOnePartner::
-          \t.string "But I do have one partner left.\\p"
-          \t.string "It's unusual, and rather spirited.\\n"
-          \t.string "I think the two of you may suit\\n"
-          \t.string "each other.$"
-
-          PalletTown_ProfessorOaksLab_Text_RivalAlreadyChose::
-          \t.string "{RIVAL}: Hah! Took you long enough!\\n"
-          \t.string "I've already got my POKéMON.\\p"
-          \t.string "Let's see what that PIKACHU can do!$"
-
-          PalletTown_ProfessorOaksLab_Text_RivalGrampsIsntAround::
-          '''
-          if lab.count(text_anchor) != 1:
-              raise SystemExit(f'Expected exactly one text anchor, found {lab.count(text_anchor)}')
-          lab = lab.replace(text_anchor, new_text, 1)
-
-          old_config = '#define OW_FOLLOWERS_ENABLED           FALSE'
-          new_config = '#define OW_FOLLOWERS_ENABLED           TRUE '
-          if config.count(old_config) != 1:
-              raise SystemExit(f'Expected exactly one follower config line, found {config.count(old_config)}')
-          config = config.replace(old_config, new_config, 1)
-
-          status = '''
-
-## Prototype v0.1 implementation status
-
-### Gameplay Step 1 — The Beginning
-
-- FRLG new-game protagonist gender/name selection is retained.
-- FRLG rival naming is retained; the Kanto rival remains player-named.
-- The original Oak Lab three-starter selection is bypassed.
-- Oak gives the player a normal level 5 Pikachu that can be nicknamed, trained, boxed, and evolved normally.
-- HGSS-style lead-party follower support is enabled and refreshed immediately after Pikachu joins the party.
-- Bulbasaur, Charmander, and Squirtle are marked unavailable in Oak's Lab for this opening; their player acquisition remains reserved for later story quests.
-- Prototype note: the existing Squirtle rival branch is reused for the first rival battle to preserve the established FRLG progression while the final Kanto rival team design is still pending.
-'''
-          if '### Gameplay Step 1 — The Beginning' not in docs:
-              docs = docs.rstrip() + status + '\n'
-
-          lab_path.write_text(lab)
-          config_path.write_text(config)
-          docs_path.write_text(docs)
-          PY
-
-      - name: Verify intended diff only
+      - name: Validate intended changes
         run: |
           git diff --check
           git diff --exit-code -- .github/workflows/build.yml .github/workflows/prototype-firered.yml docs/SUMMARY.md
-          git diff -- data/maps/PalletTown_ProfessorOaksLab_Frlg/scripts.inc include/config/overworld.h docs/projects/KANTO_JOHTO_MASTER_RULES.md
 
       - name: Commit Step 1 gameplay changes
         run: |
