@@ -8,6 +8,7 @@ on:
       - 'docs/**'
       - 'README.md'
       - '.github/workflows/build.yml'
+      - '.github/workflows/prototype-firered.yml'
   workflow_dispatch:
 
 concurrency:
@@ -97,8 +98,8 @@ jobs:
           set -o pipefail
           make firered -j$(nproc) -O 2>&1 | tee firered-build.log
 
-      - name: Upload build diagnostics
-        if: always()
+      - name: Upload build diagnostics on failure
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: firered-build-diagnostics-${{ github.sha }}
@@ -106,7 +107,7 @@ jobs:
             preflight.log
             firered-build.log
           if-no-files-found: ignore
-          retention-days: 7
+          retention-days: 1
 
       - name: Verify ROM output
         run: |
@@ -122,4 +123,4 @@ jobs:
             pokefirered.gba
             pokefirered.sha256
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 1
