@@ -92,7 +92,8 @@ Prototype v0.1 is an architecture and build-validation milestone, not the full g
 - Documentation-only changes and changes isolated to the full CI workflow do not trigger a prototype ROM build.
 - The prototype development job has a 20-minute timeout. A normal FireRed build is expected to finish substantially earlier; investigate instead of waiting indefinitely if runtime materially exceeds the established baseline.
 - A successful targeted FireRed artifact is enough to begin manual gameplay testing. Do not wait for the complete cross-target regression matrix before giving the player a test ROM.
-- Full CI is the candidate/acceptance gate. Run it when a prototype PR is marked ready for review, by manual dispatch when needed, and on protected upstream-style branch pushes.
+- Full CI is the candidate/acceptance gate. Mark a draft PR ready for review only when the current gameplay slice has passed manual testing and is ready for full regression; use manual dispatch when a full matrix is needed without changing PR state.
+- Full CI also runs on protected upstream-style branch pushes.
 - Full CI retains parallel Emerald, FireRed, LeafGreen, release, test, and docs validation so accepted candidates receive broad regression coverage without slowing ordinary iteration.
 - Never continue waiting on unrelated CI jobs after the targeted development target has already failed; diagnose and correct the failing head first.
 
