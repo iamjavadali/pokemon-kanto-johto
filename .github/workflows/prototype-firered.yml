@@ -1,0 +1,71 @@
+name: Prototype FireRed Build
+
+on:
+  push:
+    branches:
+      - 'prototype/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  UNUSED_ERROR: 0
+  DEPRECATED_ERROR: 0
+
+jobs:
+  build-firered-prototype:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ARM toolchain and build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            binutils-arm-none-eabi \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libpng-dev \
+            python3
+
+      - name: Cache build tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            tools/bin2c/bin2c
+            tools/gbafix/gbafix
+            tools/gbagfx/gbagfx
+            tools/jsonproc/jsonproc
+            tools/mapjson/mapjson
+            tools/mid2agb/mid2agb
+            tools/preproc/preproc
+            tools/ramscrgen/ramscrgen
+            tools/rsfont/rsfont
+            tools/scaninc/scaninc
+            tools/trainerproc/trainerproc
+            tools/compresSmol/compresSmol
+            tools/compresSmol/compresSmolTilemap
+            tools/wav2agb/wav2agb
+          key: prototype-tools-${{ runner.os }}-${{ hashFiles('tools/*/Makefile', 'tools/**/*.c', 'tools/**/*.cpp', 'tools/**/*.h') }}
+
+      - name: Build FireRed target
+        run: make firered -j$(nproc) -O
+
+      - name: Verify ROM output
+        run: |
+          test -f pokefirered.gba
+          ls -lh pokefirered.gba
+          sha256sum pokefirered.gba | tee pokefirered.sha256
+
+      - name: Upload playable prototype ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-kanto-johto-firered-${{ github.sha }}
+          path: |
+            pokefirered.gba
+            pokefirered.sha256
+          if-no-files-found: error
+          retention-days: 30
