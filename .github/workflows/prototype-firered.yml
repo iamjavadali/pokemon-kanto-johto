@@ -7,8 +7,7 @@ on:
     paths-ignore:
       - 'docs/**'
       - 'README.md'
-      - '.github/workflows/build.yml'
-      - '.github/workflows/prototype-firered.yml'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 concurrency:
