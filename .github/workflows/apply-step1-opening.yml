@@ -22,6 +22,14 @@ jobs:
       - name: Apply guarded Step 1 patch
         run: python3 .github/scripts/apply_step1_opening.py
 
+      - name: Normalize documentation EOF
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('docs/projects/KANTO_JOHTO_MASTER_RULES.md')
+          path.write_text(path.read_text().rstrip() + '\n')
+          PY
+
       - name: Validate intended changes
         run: |
           git diff --check
