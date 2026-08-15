@@ -30,12 +30,13 @@ PalletTown_PlayersHouse_1F_EventScript_MomAlert:
 	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_ExclamationMark
 	waitmovement 0
 	delay 16
+	msgbox PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving
+	closemessage
 	return
 
 PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch::
 	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FacePlayer
 	waitmovement 0
-	msgbox PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving
 	call PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch
 	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
 	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FaceOriginalDirection
@@ -209,11 +210,11 @@ PalletTown_PlayersHouse_1F_Text_OopsWrongSide::
 
 PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving::
 	.string "MOM: Wait, {PLAYER}!\n"
-	.string "Before you head out, there's one\l"
+	.string "Before you go, there's one\l"
 	.string "thing you need.$"
 
 PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro::
-	.string "MOM: Before you go, I have\n"
+	.string "MOM: Before you leave, I have\n"
 	.string "something for you.\p"
 	.string "It's a TRAINER WATCH. It keeps\n"
 	.string "the date and time on your journey.$"

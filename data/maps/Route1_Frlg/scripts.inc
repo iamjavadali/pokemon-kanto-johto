@@ -104,14 +104,16 @@ Route1_EventScript_YellowEscortWarpRight:
 	end
 
 Route1_Movement_OakEnterLeft:
-	walk_right
-	walk_right
+	walk_up
+	walk_up
+	walk_up
 	walk_in_place_faster_up
 	step_end
 
 Route1_Movement_OakEnterRight:
-	walk_right
-	walk_right
+	walk_up
+	walk_up
+	walk_up
 	walk_up
 	walk_in_place_faster_right
 	step_end
