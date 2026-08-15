@@ -37,18 +37,19 @@ Route1_EventScript_YellowOakTrigger:
 	delay 16
 	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	addobject LOCALID_ROUTE1_YELLOW_OAK
-	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowOakStageRight
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Common_Movement_FaceUp
+	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowOakApproachRight
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEnterLeft
 	waitmovement 0
 	goto Route1_EventScript_YellowOakStageReady
 
-Route1_EventScript_YellowOakStageRight:
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakToRightLane
+Route1_EventScript_YellowOakApproachRight:
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEnterRight
 	waitmovement 0
 	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
 	waitmovement 0
 
 Route1_EventScript_YellowOakStageReady:
+	delay 16
 	msgbox PalletTown_Text_OakGrassUnsafeNeedMon
 	closemessage
 	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowPikachuRight
@@ -88,22 +89,29 @@ Route1_EventScript_YellowPikachuCapture:
 	msgbox PalletTown_Text_OakWhew
 	msgbox PalletTown_Text_OakComeWithMeYellow
 	closemessage
+	delay 20
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	removeobject LOCALID_ROUTE1_YELLOW_OAK
-	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 1
-	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
-	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
-	setflag FLAG_HIDE_BULBASAUR_BALL
-	clearflag FLAG_HIDE_SQUIRTLE_BALL
-	setflag FLAG_HIDE_CHARMANDER_BALL
-	clearflag FLAG_HIDE_RIVAL_IN_LAB
-	setflag FLAG_DONT_TRANSITION_MUSIC
-	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
+	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowEscortWarpRight
+	warp MAP_PALLET_TOWN, 12, 0
 	waitstate
-	releaseall
 	end
 
-Route1_Movement_OakToRightLane:
+Route1_EventScript_YellowEscortWarpRight:
+	warp MAP_PALLET_TOWN, 13, 0
+	waitstate
+	end
+
+Route1_Movement_OakEnterLeft:
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
+Route1_Movement_OakEnterRight:
+	walk_right
+	walk_right
 	walk_up
 	walk_in_place_faster_right
 	step_end

@@ -73,7 +73,7 @@ static const struct WindowTemplate sTrainerWatchWindows[] =
         .tilemapTop = 2,
         .width = 24,
         .height = 15,
-        .paletteNum = STD_WINDOW_PALETTE_NUM,
+        .paletteNum = 1,
         .baseBlock = 1,
     },
     DUMMY_WIN_TEMPLATE
@@ -98,9 +98,12 @@ static const u8 sText_Colon[] = _(":");
 static const u8 sText_Am[] = _(" AM");
 static const u8 sText_Pm[] = _(" PM");
 
+static const u16 sTrainerWatchText_Pal[] = INCGFX_U16("graphics/interface/option_menu_text.pal", ".gbapal");
+static const u16 sTrainerWatchBg_Pal[] = {RGB(17, 18, 31)};
+
 static const u8 sTrainerWatchTextColors[] =
 {
-    TEXT_COLOR_TRANSPARENT, TEXT_COLOR_WHITE, TEXT_COLOR_DARK_GRAY
+    TEXT_COLOR_WHITE, TEXT_COLOR_GREEN, TEXT_COLOR_LIGHT_GREEN
 };
 
 static const u8 sText_Sunday[] = _("SUNDAY");
@@ -249,7 +252,7 @@ static void DrawTrainerWatchManualSetup(u8 taskId)
     struct Task *task = &gTasks[taskId];
     u8 *dest;
 
-    FillWindowPixelBuffer(0, PIXEL_FILL(15));
+    FillWindowPixelBuffer(0, PIXEL_FILL(1));
     PrintTrainerWatchText(FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 4);
     PrintTrainerWatchText(FONT_SMALL, sText_SetDateTime, GetCenteredX(sText_SetDateTime, FONT_SMALL), 24);
 
@@ -289,7 +292,7 @@ static void DrawTrainerWatch(void)
     minute = ConvertBcdToBinary(rtc.minute);
     weekday = rtc.dayOfWeek < WEEKDAY_COUNT ? rtc.dayOfWeek : WEEKDAY_SUN;
 
-    FillWindowPixelBuffer(0, PIXEL_FILL(15));
+    FillWindowPixelBuffer(0, PIXEL_FILL(1));
     PrintTrainerWatchText(FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 4);
     PrintTrainerWatchText(FONT_SMALL, sWeekdayNames[weekday], GetCenteredX(sWeekdayNames[weekday], FONT_SMALL), 32);
 
@@ -353,6 +356,8 @@ static void CB2_InitTrainerWatch(void)
     InitWindows(sTrainerWatchWindows);
     DeactivateAllTextPrinters();
     Menu_LoadStdPal();
+    LoadPalette(sTrainerWatchBg_Pal, BG_PLTT_ID(0), sizeof(sTrainerWatchBg_Pal));
+    LoadPalette(sTrainerWatchText_Pal, BG_PLTT_ID(1), sizeof(sTrainerWatchText_Pal));
     LoadUserWindowBorderGfx(0, STD_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
     SetStandardWindowBorderStyle(0, FALSE);
     ShowBg(0);
@@ -457,6 +462,8 @@ static void CB2_InitTrainerWatchManualSetup(void)
     InitWindows(sTrainerWatchWindows);
     DeactivateAllTextPrinters();
     Menu_LoadStdPal();
+    LoadPalette(sTrainerWatchBg_Pal, BG_PLTT_ID(0), sizeof(sTrainerWatchBg_Pal));
+    LoadPalette(sTrainerWatchText_Pal, BG_PLTT_ID(1), sizeof(sTrainerWatchText_Pal));
     LoadUserWindowBorderGfx(0, STD_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
     SetStandardWindowBorderStyle(0, FALSE);
     ShowBg(0);
