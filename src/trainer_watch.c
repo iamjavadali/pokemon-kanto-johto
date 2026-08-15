@@ -43,10 +43,14 @@ enum
 #define tField      data[6]
 
 static void CB2_InitTrainerWatchManualSetup(void);
+static void CB2_InitTrainerWatch(void);
 static void CB2_TrainerWatchManualSetup(void);
+static void CB2_TrainerWatch(void);
 static void VBlankCB_TrainerWatch(void);
 static void Task_TrainerWatchManualSetup(u8 taskId);
+static void Task_TrainerWatch(u8 taskId);
 static void DrawTrainerWatchManualSetup(u8 taskId);
+static void DrawTrainerWatch(void);
 
 static const struct BgTemplate sTrainerWatchBgTemplates[] =
 {
@@ -89,6 +93,7 @@ static const u8 sText_Confirm[] = _("CONFIRM");
 static const u8 sText_Help[] = _("UP/DOWN: CHANGE\nLEFT/RIGHT: FIELD\nA: NEXT / CONFIRM\nB: PREVIOUS FIELD");
 static const u8 sText_Hyphen[] = _("-");
 static const u8 sText_Colon[] = _(":");
+static const u8 sText_Close[] = _("A/B: CLOSE");
 
 static const u8 *const sFieldNames[] =
 {
@@ -192,6 +197,105 @@ static void DrawTrainerWatchManualSetup(u8 taskId)
     PutWindowTilemap(0);
     CopyWindowToVram(0, COPYWIN_FULL);
     ScheduleBgCopyTilemapToVram(0);
+}
+
+static void DrawTrainerWatch(void)
+{
+    struct SiiRtcInfo rtc;
+    u8 *dest;
+    u16 year;
+
+    RtcGetInfo(&rtc);
+    year = 2000 + ConvertBcdToBinary(rtc.year);
+
+    FillWindowPixelBuffer(0, PIXEL_FILL(0));
+    AddTextPrinterParameterized(0, FONT_NORMAL, sText_Title, 8, 4, TEXT_SKIP_DRAW, NULL);
+
+    dest = StringCopy(gStringVar4, sText_Date);
+    dest = AppendNumber(dest, year, 4);
+    dest = StringCopy(dest, sText_Hyphen);
+    dest = AppendNumber(dest, ConvertBcdToBinary(rtc.month), 2);
+    dest = StringCopy(dest, sText_Hyphen);
+    AppendNumber(dest, ConvertBcdToBinary(rtc.day), 2);
+    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, 8, 48, TEXT_SKIP_DRAW, NULL);
+
+    dest = StringCopy(gStringVar4, sText_Time);
+    dest = AppendNumber(dest, ConvertBcdToBinary(rtc.hour), 2);
+    dest = StringCopy(dest, sText_Colon);
+    AppendNumber(dest, ConvertBcdToBinary(rtc.minute), 2);
+    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, 8, 72, TEXT_SKIP_DRAW, NULL);
+
+    AddTextPrinterParameterized(0, FONT_SMALL, sText_Close, 8, 120, TEXT_SKIP_DRAW, NULL);
+    PutWindowTilemap(0);
+    CopyWindowToVram(0, COPYWIN_FULL);
+    ScheduleBgCopyTilemapToVram(0);
+}
+
+static void Task_TrainerWatch(u8 taskId)
+{
+    struct Task *task = &gTasks[taskId];
+
+    switch (task->tState)
+    {
+    case TRAINER_WATCH_STATE_EDIT:
+        if (JOY_NEW(A_BUTTON | B_BUTTON))
+        {
+            BeginNormalPaletteFade(PALETTES_ALL, 1, 0, 16, RGB_WHITEALPHA);
+            task->tState = TRAINER_WATCH_STATE_FADE_OUT;
+        }
+        break;
+    case TRAINER_WATCH_STATE_FADE_OUT:
+        if (!gPaletteFade.active)
+            task->tState = TRAINER_WATCH_STATE_EXIT;
+        break;
+    case TRAINER_WATCH_STATE_EXIT:
+        DestroyTask(taskId);
+        FreeAllWindowBuffers();
+        SetVBlankCallback(NULL);
+        SetMainCallback2(CB2_ReturnToFieldWithOpenMenu);
+        break;
+    }
+}
+
+static void CB2_InitTrainerWatch(void)
+{
+    u8 taskId;
+
+    SetGpuReg(REG_OFFSET_DISPCNT, 0);
+    SetVBlankCallback(NULL);
+    DmaClear16(3, PLTT, PLTT_SIZE);
+    DmaClearLarge16(3, (void *)VRAM, VRAM_SIZE, 0x1000);
+    ResetOamRange(0, 128);
+    LoadOam();
+    ScanlineEffect_Stop();
+    ScanlineEffect_Clear();
+    ResetSpriteData();
+    ResetTasks();
+    ResetPaletteFade();
+    ClearScheduledBgCopiesToVram();
+    ResetBgsAndClearDma3BusyFlags(0);
+    InitBgsFromTemplates(0, sTrainerWatchBgTemplates, ARRAY_COUNT(sTrainerWatchBgTemplates));
+    InitWindows(sTrainerWatchWindows);
+    DeactivateAllTextPrinters();
+    LoadMessageBoxAndBorderGfx();
+    ShowBg(0);
+
+    taskId = CreateTask(Task_TrainerWatch, 80);
+    gTasks[taskId].tState = TRAINER_WATCH_STATE_EDIT;
+    DrawTrainerWatch();
+
+    BeginNormalPaletteFade(PALETTES_ALL, 1, 16, 0, RGB_WHITEALPHA);
+    SetVBlankCallback(VBlankCB_TrainerWatch);
+    SetMainCallback2(CB2_TrainerWatch);
+}
+
+static void CB2_TrainerWatch(void)
+{
+    RunTasks();
+    AnimateSprites();
+    BuildOamBuffer();
+    DoScheduledBgTilemapCopiesToVram();
+    UpdatePaletteFade();
 }
 
 static void Task_TrainerWatchManualSetup(u8 taskId)
@@ -312,4 +416,9 @@ static void VBlankCB_TrainerWatch(void)
 void StartTrainerWatchManualSetup(void)
 {
     SetMainCallback2(CB2_InitTrainerWatchManualSetup);
+}
+
+void StartTrainerWatch(void)
+{
+    SetMainCallback2(CB2_InitTrainerWatch);
 }

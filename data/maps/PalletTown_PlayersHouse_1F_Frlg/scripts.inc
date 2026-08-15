@@ -1,6 +1,36 @@
 PalletTown_PlayersHouse_1F_Frlg_MapScripts::
 	.byte 0
 
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatch::
+	lockall
+	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone
+	msgbox PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro
+	closemessage
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch
+	waitmessage
+	waitfanfare
+	setflag FLAG_GOT_TRAINER_WATCH
+	specialvar VAR_RESULT, TrainerWatchCheckClock
+	goto_if_eq VAR_RESULT, 1, PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRtcReady
+	goto_if_eq VAR_RESULT, 2, PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSavedReady
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchNeedsManualSetup
+	closemessage
+	special StartTrainerWatchManualSetup
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady
+	goto PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone
+
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRtcReady::
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced
+	goto PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone
+
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSavedReady::
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchSavedTimeReady
+
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone::
+	releaseall
+	end
+
 PalletTown_PlayersHouse_1F_EventScript_Mom::
 	lock
 	faceplayer
