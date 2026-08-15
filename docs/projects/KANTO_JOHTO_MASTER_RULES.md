@@ -7,9 +7,9 @@ Build one custom GBA Pokemon adventure that unifies Kanto and Johto into a singl
 - Engine/toolkit: `pokeemerald-expansion`.
 - Primary build target: FireRed (`make firered`).
 - Visual direction: FireRed/LeafGreen-era GBA presentation.
-- Kanto source inspiration: FireRed/LeafGreen plus selected Pokemon Yellow/anime-style events.
-- The opening starter-acquisition sequence is a special case: the actual Pokémon Yellow game is the canonical source of truth and its ordered story beats must not be replaced by anime recollections or approximations.
-- Johto source inspiration: Gold/Silver/Crystal, with selective HeartGold/SoulSilver ideas used as design reference only.
+- Kanto story authority: Pokémon Yellow. FireRed/LeafGreen supplies the GBA-era presentation, Kanto map foundation, UI conventions, and the Sevii campaign; it does not replace Yellow-specific Kanto story events.
+- Johto story authority: Pokémon Crystal, with Gold/Silver supplying compatible version-split or omitted material. HeartGold/SoulSilver may be used only as selective presentation/QoL reference.
+- Emerald story is not part of the Kanto/Johto campaign. Selected Emerald systems or official-event concepts such as Faraway Island and Battle Frontier may be adapted where they strengthen the unified game.
 - Do not attempt to binary-merge commercial ROMs.
 
 ## Player identity and naming
@@ -23,19 +23,19 @@ Build one custom GBA Pokemon adventure that unifies Kanto and Johto into a singl
 - Canonical world NPCs such as Professor Oak, Professor Elm, Gym Leaders, Giovanni, Jessie, and James may retain their established names.
 
 ## Opening and starter philosophy
-- Pikachu is the player's original partner/starter through the canonical Pokémon Yellow starter-acquisition sequence.
-- Pikachu remains a normal usable Pokemon: trainable, boxable, breedable when breeding is available, and evolvable into Raichu by player choice.
-- Bulbasaur, Charmander, and Squirtle are acquired later through story quests inspired by their memorable anime acquisition stories rather than handed out as a starter selection.
-- Chikorita, Cyndaquil, and Totodile are likewise acquired through Johto story quests rather than a one-of-three permanent choice.
-- Story-acquired Pokemon remain normal Pokemon after acquisition. The anime may inspire how they join the player but must not force their later evolution, departure, moves, party position, or usage.
+- Pikachu is the player's original Partner through the canonical Pokémon Yellow starter-acquisition sequence.
+- The owned story Partner uses the expansion's persistent `SPECIES_PIKACHU_STARTER` identity while still presenting as Pokédex #025 Pikachu. Ordinary wild Pikachu remain ordinary Pikachu.
+- Partner Pikachu keeps Yellow's story identity: it refuses evolution, refuses to be traded away, refuses ordinary PC/daycare separation, and begins following only at Yellow's post-rival Oak Lab story beat.
+- Partner Pikachu uses modern mechanics rather than Generation I limitations: Natures, IVs/EVs, Abilities, physical/special split, modern move behavior, modern battle UI, and the expansion's stronger Partner Pikachu stat profile.
+- Ordinary Pikachu retain the expansion's modern regular-Pikachu stats and can evolve, be boxed, use daycare, and otherwise behave normally.
+- Bulbasaur, Charmander, and Squirtle must use their real Pokémon Yellow gift events: Melanie/friendship in Cerulean, Damian on Route 24, and Officer Jenny after the Thunder Badge in Vermilion.
+- On entering Johto, Professor Elm offers Chikorita, Cyndaquil, or Totodile as the protagonist's Johto research partner; the Johto rival steals another starter as in Crystal.
 
-## Starter Pikachu progression contract
-- Starter Pikachu begins at level 5 and initially knows only `Thunder Shock` and `Growl`, matching Pokémon Yellow.
-- Regular Pikachu uses the Pokémon Yellow species stat profile: HP 35, Attack 55, Defense 30, Speed 90, and Special-equivalent 50. In the Gen III split-stat engine, both Special Attack and Special Defense use 50 for this Yellow-faithful profile.
-- Pikachu uses the Medium Fast experience-growth curve.
-- Pikachu's level-up learnset must preserve the Pokémon Yellow schedule: Tail Whip at 6, Thunder Wave at 8, Quick Attack at 11, Double Team at 15, Slam at 20, Thunderbolt at 26, Agility at 33, Thunder at 41, and Light Screen at 50.
-- Do not add an artificial experience penalty, hidden stat handicap, or starter-only weakening mechanic.
-- Selective modern battle/QoL mechanics may remain where the wider project deliberately uses them, but they must not accidentally replace or weaken the Yellow starter progression contract above.
+## Partner Pikachu progression contract
+- Partner Pikachu begins at level 5 with Thunder Shock and Growl in the Yellow opening, but future progression uses approved modernized move/mechanics behavior rather than freezing the species to Generation I statistics.
+- The current engine's built-in Partner Pikachu profile is the Stage 1A baseline: 45 HP / 80 Attack / 50 Defense / 120 Speed / 75 Sp. Atk / 60 Sp. Def, Medium Fast growth, modern Nature/IV/EV/Ability mechanics, no evolution entry, and `cannotBeTraded`.
+- Exact long-term balance may be tuned against the Kanto difficulty curve, but any tuning must remain Partner-only and must never globally weaken or boost ordinary Pikachu.
+- During Johto, Partner Pikachu will refuse challenges rated below level 30. This future rule is opponent-directed arrogance, not loss of respect for the protagonist, and must use deterministic eligibility rather than random traded-Pokémon disobedience.
 
 ## Pokedex completion
 - Core completion target: #001 Bulbasaur through #251 Celebi.
@@ -47,8 +47,8 @@ Build one custom GBA Pokemon adventure that unifies Kanto and Johto into a singl
 - Design should support full Pokedex registration and, where feasible, a 251-species living collection through breeding/repeatable acquisition.
 
 ## World and follower rules
-- Party slot #1 should be able to act as the player's overworld follower once the general follower system is enabled.
-- Pikachu can have special story reactions but is not permanently forced as the follower after the opening.
+- The general follower engine remains available, but once the Yellow Oak Lab follower beat occurs, Partner Pikachu is the persistent protagonist follower regardless of its party slot.
+- Party order and battle lead are independent from the Partner follower identity so the Johto starter can lead while Pikachu continues following.
 - Jessie and James travel with an overworld Meowth where appropriate; Meowth is treated as a story character and is not a normal capture target.
 - Populate towns, routes, Gyms, farms, shops, and story scenes with appropriate NPC-owned Pokemon in the overworld so people and Pokemon visibly coexist.
 - NPC Pokemon may be decorative, interactive, quest-related, or tied to battles/acquisition mechanics.
@@ -68,8 +68,21 @@ Gym Leaders, rivals, major story partners, and equivalent important trainers sho
 - Use selected anime-inspired events where they improve acquisition stories, character moments, and the feeling of the world.
 - Do not substitute an anime-inspired event for a Pokémon Yellow game event that the project has explicitly locked as canonical.
 - Preserve the exploration, Gym, badge, League, Team Rocket, legendary, and regional progression expected from the games while integrating the combined story into one continuity.
-- Planned macro structure: Kanto -> Kanto League -> Sevii transition/expansion -> Johto -> Johto/combined League progression -> late-game resolution -> legendary quests/Mt. Silver/endgame.
+- Planned macro structure: Yellow Kanto -> Kanto League -> FireRed Sevii -> three-year Pallet transition -> Crystal Johto -> new Indigo League -> S.S. Aqua -> Kanto Revisited -> Mt. Silver -> #001-251 endgame.
 - Target 16 total Kanto + Johto badges.
+
+## Campaign and generation boundary
+- `VAR_KANTO_JOHTO_CAMPAIGN` is the persistent campaign-phase foundation; zero is intentionally Yellow Kanto for new saves.
+- Yellow Kanto and pre-Johto Sevii expose only Pokémon #001-151. Sevii may foreshadow Johto through Celio, Bill, Oak, Rocket research, and regional communications but must not reveal Gen II species in wild encounters or Trainer teams.
+- Gen II Pokémon and Gen II cross-generation evolutions unlock when the Johto campaign begins. Johto retains its canonical mixed Gen I/Gen II ecosystem.
+- After Johto completion and the return to Kanto, both generations may coexist in Kanto/Sevii through rematches, migration, swarms, breeding, and postgame events.
+- The protagonist reaches Johto with only Partner Pikachu; the Kanto collection remains preserved for later interregional reconnection through Bill's Ecruteak/Time Capsule storyline.
+
+## Legendary and mythical continuity
+- Articuno remains at Seafoam Islands, Zapdos at the Power Plant, and Moltres at Victory Road, following Yellow's Kanto geography.
+- Mewtwo remains a Cerulean Cave endgame encounter after the appropriate Kanto/Sevii progression.
+- Mew receives an in-game Old Sea Map/Faraway Island-style quest; no external event is required.
+- Johto legendary progression follows Crystal for Suicune/Eusine, Gold/Silver/Crystal locations for Ho-Oh and Lugia, and an in-game GS Ball/Ilex Forest path for Celebi.
 
 ## Prototype v0.1 scope
 Prototype v0.1 is an architecture and build-validation milestone, not the full game. Its intended incremental scope is:
@@ -121,9 +134,9 @@ Prototype v0.1 is an architecture and build-validation milestone, not the full g
 - After the capture battle, Oak returns to the field, reacts, explains why the player needs a Pokémon, and physically leads the player to the lab.
 - The rival is already waiting in Oak's Lab.
 - Only the Eevee Poké Ball is presented as the available starter; the player approaches it, the rival pushes ahead and takes Eevee, and Oak then gives the player the same Pikachu caught outside.
-- Starter Pikachu is level 5 with Thunder Shock and Growl only, uses the Yellow stat/growth/level-up progression contract above, and remains a normal trainable/boxable/evolvable owned Pokémon.
+- Oak gives the level-5 story Partner as `SPECIES_PIKACHU_STARTER`; it remains Pokédex #025 but has Partner-only modern stats and separation/evolution/trade restrictions. Ordinary Pikachu are unaffected.
 - The first rival battle uses level-5 Eevee and dedicated face-to-face positioning.
-- After the rival leaves, Pikachu comes back out of its Poké Ball; Oak explains its behavior and the existing lead-party follower system activates at that story beat.
+- After the rival leaves, Pikachu comes back out of its Poké Ball; Oak explains its behavior and the persistent Partner follower flag activates at that exact story beat.
 
 ## Canonical Pokémon Yellow opening contract
 

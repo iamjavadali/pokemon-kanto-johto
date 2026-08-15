@@ -536,9 +536,10 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	playse SE_EXIT
 	fadedefaultbgm
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
+	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
 	delay 30
-	playmoncry SPECIES_PIKACHU, CRY_MODE_NORMAL
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut
 	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls
@@ -1325,7 +1326,7 @@ PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
 	waitmovement 0
 	msgbox PalletTown_ProfessorOaksLab_Text_OakGiveCaughtPikachu
 	setvar PLAYER_STARTER_NUM, 2
-	setvar PLAYER_STARTER_SPECIES, SPECIES_PIKACHU
+	setvar PLAYER_STARTER_SPECIES, SPECIES_PIKACHU_STARTER
 	setvar RIVAL_STARTER_SPECIES, SPECIES_EEVEE
 	setflag FLAG_SYS_POKEMON_GET
 	setflag FLAG_PALLET_LADY_NOT_BLOCKING_SIGN

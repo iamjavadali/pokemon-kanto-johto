@@ -150,7 +150,7 @@
 
 // Unused?
 #define FLAG_HIDE_PALLET_WILD_PIKACHU                    0x0AF
-#define FLAG_0x0B0               0x0B0
+#define FLAG_PARTNER_PIKACHU_FOLLOWING     0x0B0 // Set only when Pikachu exits its Ball after the Oak Lab rival battle
 #define FLAG_0x0B1               0x0B1
 #define FLAG_0x0B2               0x0B2
 #define FLAG_0x0B3               0x0B3
