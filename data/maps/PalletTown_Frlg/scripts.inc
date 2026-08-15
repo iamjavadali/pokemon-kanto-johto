@@ -206,6 +206,14 @@ PalletTown_EventScript_OakTrigger::
 	closemessage
 	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_FaceYellowGrassLeft
 	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_FaceYellowGrassRight
+	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	addobject LOCALID_YELLOW_PIKACHU
+	delay 16
+	playmoncry SPECIES_PIKACHU, CRY_MODE_NORMAL
+	waitmoncry
+	delay 24
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	removeobject LOCALID_YELLOW_PIKACHU
 	special StartYellowPikachuCaptureBattle
 	waitstate
 	lockall
@@ -244,8 +252,8 @@ PalletTown_EventScript_FaceYellowGrassLeft::
 	return
 
 PalletTown_EventScript_FaceYellowGrassRight::
-	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
-	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceLeft
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceRight
 	waitmovement 0
 	return
 

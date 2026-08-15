@@ -255,9 +255,9 @@ struct NPCFollower
 
 struct SaveBlock3
 {
-#if OW_USE_FAKE_RTC
+    // Trainer Watch backup/manual clock. Always present so one ROM can use
+    // physical/emulator RTC when available and a saved clock when not.
     struct SiiRtcInfo fakeRTC;
-#endif
 #if FNPC_ENABLE_NPC_FOLLOWERS
     struct NPCFollower NPCfollower;
 #endif

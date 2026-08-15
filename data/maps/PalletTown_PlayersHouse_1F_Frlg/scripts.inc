@@ -5,6 +5,39 @@ PalletTown_PlayersHouse_1F_EventScript_Mom::
 	lock
 	faceplayer
 	goto_if_set FLAG_BEAT_RIVAL_IN_OAKS_LAB, PalletTown_PlayersHouse_1F_EventScript_MomHeal
+	goto_if_unset FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch
+	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch::
+	msgbox PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro
+	closemessage
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch
+	waitmessage
+	waitfanfare
+	setflag FLAG_GOT_TRAINER_WATCH
+	specialvar VAR_RESULT, TrainerWatchCheckClock
+	goto_if_eq VAR_RESULT, 1, PalletTown_PlayersHouse_1F_EventScript_TrainerWatchRtcReady
+	goto_if_eq VAR_RESULT, 2, PalletTown_PlayersHouse_1F_EventScript_TrainerWatchSavedReady
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchNeedsManualSetup
+	closemessage
+	special StartTrainerWatchManualSetup
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady
+	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_TrainerWatchRtcReady::
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced
+	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_TrainerWatchSavedReady::
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchSavedTimeReady
+	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney::
 	checkplayergender
 	call_if_eq VAR_RESULT, MALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale
 	call_if_eq VAR_RESULT, FEMALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale
@@ -90,3 +123,33 @@ PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad::
 
 PalletTown_PlayersHouse_1F_Text_OopsWrongSide::
 	.string "Oops, wrong side…$"
+
+PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro::
+	.string "MOM: Before you go, I have\n"
+	.string "something for you.\p"
+	.string "It's a TRAINER WATCH. It keeps\n"
+	.string "the date and time on your journey.$"
+
+PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch::
+	.string "{PLAYER} received the TRAINER WATCH!$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced::
+	.string "MOM: Perfect! Your TRAINER WATCH\n"
+	.string "synchronized automatically.\p"
+	.string "The world will follow the current\n"
+	.string "date and time.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchSavedTimeReady::
+	.string "MOM: Your TRAINER WATCH found its\n"
+	.string "last saved time. You're all set.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchNeedsManualSetup::
+	.string "MOM: It couldn't synchronize with\n"
+	.string "a real-time clock.\p"
+	.string "Set the date and time once, and the\n"
+	.string "TRAINER WATCH will keep them for you.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady::
+	.string "MOM: All set! If a real-time clock\n"
+	.string "becomes available later, the WATCH\l"
+	.string "will synchronize automatically.$"

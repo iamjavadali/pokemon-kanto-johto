@@ -538,7 +538,8 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
 	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
-	delay 30
+	callnative RevealFollowingPokemonNow
+	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut

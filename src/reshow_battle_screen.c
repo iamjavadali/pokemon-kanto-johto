@@ -25,7 +25,7 @@ static void CreateHealthboxSprite(enum BattlerId battler);
 static void ClearBattleBgCntBaseBlocks(void);
 static void CreateCaughtMonSprite(void);
 
-#define CATCH_TUTORIAL_TRAINER_PIC (IS_FRLG ? TRAINER_PIC_OLD_MAN : TRAINER_PIC_WALLY)
+#define CATCH_TUTORIAL_TRAINER_PIC ((gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU) ? TRAINER_PIC_PROFESSOR_OAK_FRLG : (IS_FRLG ? TRAINER_PIC_OLD_MAN : TRAINER_PIC_WALLY))
 
 void ReshowBattleScreenDummy(void)
 {

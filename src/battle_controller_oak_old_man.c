@@ -705,7 +705,7 @@ static void OakOldManHandleTrainerSlide(enum BattlerId battler)
 
     if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)
     {
-        OakOldManBufferExecCompleted(battler);
+        BtlController_HandleTrainerSlide(battler, TRAINER_PIC_PROFESSOR_OAK_FRLG);
         return;
     }
 

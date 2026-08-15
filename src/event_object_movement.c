@@ -2434,6 +2434,20 @@ void UpdateFollowingPokemon(void)
     sprite->data[6] = 0; // set animation data
 }
 
+void RevealFollowingPokemonNow(void)
+{
+    struct ObjectEvent *objEvent = GetFollowerObject();
+    struct ObjectEvent *playerObj;
+
+    if (objEvent == NULL)
+        return;
+
+    playerObj = &gObjectEvents[gPlayerAvatar.objectEventId];
+    MoveObjectEventToMapCoords(objEvent, playerObj->previousCoords.x, playerObj->previousCoords.y);
+    objEvent->invisible = FALSE;
+    gSprites[objEvent->spriteId].invisible = FALSE;
+}
+
 // Remove follower object. Idempotent.
 void RemoveFollowingPokemon(void)
 {
