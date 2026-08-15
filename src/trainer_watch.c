@@ -69,31 +69,67 @@ static const struct WindowTemplate sTrainerWatchWindows[] =
 {
     {
         .bg = 0,
-        .tilemapLeft = 1,
-        .tilemapTop = 1,
-        .width = 28,
-        .height = 18,
-        .paletteNum = 15,
+        .tilemapLeft = 3,
+        .tilemapTop = 2,
+        .width = 24,
+        .height = 15,
+        .paletteNum = STD_WINDOW_PALETTE_NUM,
         .baseBlock = 1,
     },
     DUMMY_WIN_TEMPLATE
 };
 
 static const u8 sText_Title[] = _("TRAINER WATCH");
-static const u8 sText_NoRtc[] = _("Automatic RTC wasn't found.\nSet the current date and time.");
-static const u8 sText_Date[] = _("DATE  ");
-static const u8 sText_Time[] = _("TIME  ");
-static const u8 sText_Edit[] = _("EDIT  ");
+static const u8 sText_SetDateTime[] = _("SET DATE AND TIME");
+static const u8 sText_Edit[] = _("EDIT: ");
 static const u8 sText_Year[] = _("YEAR");
 static const u8 sText_Month[] = _("MONTH");
 static const u8 sText_Day[] = _("DAY");
 static const u8 sText_Hour[] = _("HOUR");
 static const u8 sText_Minute[] = _("MINUTE");
 static const u8 sText_Confirm[] = _("CONFIRM");
-static const u8 sText_Help[] = _("UP/DOWN: CHANGE\nLEFT/RIGHT: FIELD\nA: NEXT / CONFIRM\nB: PREVIOUS FIELD");
-static const u8 sText_Hyphen[] = _("-");
+static const u8 sText_FieldHelp[] = _("LEFT/RIGHT: FIELD");
+static const u8 sText_ChangeHelp[] = _("UP/DOWN: CHANGE");
+static const u8 sText_ConfirmHelp[] = _("A: NEXT   B: BACK");
+static const u8 sText_Back[] = _("B: BACK");
+static const u8 sText_Space[] = _(" ");
+static const u8 sText_CommaSpace[] = _(", ");
 static const u8 sText_Colon[] = _(":");
-static const u8 sText_Close[] = _("A/B: CLOSE");
+static const u8 sText_Am[] = _(" AM");
+static const u8 sText_Pm[] = _(" PM");
+
+static const u8 sText_Sunday[] = _("SUNDAY");
+static const u8 sText_Monday[] = _("MONDAY");
+static const u8 sText_Tuesday[] = _("TUESDAY");
+static const u8 sText_Wednesday[] = _("WEDNESDAY");
+static const u8 sText_Thursday[] = _("THURSDAY");
+static const u8 sText_Friday[] = _("FRIDAY");
+static const u8 sText_Saturday[] = _("SATURDAY");
+
+static const u8 sText_Jan[] = _("JAN");
+static const u8 sText_Feb[] = _("FEB");
+static const u8 sText_Mar[] = _("MAR");
+static const u8 sText_Apr[] = _("APR");
+static const u8 sText_May[] = _("MAY");
+static const u8 sText_Jun[] = _("JUN");
+static const u8 sText_Jul[] = _("JUL");
+static const u8 sText_Aug[] = _("AUG");
+static const u8 sText_Sep[] = _("SEP");
+static const u8 sText_Oct[] = _("OCT");
+static const u8 sText_Nov[] = _("NOV");
+static const u8 sText_Dec[] = _("DEC");
+
+static const u8 *const sWeekdayNames[] =
+{
+    sText_Sunday, sText_Monday, sText_Tuesday, sText_Wednesday,
+    sText_Thursday, sText_Friday, sText_Saturday,
+};
+
+static const u8 *const sMonthNames[] =
+{
+    sText_Jan, sText_Feb, sText_Mar, sText_Apr, sText_May, sText_Jun,
+    sText_Jul, sText_Aug, sText_Sep, sText_Oct, sText_Nov, sText_Dec,
+};
 
 static const u8 *const sFieldNames[] =
 {
@@ -166,33 +202,59 @@ static u8 *AppendNumber(u8 *dest, s32 value, u32 digits)
     return ConvertIntToDecimalStringN(dest, value, STR_CONV_MODE_LEADING_ZEROS, digits);
 }
 
+static u8 GetCenteredX(const u8 *str, u8 fontId)
+{
+    s32 x = (24 * 8 - GetStringWidth(fontId, str, 0)) / 2;
+    return x > 0 ? x : 0;
+}
+
+static void FormatTrainerWatchDate(u8 *dest, u16 year, u8 month, u8 day)
+{
+    if (month < MONTH_JAN || month > MONTH_DEC)
+        month = MONTH_JAN;
+
+    dest = StringCopy(dest, sMonthNames[month - 1]);
+    dest = StringCopy(dest, sText_Space);
+    dest = ConvertIntToDecimalStringN(dest, day, STR_CONV_MODE_LEFT_ALIGN, 2);
+    dest = StringCopy(dest, sText_CommaSpace);
+    ConvertIntToDecimalStringN(dest, year, STR_CONV_MODE_LEADING_ZEROS, 4);
+}
+
+static void FormatTrainerWatchTime(u8 *dest, u8 hour, u8 minute)
+{
+    bool8 isPm = hour >= 12;
+    u8 displayHour = hour % 12;
+
+    if (displayHour == 0)
+        displayHour = 12;
+
+    dest = ConvertIntToDecimalStringN(dest, displayHour, STR_CONV_MODE_LEADING_ZEROS, 2);
+    dest = StringCopy(dest, sText_Colon);
+    dest = ConvertIntToDecimalStringN(dest, minute, STR_CONV_MODE_LEADING_ZEROS, 2);
+    StringCopy(dest, isPm ? sText_Pm : sText_Am);
+}
+
 static void DrawTrainerWatchManualSetup(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];
     u8 *dest;
 
-    FillWindowPixelBuffer(0, PIXEL_FILL(0));
-    AddTextPrinterParameterized(0, FONT_NORMAL, sText_Title, 8, 4, TEXT_SKIP_DRAW, NULL);
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_NoRtc, 8, 24, TEXT_SKIP_DRAW, NULL);
+    FillWindowPixelBuffer(0, PIXEL_FILL(1));
+    AddTextPrinterParameterized(0, FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 6, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(0, FONT_SMALL, sText_SetDateTime, GetCenteredX(sText_SetDateTime, FONT_SMALL), 28, TEXT_SKIP_DRAW, NULL);
 
-    dest = StringCopy(gStringVar4, sText_Date);
-    dest = AppendNumber(dest, task->tYear, 4);
-    dest = StringCopy(dest, sText_Hyphen);
-    dest = AppendNumber(dest, task->tMonth, 2);
-    dest = StringCopy(dest, sText_Hyphen);
-    AppendNumber(dest, task->tDay, 2);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, 8, 56, TEXT_SKIP_DRAW, NULL);
+    FormatTrainerWatchDate(gStringVar4, task->tYear, task->tMonth, task->tDay);
+    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 48, TEXT_SKIP_DRAW, NULL);
 
-    dest = StringCopy(gStringVar4, sText_Time);
-    dest = AppendNumber(dest, task->tHour, 2);
-    dest = StringCopy(dest, sText_Colon);
-    AppendNumber(dest, task->tMinute, 2);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, 8, 76, TEXT_SKIP_DRAW, NULL);
+    FormatTrainerWatchTime(gStringVar4, task->tHour, task->tMinute);
+    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 68, TEXT_SKIP_DRAW, NULL);
 
     dest = StringCopy(gStringVar4, sText_Edit);
     StringCopy(dest, sFieldNames[task->tField]);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, 8, 100, TEXT_SKIP_DRAW, NULL);
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_Help, 8, 120, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(0, FONT_SMALL, gStringVar4, GetCenteredX(gStringVar4, FONT_SMALL), 88, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(0, FONT_SMALL, sText_FieldHelp, GetCenteredX(sText_FieldHelp, FONT_SMALL), 100, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(0, FONT_SMALL, sText_ChangeHelp, GetCenteredX(sText_ChangeHelp, FONT_SMALL), 110, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(0, FONT_SMALL, sText_ConfirmHelp, GetCenteredX(sText_ConfirmHelp, FONT_SMALL), 120, TEXT_SKIP_DRAW, NULL);
 
     PutWindowTilemap(0);
     CopyWindowToVram(0, COPYWIN_FULL);
@@ -202,30 +264,32 @@ static void DrawTrainerWatchManualSetup(u8 taskId)
 static void DrawTrainerWatch(void)
 {
     struct SiiRtcInfo rtc;
-    u8 *dest;
     u16 year;
+    u8 month;
+    u8 day;
+    u8 hour;
+    u8 minute;
+    u8 weekday;
 
     RtcGetInfo(&rtc);
     year = 2000 + ConvertBcdToBinary(rtc.year);
+    month = ConvertBcdToBinary(rtc.month);
+    day = ConvertBcdToBinary(rtc.day);
+    hour = ConvertBcdToBinary(rtc.hour);
+    minute = ConvertBcdToBinary(rtc.minute);
+    weekday = rtc.dayOfWeek < WEEKDAY_COUNT ? rtc.dayOfWeek : WEEKDAY_SUN;
 
-    FillWindowPixelBuffer(0, PIXEL_FILL(0));
-    AddTextPrinterParameterized(0, FONT_NORMAL, sText_Title, 8, 4, TEXT_SKIP_DRAW, NULL);
+    FillWindowPixelBuffer(0, PIXEL_FILL(1));
+    AddTextPrinterParameterized(0, FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 8, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(0, FONT_SMALL, sWeekdayNames[weekday], GetCenteredX(sWeekdayNames[weekday], FONT_SMALL), 38, TEXT_SKIP_DRAW, NULL);
 
-    dest = StringCopy(gStringVar4, sText_Date);
-    dest = AppendNumber(dest, year, 4);
-    dest = StringCopy(dest, sText_Hyphen);
-    dest = AppendNumber(dest, ConvertBcdToBinary(rtc.month), 2);
-    dest = StringCopy(dest, sText_Hyphen);
-    AppendNumber(dest, ConvertBcdToBinary(rtc.day), 2);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, 8, 48, TEXT_SKIP_DRAW, NULL);
+    FormatTrainerWatchDate(gStringVar4, year, month, day);
+    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 58, TEXT_SKIP_DRAW, NULL);
 
-    dest = StringCopy(gStringVar4, sText_Time);
-    dest = AppendNumber(dest, ConvertBcdToBinary(rtc.hour), 2);
-    dest = StringCopy(dest, sText_Colon);
-    AppendNumber(dest, ConvertBcdToBinary(rtc.minute), 2);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, 8, 72, TEXT_SKIP_DRAW, NULL);
+    FormatTrainerWatchTime(gStringVar4, hour, minute);
+    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 82, TEXT_SKIP_DRAW, NULL);
 
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_Close, 8, 120, TEXT_SKIP_DRAW, NULL);
+    AddTextPrinterParameterized(0, FONT_SMALL, sText_Back, GetCenteredX(sText_Back, FONT_SMALL), 112, TEXT_SKIP_DRAW, NULL);
     PutWindowTilemap(0);
     CopyWindowToVram(0, COPYWIN_FULL);
     ScheduleBgCopyTilemapToVram(0);
@@ -277,7 +341,9 @@ static void CB2_InitTrainerWatch(void)
     InitBgsFromTemplates(0, sTrainerWatchBgTemplates, ARRAY_COUNT(sTrainerWatchBgTemplates));
     InitWindows(sTrainerWatchWindows);
     DeactivateAllTextPrinters();
-    LoadMessageBoxAndBorderGfx();
+    Menu_LoadStdPal();
+    LoadUserWindowBorderGfx(0, STD_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
+    SetStandardWindowBorderStyle(0, FALSE);
     ShowBg(0);
 
     taskId = CreateTask(Task_TrainerWatch, 80);
@@ -379,7 +445,9 @@ static void CB2_InitTrainerWatchManualSetup(void)
     InitBgsFromTemplates(0, sTrainerWatchBgTemplates, ARRAY_COUNT(sTrainerWatchBgTemplates));
     InitWindows(sTrainerWatchWindows);
     DeactivateAllTextPrinters();
-    LoadMessageBoxAndBorderGfx();
+    Menu_LoadStdPal();
+    LoadUserWindowBorderGfx(0, STD_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
+    SetStandardWindowBorderStyle(0, FALSE);
     ShowBg(0);
 
     taskId = CreateTask(Task_TrainerWatchManualSetup, 80);

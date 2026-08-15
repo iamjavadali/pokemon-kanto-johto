@@ -3,31 +3,12 @@ PalletTown_PlayersHouse_1F_Frlg_MapScripts::
 
 PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatch::
 	lockall
-	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone
-	msgbox PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro
-	closemessage
-	playfanfare MUS_RG_OBTAIN_KEY_ITEM
-	message PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch
-	waitmessage
-	waitfanfare
-	setflag FLAG_GOT_TRAINER_WATCH
-	specialvar VAR_RESULT, TrainerWatchCheckClock
-	goto_if_eq VAR_RESULT, 1, PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRtcReady
-	goto_if_eq VAR_RESULT, 2, PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSavedReady
-	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchNeedsManualSetup
-	closemessage
-	special StartTrainerWatchManualSetup
-	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady
-	goto PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone
+	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	msgbox PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving
+	call PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch
 
-PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRtcReady::
-	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced
-	goto PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone
-
-PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSavedReady::
-	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchSavedTimeReady
-
-PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchDone::
+PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone::
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
 	releaseall
 	end
 
@@ -40,6 +21,12 @@ PalletTown_PlayersHouse_1F_EventScript_Mom::
 	end
 
 PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch::
+	call PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
+	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch::
 	msgbox PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro
 	closemessage
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
@@ -54,18 +41,15 @@ PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch::
 	closemessage
 	special StartTrainerWatchManualSetup
 	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady
-	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
-	end
+	return
 
 PalletTown_PlayersHouse_1F_EventScript_TrainerWatchRtcReady::
 	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced
-	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
-	end
+	return
 
 PalletTown_PlayersHouse_1F_EventScript_TrainerWatchSavedReady::
 	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchSavedTimeReady
-	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
-	end
+	return
 
 PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney::
 	checkplayergender
@@ -153,6 +137,11 @@ PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad::
 
 PalletTown_PlayersHouse_1F_Text_OopsWrongSide::
 	.string "Oops, wrong side…$"
+
+PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving::
+	.string "MOM: Wait, {PLAYER}!\n"
+	.string "Before you head out, there's one\l"
+	.string "thing you need.$"
 
 PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro::
 	.string "MOM: Before you go, I have\n"
