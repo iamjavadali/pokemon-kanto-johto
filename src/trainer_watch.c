@@ -98,6 +98,11 @@ static const u8 sText_Colon[] = _(":");
 static const u8 sText_Am[] = _(" AM");
 static const u8 sText_Pm[] = _(" PM");
 
+static const u8 sTrainerWatchTextColors[] =
+{
+    TEXT_COLOR_TRANSPARENT, TEXT_COLOR_DARK_GRAY, TEXT_COLOR_LIGHT_GRAY
+};
+
 static const u8 sText_Sunday[] = _("SUNDAY");
 static const u8 sText_Monday[] = _("MONDAY");
 static const u8 sText_Tuesday[] = _("TUESDAY");
@@ -208,6 +213,11 @@ static u8 GetCenteredX(const u8 *str, u8 fontId)
     return x > 0 ? x : 0;
 }
 
+static void PrintTrainerWatchText(u8 fontId, const u8 *str, u8 x, u8 y)
+{
+    AddTextPrinterParameterized3(0, fontId, x, y, sTrainerWatchTextColors, TEXT_SKIP_DRAW, str);
+}
+
 static void FormatTrainerWatchDate(u8 *dest, u16 year, u8 month, u8 day)
 {
     if (month < MONTH_JAN || month > MONTH_DEC)
@@ -239,22 +249,21 @@ static void DrawTrainerWatchManualSetup(u8 taskId)
     struct Task *task = &gTasks[taskId];
     u8 *dest;
 
-    FillWindowPixelBuffer(0, PIXEL_FILL(1));
-    AddTextPrinterParameterized(0, FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 6, TEXT_SKIP_DRAW, NULL);
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_SetDateTime, GetCenteredX(sText_SetDateTime, FONT_SMALL), 28, TEXT_SKIP_DRAW, NULL);
+    FillWindowPixelBuffer(0, PIXEL_FILL(15));
+    PrintTrainerWatchText(FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 4);
+    PrintTrainerWatchText(FONT_SMALL, sText_SetDateTime, GetCenteredX(sText_SetDateTime, FONT_SMALL), 24);
 
     FormatTrainerWatchDate(gStringVar4, task->tYear, task->tMonth, task->tDay);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 48, TEXT_SKIP_DRAW, NULL);
+    PrintTrainerWatchText(FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 44);
 
     FormatTrainerWatchTime(gStringVar4, task->tHour, task->tMinute);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 68, TEXT_SKIP_DRAW, NULL);
+    PrintTrainerWatchText(FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 64);
 
     dest = StringCopy(gStringVar4, sText_Edit);
     StringCopy(dest, sFieldNames[task->tField]);
-    AddTextPrinterParameterized(0, FONT_SMALL, gStringVar4, GetCenteredX(gStringVar4, FONT_SMALL), 88, TEXT_SKIP_DRAW, NULL);
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_FieldHelp, GetCenteredX(sText_FieldHelp, FONT_SMALL), 100, TEXT_SKIP_DRAW, NULL);
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_ChangeHelp, GetCenteredX(sText_ChangeHelp, FONT_SMALL), 110, TEXT_SKIP_DRAW, NULL);
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_ConfirmHelp, GetCenteredX(sText_ConfirmHelp, FONT_SMALL), 120, TEXT_SKIP_DRAW, NULL);
+    PrintTrainerWatchText(FONT_SMALL, gStringVar4, GetCenteredX(gStringVar4, FONT_SMALL), 84);
+    PrintTrainerWatchText(FONT_SMALL, sText_ChangeHelp, 8, 98);
+    PrintTrainerWatchText(FONT_SMALL, sText_ConfirmHelp, 8, 108);
 
     PutWindowTilemap(0);
     CopyWindowToVram(0, COPYWIN_FULL);
@@ -270,6 +279,7 @@ static void DrawTrainerWatch(void)
     u8 hour;
     u8 minute;
     u8 weekday;
+    u8 backX;
 
     RtcGetInfo(&rtc);
     year = 2000 + ConvertBcdToBinary(rtc.year);
@@ -279,17 +289,18 @@ static void DrawTrainerWatch(void)
     minute = ConvertBcdToBinary(rtc.minute);
     weekday = rtc.dayOfWeek < WEEKDAY_COUNT ? rtc.dayOfWeek : WEEKDAY_SUN;
 
-    FillWindowPixelBuffer(0, PIXEL_FILL(1));
-    AddTextPrinterParameterized(0, FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 8, TEXT_SKIP_DRAW, NULL);
-    AddTextPrinterParameterized(0, FONT_SMALL, sWeekdayNames[weekday], GetCenteredX(sWeekdayNames[weekday], FONT_SMALL), 38, TEXT_SKIP_DRAW, NULL);
+    FillWindowPixelBuffer(0, PIXEL_FILL(15));
+    PrintTrainerWatchText(FONT_NORMAL, sText_Title, GetCenteredX(sText_Title, FONT_NORMAL), 4);
+    PrintTrainerWatchText(FONT_SMALL, sWeekdayNames[weekday], GetCenteredX(sWeekdayNames[weekday], FONT_SMALL), 32);
 
     FormatTrainerWatchDate(gStringVar4, year, month, day);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 58, TEXT_SKIP_DRAW, NULL);
+    PrintTrainerWatchText(FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 50);
 
     FormatTrainerWatchTime(gStringVar4, hour, minute);
-    AddTextPrinterParameterized(0, FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 82, TEXT_SKIP_DRAW, NULL);
+    PrintTrainerWatchText(FONT_NORMAL, gStringVar4, GetCenteredX(gStringVar4, FONT_NORMAL), 72);
 
-    AddTextPrinterParameterized(0, FONT_SMALL, sText_Back, GetCenteredX(sText_Back, FONT_SMALL), 112, TEXT_SKIP_DRAW, NULL);
+    backX = (24 * 8) - GetStringWidth(FONT_SMALL, sText_Back, 0) - 8;
+    PrintTrainerWatchText(FONT_SMALL, sText_Back, backX, 102);
     PutWindowTilemap(0);
     CopyWindowToVram(0, COPYWIN_FULL);
     ScheduleBgCopyTilemapToVram(0);

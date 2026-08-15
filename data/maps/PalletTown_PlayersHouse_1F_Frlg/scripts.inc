@@ -1,16 +1,72 @@
 PalletTown_PlayersHouse_1F_Frlg_MapScripts::
 	.byte 0
 
-PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatch::
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchLeft::
 	lockall
 	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromLeft
+	waitmovement 0
+	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
+
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRight::
+	lockall
+	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromRight
+	waitmovement 0
+	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
+
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSide::
+	lockall
+	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromSide
+	waitmovement 0
+
+PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch::
+	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FacePlayer
+	waitmovement 0
 	msgbox PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving
 	call PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
+	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FaceOriginalDirection
+	waitmovement 0
+	releaseall
+	end
 
 PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone::
 	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
 	releaseall
 	end
+
+PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromLeft:
+	walk_up
+	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
+PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromRight:
+	walk_up
+	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
+PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromSide:
+	walk_up
+	walk_up
+	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
 
 PalletTown_PlayersHouse_1F_EventScript_Mom::
 	lock

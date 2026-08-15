@@ -1,5 +1,97 @@
 Route1_Frlg_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, Route1_EventScript_YellowOakOnTransition
 	.byte 0
+
+Route1_EventScript_YellowOakOnTransition:
+	goto_if_ne VAR_MAP_SCENE_PALLET_TOWN_OAK, 0, Route1_EventScript_YellowOakTransitionDone
+	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
+Route1_EventScript_YellowOakTransitionDone:
+	end
+
+Route1_EventScript_YellowOakTriggerLeft::
+	lockall
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerShiftToCanonicalGrass
+	waitmovement 0
+	goto Route1_EventScript_YellowOakTrigger
+
+Route1_EventScript_YellowOakTriggerRight::
+	lockall
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerFaceBackTowardOak
+	waitmovement 0
+
+Route1_EventScript_YellowOakTrigger:
+	famechecker FAMECHECKER_OAK, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
+	textcolor NPC_TEXT_COLOR_MALE
+	delay 20
+	playbgm MUS_RG_OAK, 0
+	message PalletTown_Text_OakDontGoOut
+	waitmessage
+	delay 55
+	closemessage
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
+	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	addobject LOCALID_ROUTE1_YELLOW_OAK
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEnterGrass
+	waitmovement 0
+	msgbox PalletTown_Text_OakGrassUnsafeNeedMon
+	closemessage
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerFacePikachu
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakFacePikachu
+	waitmovement 0
+	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	addobject LOCALID_ROUTE1_YELLOW_PIKACHU
+	delay 16
+	playmoncry SPECIES_PIKACHU, CRY_MODE_NORMAL
+	waitmoncry
+	delay 24
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	removeobject LOCALID_ROUTE1_YELLOW_PIKACHU
+	special StartYellowPikachuCaptureBattle
+	waitstate
+	lockall
+	textcolor NPC_TEXT_COLOR_MALE
+	msgbox PalletTown_Text_OakWhew
+	msgbox PalletTown_Text_OakComeWithMeYellow
+	closemessage
+	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	removeobject LOCALID_ROUTE1_YELLOW_OAK
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 1
+	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+	setflag FLAG_HIDE_BULBASAUR_BALL
+	clearflag FLAG_HIDE_SQUIRTLE_BALL
+	setflag FLAG_HIDE_CHARMANDER_BALL
+	clearflag FLAG_HIDE_RIVAL_IN_LAB
+	setflag FLAG_DONT_TRANSITION_MUSIC
+	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
+	waitstate
+	releaseall
+	end
+
+Route1_Movement_PlayerShiftToCanonicalGrass:
+	walk_right
+	walk_in_place_faster_down
+	step_end
+
+Route1_Movement_PlayerFaceBackTowardOak:
+	walk_in_place_faster_down
+	step_end
+
+Route1_Movement_OakEnterGrass:
+	walk_in_place_faster_up
+	step_end
+
+Route1_Movement_PlayerFacePikachu:
+	walk_in_place_faster_down
+	step_end
+
+Route1_Movement_OakFacePikachu:
+	walk_in_place_faster_right
+	step_end
 
 Route1_EventScript_MartClerk::
 	lock
