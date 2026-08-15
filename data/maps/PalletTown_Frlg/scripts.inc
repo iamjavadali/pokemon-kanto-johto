@@ -546,12 +546,12 @@ PalletTown_Text_OakGrassUnsafeNeedMon::
 PalletTown_Text_OakWhew::
 	.string "OAK: Whew...$"
 
-PalletTown_Text_OakComeWithMeYellow::
-	.string "OAK: A POKéMON can appear at any\n"
-	.string "time in tall grass.\p"
-	.string "You need a POKéMON of your own\n"
-	.string "for protection.\p"
-	.string "I know! Come with me!$"
+PalletTown_Text_OakComeWithMeYellow:
+	.string "OAK: A POKéMON can appear anytime\n"
+	.string "in tall grass.\p"
+	.string "You need your own POKéMON for your\n"
+	.string "protection.\p"
+	.string "I know! Here, come with me!$"
 
 PalletTown_Text_RaisingMonsToo::
 	.string "I'm raising POKéMON, too.\p"

@@ -60,6 +60,7 @@ static const u8 sText_TryBattling[] = _("But rather than talking about it,\nyou'
 static const u8 sText_WinEarnsPrizeMoney[] = _("OAK: Hm! Excellent!\pIf you win, you earn prize money,\nand your POKéMON will grow!\pBattle other TRAINERS and make\nyour POKéMON strong!\p");
 static const u8 gText_WhatWillOldManDo[] = _("What will the\nold man do?");
 static const u8 sText_WhatWillOakDo[] = _("What will\nOAK do?");
+static const u8 sText_OakUsedItem[] = _("OAK used {B_LAST_ITEM}!");
 
 static void (*const sOakOldManBufferCommands[CONTROLLER_CMDS_COUNT])(enum BattlerId battler) =
 {
@@ -687,7 +688,13 @@ static void OakOldManHandleDrawTrainerPic(enum BattlerId battler)
     if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)
     {
         trainerPicId = TRAINER_PIC_PROFESSOR_OAK_FRLG;
-        BtlController_HandleDrawTrainerPic(battler, trainerPicId, TRUE, 80, 80, 30);
+        BtlController_HandleDrawTrainerPic(
+            battler,
+            trainerPicId,
+            FALSE,
+            80,
+            (8 - GetTrainerBackPicCoords(trainerPicId)->size) * 4 + 80,
+            30);
         return;
     }
 
@@ -727,6 +734,12 @@ static void OakOldManHandlePrintString(enum BattlerId battler)
     if (gBattleTypeFlags & BATTLE_TYPE_CATCH_TUTORIAL && *stringId == 1)
     {
         OakOldManBufferExecCompleted(battler);
+    }
+    else if ((gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU) && *stringId == STRINGID_TRAINER1USEDITEM)
+    {
+        BattleStringExpandPlaceholdersToDisplayedString(sText_OakUsedItem);
+        BattlePutTextOnWindow(gDisplayedStringBattle, B_WIN_MSG);
+        gBattlerControllerFuncs[battler] = CompleteOnInactiveTextPrinter;
     }
     else
     {
