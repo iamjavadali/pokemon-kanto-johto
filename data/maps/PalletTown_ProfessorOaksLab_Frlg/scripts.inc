@@ -538,6 +538,10 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
 	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
+	getplayerxy VAR_0x8004, VAR_0x8005
+	subvar VAR_0x8004, 1
+	setobjectxy OBJ_EVENT_ID_NPC_FOLLOWER, VAR_0x8004, VAR_0x8005
+	turnobject OBJ_EVENT_ID_NPC_FOLLOWER, DIR_EAST
 	callnative RevealFollowingPokemonNow
 	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
@@ -670,7 +674,7 @@ PalletTown_ProfessorOaksLab_EventScript_ProfOak::
 	goto_if_eq VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 1, PalletTown_ProfessorOaksLab_EventScript_RatePokedex
 	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, PalletTown_ProfessorOaksLab_EventScript_RatePokedexOrTryGiveBalls
 	goto_if_ge VAR_MAP_SCENE_VIRIDIAN_CITY_MART, 1, PalletTown_ProfessorOaksLab_EventScript_ReceiveDexScene
-	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4, PalletTown_ProfessorOaksLab_EventScript_OakBattleMonForItToGrow
+	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4, PalletTown_ProfessorOaksLab_EventScript_OakCanReachNextTownWithMon
 	goto_if_eq VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3, PalletTown_ProfessorOaksLab_EventScript_OakCanReachNextTownWithMon
 	msgbox PalletTown_ProfessorOaksLab_Text_OakWhichOneWillYouChoose
 	release
@@ -709,7 +713,7 @@ PalletTown_ProfessorOaksLab_EventScript_ReceiveDexScene::
 	call_if_eq VAR_FACING, DIR_EAST, PalletTown_ProfessorOaksLab_EventScript_DexSceneRivalEnterEastWest
 	call_if_eq VAR_FACING, DIR_WEST, PalletTown_ProfessorOaksLab_EventScript_DexSceneRivalEnterEastWest
 	fadedefaultbgm
-	msgbox PalletTown_ProfessorOaksLab_Text_RivalWhatDidYouCallMeFor
+	msgbox PalletTown_ProfessorOaksLab_Text_RivalMonGrownStronger
 	closemessage
 	delay 30
 	playse SE_PIN
@@ -1474,29 +1478,29 @@ PalletTown_ProfessorOaksLab_EventScript_RightSignAlt::
 	end
 
 PalletTown_ProfessorOaksLab_Text_OakRivalCameEarly::
-	.string "OAK: {RIVAL}? You're early.\p"
-	.string "I told you to come by later.\p"
-	.string "Well, just wait there for now.$"
+	.string "OAK: Hmm? {RIVAL}?\n"
+	.string "Why are you here already?\p"
+	.string "I said for you to come by later…\p"
+	.string "Ah, whatever! Just wait there.$"
 
 PalletTown_ProfessorOaksLab_Text_OakTakeBallOnTable::
-	.string "OAK: {PLAYER}, see that POKé BALL\n"
-	.string "on the table?\p"
-	.string "There's a POKéMON inside.\n"
-	.string "You may have it. Go on, take it!$"
+	.string "OAK: Look, {PLAYER}!\p"
+	.string "Do you see that POKé BALL on\n"
+	.string "the table?\p"
+	.string "It's called a POKé BALL. It holds\n"
+	.string "a POKéMON inside.\p"
+	.string "You may have it! Go on, take it!$"
 
 PalletTown_ProfessorOaksLab_Text_OakBePatientYellow::
-	.string "OAK: Be patient, {RIVAL}.\p"
-	.string "I planned to give you a POKéMON,\n"
-	.string "too. Just wait.$"
+	.string "OAK: Be patient, {RIVAL}.\n"
+	.string "I'll give you one later.$"
 
 PalletTown_ProfessorOaksLab_Text_RivalWantsEevee::
 	.string "{RIVAL}: No way!\p"
 	.string "{PLAYER}, I want this POKéMON!$"
 
 PalletTown_ProfessorOaksLab_Text_RivalSnatchedEevee::
-	.string "{RIVAL} pushed ahead and snatched\n"
-	.string "the POKé BALL!\p"
-	.string "The POKéMON inside is EEVEE!$"
+	.string "{RIVAL} snatched the POKéMON!$"
 
 PalletTown_ProfessorOaksLab_Text_OakRivalWhatDoing::
 	.string "OAK: {RIVAL}! What are you doing?$"
@@ -1505,27 +1509,29 @@ PalletTown_ProfessorOaksLab_Text_RivalKeepingEevee::
 	.string "{RIVAL}: Gramps, I want this one!$"
 
 PalletTown_ProfessorOaksLab_Text_OakAllowsEevee::
-	.string "OAK: But I... Oh, all right.\p"
-	.string "EEVEE is yours. I was going to\n"
-	.string "give you a POKéMON anyway.\p"
+	.string "OAK: But I… Oh, all right then.\p"
+	.string "That POKéMON is yours.\p"
+	.string "I was going to give you one\n"
+	.string "anyway…\p"
 	.string "{PLAYER}, come over here.$"
 
 PalletTown_ProfessorOaksLab_Text_OakGiveCaughtPikachu::
 	.string "OAK: {PLAYER}, this is the POKéMON\n"
-	.string "I caught outside earlier.\p"
-	.string "You can have it. It's still wild\n"
-	.string "at heart and isn't tame yet.$"
+	.string "I caught earlier.\p"
+	.string "You can have it. I caught it in\n"
+	.string "the wild, and it's not tame yet.$"
 
 PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut::
-	.string "OAK: What? PIKACHU came out of its\n"
-	.string "POKé BALL on its own!$"
+	.string "OAK: What?$"
 
 PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls::
 	.string "OAK: Would you look at that!\p"
-	.string "It seems your PIKACHU doesn't like\n"
-	.string "staying inside POKé BALLS.\p"
-	.string "Keep it with you instead. You can\n"
-	.string "talk to it and see how it feels.$"
+	.string "It's odd, but it appears that your\n"
+	.string "PIKACHU dislikes POKé BALLS.\p"
+	.string "You should just keep it with you.\n"
+	.string "That should make it happy!\p"
+	.string "You can talk to it and see how it\n"
+	.string "feels about you.$"
 
 PalletTown_ProfessorOaksLab_Text_OakReadyForStarter::
 	.string "OAK: All right, {PLAYER}.\p"
@@ -1562,7 +1568,7 @@ PalletTown_ProfessorOaksLab_Text_RivalFedUpWithWaiting::
 	.string "I'm fed up with waiting!$"
 
 PalletTown_ProfessorOaksLab_Text_RivalNoFairWhatAboutMe::
-	.string "{RIVAL}: Hey! Gramps! No fair!\n"
+	.string "{RIVAL}: Hey! Gramps!\n"
 	.string "What about me?$"
 
 PalletTown_ProfessorOaksLab_Text_RivalGoChoosePlayer::
@@ -1605,9 +1611,9 @@ PalletTown_ProfessorOaksLab_Text_RivalGoToughenMyMon::
 PalletTown_ProfessorOaksLab_Text_RivalGramps::
 	.string "{RIVAL}: Gramps!$"
 
-PalletTown_ProfessorOaksLab_Text_RivalWhatDidYouCallMeFor::
-	.string "{RIVAL}: I almost forgot!\n"
-	.string "What did you call me for?$"
+PalletTown_ProfessorOaksLab_Text_RivalMonGrownStronger::
+	.string "{RIVAL}: Gramps, my POKéMON has\n"
+	.string "grown stronger! Check it out!$"
 
 PalletTown_ProfessorOaksLab_Text_RivalLeaveItToMeGramps::
 	.string "{RIVAL}: All right, Gramps!\n"
@@ -1712,8 +1718,9 @@ PalletTown_ProfessorOaksLab_Text_OakCustomBallIOrdered::
 	.string "Thank you!$"
 
 PalletTown_ProfessorOaksLab_Text_OakHaveRequestForYouTwo::
-	.string "OAK: Oh, right!\n"
-	.string "I have a request for you two.$"
+	.string "OAK: Ah, {RIVAL}, good timing!\p"
+	.string "I needed to ask both of you to do\n"
+	.string "something for me.$"
 
 PalletTown_ProfessorOaksLab_Text_OakPokedexOnDesk::
 	.string "On the desk there is my invention,\n"

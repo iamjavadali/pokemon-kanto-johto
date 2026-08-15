@@ -89,19 +89,54 @@ Route1_EventScript_YellowPikachuCapture:
 	msgbox PalletTown_Text_OakWhew
 	msgbox PalletTown_Text_OakComeWithMeYellow
 	closemessage
-	delay 20
+	delay 12
+	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowEscortWalkRight
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortSouth
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortSouth
+	waitmovement LOCALID_ROUTE1_YELLOW_OAK
+	goto Route1_EventScript_YellowEscortWarpLeft
+
+Route1_EventScript_YellowEscortWalkRight:
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakMoveBehindPlayerRight
+	waitmovement LOCALID_ROUTE1_YELLOW_OAK
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortSouth
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortSouth
+	waitmovement LOCALID_ROUTE1_YELLOW_OAK
+	goto Route1_EventScript_YellowEscortWarpRight
+
+Route1_EventScript_YellowEscortWarpLeft:
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	removeobject LOCALID_ROUTE1_YELLOW_OAK
 	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
-	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowEscortWarpRight
-	warp MAP_PALLET_TOWN, 12, 0
+	warpsilent MAP_PALLET_TOWN, 12, 0
 	waitstate
 	end
 
 Route1_EventScript_YellowEscortWarpRight:
-	warp MAP_PALLET_TOWN, 13, 0
+	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	removeobject LOCALID_ROUTE1_YELLOW_OAK
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
+	warpsilent MAP_PALLET_TOWN, 13, 0
 	waitstate
 	end
+
+Route1_Movement_PlayerEscortSouth:
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
+Route1_Movement_OakEscortSouth:
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
+Route1_Movement_OakMoveBehindPlayerRight:
+	walk_down
+	walk_right
+	walk_in_place_faster_down
+	step_end
 
 Route1_Movement_OakEnterLeft:
 	walk_up

@@ -51,17 +51,15 @@ PalletTown_EventScript_YellowOakEscortToLab:
 	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	goto_if_eq VAR_0x8008, 1, PalletTown_EventScript_YellowOakEscortRight
 	setobjectxyperm LOCALID_PALLET_PROF_OAK, 12, 1
-	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_UP
+	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
 	addobject LOCALID_PALLET_PROF_OAK
-	delay 16
 	call PalletTown_EventScript_OakLeadPlayerToLabLeft
 	goto PalletTown_EventScript_YellowOakEnterLab
 
 PalletTown_EventScript_YellowOakEscortRight:
 	setobjectxyperm LOCALID_PALLET_PROF_OAK, 13, 1
-	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_UP
+	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
 	addobject LOCALID_PALLET_PROF_OAK
-	delay 16
 	call PalletTown_EventScript_OakLeadPlayerToLabRight
 
 PalletTown_EventScript_YellowOakEnterLab:
