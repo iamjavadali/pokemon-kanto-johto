@@ -25,7 +25,7 @@ jobs:
           ref: prototype/v0.1
           fetch-depth: 0
 
-      - name: Apply Stage 1A Fix 1 and RTC include correction
+      - name: Apply Stage 1A Fix 1 and compile corrections
         shell: bash
         run: |
           python3 - <<'PY'
@@ -36,13 +36,13 @@ jobs:
           match = re.search(r"echo '([A-Za-z0-9+/=]+)' \| base64 -d \| gzip -d > /tmp/apply-stage1a-fix1.py", workflow)
           if not match:
               raise SystemExit('Unable to locate Stage 1A Fix 1 embedded patch payload')
-          payload = gzip.decompress(base64.b64decode(match.group(1)))
-          Path('/tmp/apply-stage1a-fix1.py').write_bytes(payload)
+          Path('/tmp/apply-stage1a-fix1.py').write_bytes(gzip.decompress(base64.b64decode(match.group(1))))
           PY
           python3 /tmp/apply-stage1a-fix1.py
           python3 - <<'PY'
           from pathlib import Path
 
+          # rtc.c needs the flag API and the shared flag constants directly.
           path = Path('src/rtc.c')
           text = path.read_text()
           if '#include "event_data.h"' not in text:
@@ -53,6 +53,23 @@ jobs:
                   raise SystemExit('Unable to locate rtc.c include insertion point')
               text = text.replace(marker, marker + '#include "constants/flags.h"\n', 1)
           path.write_text(text)
+
+          # Reserve two genuinely unused persistent flag IDs for Trainer Watch state.
+          flags = Path('include/constants/flags.h')
+          ftext = flags.read_text()
+          if 'FLAG_GOT_TRAINER_WATCH' not in ftext:
+              old = '#define FLAG_UNUSED_0x493                                           0x493 // Unused Flag'
+              new = '#define FLAG_GOT_TRAINER_WATCH                                      0x493 // Mom gave the RTC-backed Trainer Watch'
+              if old not in ftext:
+                  raise SystemExit('FLAG_UNUSED_0x493 is no longer available')
+              ftext = ftext.replace(old, new, 1)
+          if 'FLAG_TRAINER_WATCH_TIME_VALID' not in ftext:
+              old = '#define FLAG_UNUSED_0x494                                           0x494 // Unused Flag'
+              new = '#define FLAG_TRAINER_WATCH_TIME_VALID                               0x494 // Saved fallback clock state is initialized'
+              if old not in ftext:
+                  raise SystemExit('FLAG_UNUSED_0x494 is no longer available')
+              ftext = ftext.replace(old, new, 1)
+          flags.write_text(ftext)
           PY
           git diff --check
           git diff --stat
