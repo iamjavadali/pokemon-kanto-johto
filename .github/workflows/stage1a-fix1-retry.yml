@@ -87,6 +87,28 @@ jobs:
                   raise SystemExit('FRLG flag 0x0B2 is no longer available')
               ft = ft.replace(old, new, 1)
           frlg.write_text(ft)
+
+          # Normalize text generated through the embedded Python payload. The
+          # payload intentionally passed through YAML/Python escaping, so these
+          # new strings need to be reduced to the native charmap/script form.
+          watch = Path('src/trainer_watch.c')
+          wt = watch.read_text()
+          wt = wt.replace('\\\\n', '\\n')
+          if '#include "sprite.h"' not in wt:
+              wt = wt.replace('#include "scanline_effect.h"\n', '#include "scanline_effect.h"\n#include "sprite.h"\n', 1)
+          if '\\\\n' in wt:
+              raise SystemExit('trainer_watch.c still contains doubled newline escapes')
+          watch.write_text(wt)
+
+          mom = Path('data/maps/PalletTown_PlayersHouse_1F_Frlg/scripts.inc')
+          mt = mom.read_text()
+          mt = mt.replace('\\t.string', '\t.string')
+          mt = mt.replace('\\\\n', '\\n')
+          mt = mt.replace('\\\\p', '\\p')
+          mt = mt.replace('\\\\l', '\\l')
+          if '\\t.string' in mt or '\\\\n' in mt or '\\\\p' in mt or '\\\\l' in mt:
+              raise SystemExit('Mom Trainer Watch script still contains escaped source syntax')
+          mom.write_text(mt)
           PY
           git diff --check
           git diff --stat
@@ -121,6 +143,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/stage1a-feedback-fix.yml
           git rm .github/workflows/stage1a-fix1-retry.yml
+          git rm .github/workflows/stage1a-source-inspect.yml
           git add -- \
             include/global.h \
             include/constants/flags.h \
