@@ -31,15 +31,46 @@ jobs:
           path = Path('.github/scripts/stage1a_foundation_apply.py')
           source = path.read_text()
 
-          # Normalize the one unused-flag line whose upstream spacing is compact.
+          # Normalize the unused-flag line whose upstream spacing is compact.
           source = source.replace(
               '#define FLAG_0x0B0                         0x0B0',
               '#define FLAG_0x0B0               0x0B0'
           )
 
+          # The follower engine has two direct local `mon` bindings plus other
+          # follower-specific lead-mon lookups. Make all of those use the same
+          # Partner-aware resolver so graphics, actions, field moves, transform
+          # behavior, and Poké Ball presentation cannot disagree.
+          source = source.replace(
+              "if text.count(old_action) != 1:",
+              "if text.count(old_action) != 2:"
+          )
+          source = source.replace(
+              "expected one follower action resolver",
+              "expected two follower action resolvers"
+          )
+          source = source.replace(
+              "text = text.replace(old_action, 'struct Pokemon *mon = GetPartnerAwareFollowingMon();', 1)",
+              "text = text.replace(old_action, 'struct Pokemon *mon = GetPartnerAwareFollowingMon();', 2)"
+          )
+          follower_write = "write(path, text)\n\n# 5. Prevent Partner Pikachu"
+          follower_extra = '''old_transform = 'mon = GetFirstLiveMon(), MOVE_TRANSFORM'
+          if text.count(old_transform) != 1:
+              raise SystemExit(f'event_object_movement.c: expected one follower transform resolver, found {text.count(old_transform)}')
+          text = text.replace(old_transform, 'mon = GetPartnerAwareFollowingMon(), MOVE_TRANSFORM', 1)
+          old_field_follower = 'struct Pokemon *follower = GetFirstLiveMon();'
+          if text.count(old_field_follower) != 1:
+              raise SystemExit(f'event_object_movement.c: expected one field follower resolver, found {text.count(old_field_follower)}')
+          text = text.replace(old_field_follower, 'struct Pokemon *follower = GetPartnerAwareFollowingMon();', 1)
+          write(path, text)
+
+          # 5. Prevent Partner Pikachu'''
+          if follower_write not in source:
+              raise SystemExit('Stage 1A helper follower write marker drifted')
+          source = source.replace(follower_write, follower_extra, 1)
+
           # Replace one quoting-fragile helper block before compiling/executing the
-          # guarded patch. The replacement is behaviorally equivalent and avoids
-          # embedding apostrophes inside single-quoted Python source literals.
+          # guarded patch. The replacement is behaviorally equivalent.
           start = source.index("msg_old = ")
           end = source.index("\n\n# Main input cases.", start)
           replacement = '''msg_match = re.search(r'^    \\[MSG_LAST_POKE\\].*$', text, flags=re.MULTILINE)
