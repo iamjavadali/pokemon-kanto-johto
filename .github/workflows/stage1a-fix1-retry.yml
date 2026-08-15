@@ -42,7 +42,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
 
-          # rtc.c needs the flag API and the shared flag constants directly.
+          # rtc.c needs the flag API and flag constants directly.
           path = Path('src/rtc.c')
           text = path.read_text()
           if '#include "event_data.h"' not in text:
@@ -54,7 +54,8 @@ jobs:
               text = text.replace(marker, marker + '#include "constants/flags.h"\n', 1)
           path.write_text(text)
 
-          # Reserve two genuinely unused persistent flag IDs for Trainer Watch state.
+          # The shared flags header uses a distinct FRLG table. Keep semantic names
+          # available for every build target while reserving truly unused IDs.
           flags = Path('include/constants/flags.h')
           ftext = flags.read_text()
           if 'FLAG_GOT_TRAINER_WATCH' not in ftext:
@@ -70,6 +71,22 @@ jobs:
                   raise SystemExit('FLAG_UNUSED_0x494 is no longer available')
               ftext = ftext.replace(old, new, 1)
           flags.write_text(ftext)
+
+          frlg = Path('include/constants/flags_frlg.h')
+          ft = frlg.read_text()
+          if 'FLAG_GOT_TRAINER_WATCH' not in ft:
+              old = '#define FLAG_0x0B1               0x0B1'
+              new = '#define FLAG_GOT_TRAINER_WATCH                 0x0B1 // Mom gave the RTC-backed Trainer Watch'
+              if old not in ft:
+                  raise SystemExit('FRLG flag 0x0B1 is no longer available')
+              ft = ft.replace(old, new, 1)
+          if 'FLAG_TRAINER_WATCH_TIME_VALID' not in ft:
+              old = '#define FLAG_0x0B2               0x0B2'
+              new = '#define FLAG_TRAINER_WATCH_TIME_VALID          0x0B2 // Saved fallback clock state is initialized'
+              if old not in ft:
+                  raise SystemExit('FRLG flag 0x0B2 is no longer available')
+              ft = ft.replace(old, new, 1)
+          frlg.write_text(ft)
           PY
           git diff --check
           git diff --stat
@@ -107,6 +124,7 @@ jobs:
           git add -- \
             include/global.h \
             include/constants/flags.h \
+            include/constants/flags_frlg.h \
             include/rtc.h \
             include/trainer_watch.h \
             src/rtc.c \
