@@ -270,6 +270,8 @@ static void InitBtlControllersInternal(void)
             // Player 1
             if (isRecorded)
                 gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_0)] = SetControllerToRecordedPlayer;
+            else if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)
+                gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_0)] = SetControllerToOakOrOldMan;
             else if (gBattleTypeFlags & BATTLE_TYPE_SAFARI)
                 gBattlerControllerFuncs[GetBattlerPosition(B_BATTLER_0)] = SetControllerToSafari;
             else if (gBattleTypeFlags & BATTLE_TYPE_CATCH_TUTORIAL)
