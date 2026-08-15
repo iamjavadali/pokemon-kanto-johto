@@ -1,0 +1,289 @@
+name: Apply Stage 1A Gameplay Feedback Fixes
+
+on:
+  push:
+    branches:
+      - 'prototype/v0.1'
+    paths:
+      - '.github/workflows/stage1a-feedback-fix.yml'
+
+permissions:
+  contents: write
+
+env:
+  UNUSED_ERROR: 0
+  DEPRECATED_ERROR: 0
+
+jobs:
+  patch-build-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout prototype branch
+        uses: actions/checkout@v4
+        with:
+          ref: prototype/v0.1
+          fetch-depth: 0
+
+      - name: Apply Stage 1A runtime fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f"{path}: expected exactly one match, found {count}\n--- needle ---\n{old}")
+              p.write_text(text.replace(old, new, 1))
+
+          # 1) Stop the player at the first grass row instead of the deeper route-edge tile.
+          map_path = Path('data/maps/PalletTown_Frlg/map.json')
+          data = json.loads(map_path.read_text())
+          changed = 0
+          for event in data['coord_events']:
+              if event.get('script') in ('PalletTown_EventScript_OakTriggerLeft', 'PalletTown_EventScript_OakTriggerRight'):
+                  if event['y'] != 0:
+                      raise SystemExit(f"Unexpected Oak trigger y for {event['script']}: {event['y']}")
+                  event['y'] = 1
+                  changed += 1
+          if changed != 2:
+              raise SystemExit(f"Expected two Oak grass triggers, changed {changed}")
+          map_path.write_text(json.dumps(data, indent=2) + '\n')
+
+          pallet = 'data/maps/PalletTown_Frlg/scripts.inc'
+          replace_once(
+              pallet,
+              "\tcall_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_FaceYellowGrassLeft\n\tcall_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_FaceYellowGrassRight\n\tspecial StartYellowPikachuCaptureBattle\n",
+              "\tcall_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_FaceYellowGrassLeft\n\tcall_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_FaceYellowGrassRight\n\tclearflag FLAG_HIDE_PALLET_WILD_PIKACHU\n\taddobject LOCALID_YELLOW_PIKACHU\n\tdelay 16\n\tplaymoncry SPECIES_PIKACHU, CRY_MODE_NORMAL\n\twaitmoncry\n\tdelay 24\n\tsetflag FLAG_HIDE_PALLET_WILD_PIKACHU\n\tremoveobject LOCALID_YELLOW_PIKACHU\n\tspecial StartYellowPikachuCaptureBattle\n"
+          )
+          replace_once(
+              pallet,
+              "PalletTown_EventScript_FaceYellowGrassRight::\n\tapplymovement LOCALID_PLAYER, Common_Movement_FaceLeft\n\tapplymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceLeft\n\twaitmovement 0\n\treturn\n",
+              "PalletTown_EventScript_FaceYellowGrassRight::\n\tapplymovement LOCALID_PLAYER, Common_Movement_FaceRight\n\tapplymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceRight\n\twaitmovement 0\n\treturn\n"
+          )
+          replace_once(
+              pallet,
+              "PalletTown_Movement_OakEnterLeft::\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_up\n\tstep_end\n",
+              "PalletTown_Movement_OakEnterLeft::\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\tstep_end\n"
+          )
+          replace_once(
+              pallet,
+              "PalletTown_Movement_OakEnterRight::\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_up\n\tstep_end\n",
+              "PalletTown_Movement_OakEnterRight::\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\twalk_right\n\twalk_up\n\twalk_up\n\tstep_end\n"
+          )
+
+          # 2) Make the Yellow capture tutorial actually slide Professor Oak in.
+          controller = 'src/battle_controller_oak_old_man.c'
+          replace_once(
+              controller,
+              "    if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)\n    {\n        OakOldManBufferExecCompleted(battler);\n        return;\n    }\n\n    if (gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE)\n",
+              "    if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU)\n    {\n        BtlController_HandleTrainerSlide(battler, TRAINER_PIC_PROFESSOR_OAK_FRLG);\n        return;\n    }\n\n    if (gBattleTypeFlags & BATTLE_TYPE_FIRST_BATTLE)\n"
+          )
+
+          # Assert the engine still forces the tutorial ball to a visible successful catch.
+          catch_text = Path('src/battle_script_commands.c').read_text()
+          forced_catch = "gBattleTypeFlags & BATTLE_TYPE_CATCH_TUTORIAL"
+          success_anim = "BALL_3_SHAKES_SUCCESS"
+          if forced_catch not in catch_text or success_anim not in catch_text:
+              raise SystemExit('Catch tutorial no longer contains the forced three-shake success path')
+
+          # 3) Reveal Partner Pikachu immediately when the story flag is activated.
+          follower = 'src/event_object_movement.c'
+          replace_once(
+              follower,
+              "    sprite->data[6] = 0; // set animation data\n}\n\n// Remove follower object. Idempotent.\n",
+              "    sprite->data[6] = 0; // set animation data\n\n    // Yellow opening: when Partner Pikachu first refuses its Poké Ball, show it\n    // during Oak's dialogue rather than waiting for the player's next step.\n    if (FlagGet(FLAG_PARTNER_PIKACHU_FOLLOWING) && objEvent->invisible)\n    {\n        struct ObjectEvent *playerObj = &gObjectEvents[gPlayerAvatar.objectEventId];\n        MoveObjectEventToMapCoords(objEvent, playerObj->previousCoords.x, playerObj->previousCoords.y);\n        objEvent->invisible = FALSE;\n        gSprites[objEvent->spriteId].invisible = FALSE;\n    }\n}\n\n// Remove follower object. Idempotent.\n"
+          )
+
+          # 4) Add the first-journey Trainer Watch setup. Reuse a genuinely unused
+          # persistent flag rather than expanding the save-sensitive flag range.
+          replace_once(
+              'include/constants/flags.h',
+              '#define FLAG_UNUSED_0x493                                           0x493 // Unused Flag\n',
+              '#define FLAG_GOT_TRAINER_WATCH                                      0x493 // Yellow opening: Mom gives RTC-backed Trainer Watch\n'
+          )
+
+          # Expose an RTC availability special. Real cartridge/emulator RTC is the
+          # source of truth when present, so host-backed emulators stay synchronized.
+          replace_once(
+              'src/wallclock.c',
+              'void CB2_StartWallClock(void)\n{\n',
+              'u16 CheckTrainerWatchRtc(void)\n{\n    RtcCalcLocalTime();\n    return RtcGetErrorStatus() == 0;\n}\n\nvoid CB2_StartWallClock(void)\n{\n'
+          )
+          replace_once(
+              'data/specials.inc',
+              '\tdef_special StartWallClock, waitstate=1\n',
+              '\tdef_special StartWallClock, waitstate=1\n\tdef_special CheckTrainerWatchRtc\n'
+          )
+
+          mom = 'data/maps/PalletTown_PlayersHouse_1F_Frlg/scripts.inc'
+          old_mom = """PalletTown_PlayersHouse_1F_EventScript_Mom::
+\tlock
+\tfaceplayer
+\tgoto_if_set FLAG_BEAT_RIVAL_IN_OAKS_LAB, PalletTown_PlayersHouse_1F_EventScript_MomHeal
+\tcheckplayergender
+\tcall_if_eq VAR_RESULT, MALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale
+\tcall_if_eq VAR_RESULT, FEMALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale
+\tclosemessage
+\tapplymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FaceOriginalDirection
+\twaitmovement 0
+\trelease
+\tend
+
+"""
+          new_mom = """PalletTown_PlayersHouse_1F_EventScript_Mom::
+\tlock
+\tfaceplayer
+\tgoto_if_set FLAG_BEAT_RIVAL_IN_OAKS_LAB, PalletTown_PlayersHouse_1F_EventScript_MomHeal
+\tgoto_if_unset FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch
+\tgoto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+\tend
+
+PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch::
+\tmsgbox PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro
+\tclosemessage
+\tplayfanfare MUS_RG_OBTAIN_KEY_ITEM
+\tmessage PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch
+\twaitmessage
+\twaitfanfare
+\tspecialvar VAR_RESULT, CheckTrainerWatchRtc
+\tgoto_if_eq VAR_RESULT, TRUE, PalletTown_PlayersHouse_1F_EventScript_TrainerWatchAutoSync
+\tmsgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchManualSetup
+\tcheckplayergender
+\tcopyvar VAR_0x8004, VAR_RESULT
+\tspecial StartWallClock
+\tsetflag FLAG_SYS_CLOCK_SET
+\tsetflag FLAG_GOT_TRAINER_WATCH
+\tmsgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady
+\tgoto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+\tend
+
+PalletTown_PlayersHouse_1F_EventScript_TrainerWatchAutoSync::
+\tsetflag FLAG_SYS_CLOCK_SET
+\tsetflag FLAG_GOT_TRAINER_WATCH
+\tmsgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced
+\tgoto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+\tend
+
+PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney::
+\tcheckplayergender
+\tcall_if_eq VAR_RESULT, MALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale
+\tcall_if_eq VAR_RESULT, FEMALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale
+\tclosemessage
+\tapplymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FaceOriginalDirection
+\twaitmovement 0
+\trelease
+\tend
+
+"""
+          replace_once(mom, old_mom, new_mom)
+
+          watch_text = """
+PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro::
+\t.string "MOM: Before you go, I have\\n"
+\t.string "something for you.\\p"
+\t.string "It's a TRAINER WATCH. It keeps\\n"
+\t.string "the time and calendar for your trip.$"
+
+PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch::
+\t.string "{PLAYER} received the TRAINER WATCH!$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced::
+\t.string "MOM: Perfect! Your TRAINER WATCH\\n"
+\t.string "synced itself to the local clock.\\p"
+\t.string "Morning, day, evening, and night\\n"
+\t.string "will now follow that time.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchManualSetup::
+\t.string "MOM: It can't read a real-time clock\\n"
+\t.string "from this system.\\p"
+\t.string "Set the current time once for me.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady::
+\t.string "MOM: All set. If you later use a\\n"
+\t.string "system with RTC support, the game\\l"
+\t.string "can use its clock automatically.$"
+"""
+          mom_text = Path(mom).read_text()
+          if 'PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro::' in mom_text:
+              raise SystemExit('Trainer Watch text unexpectedly already exists')
+          Path(mom).write_text(mom_text.rstrip() + '\n' + watch_text)
+
+          print('Stage 1A feedback patch applied successfully.')
+          PY
+
+          echo '--- Relevant catch tutorial references ---'
+          grep -R -n "BATTLE_TYPE_CATCH_TUTORIAL\|BATTLE_TYPE_YELLOW_PIKACHU\|TRAINER_PIC_OLD_MAN\|PROFESSOR_OAK_FRLG" src/battle_controller_oak_old_man.c src/battle_script_commands.c | head -80 | tee stage1a-catch-audit.txt
+          echo '--- Diff ---'
+          git diff --check
+          git diff --stat
+          git diff
+
+      - name: Install ARM toolchain and build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            binutils-arm-none-eabi \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libpng-dev \
+            python3
+
+      - name: Build FireRed with Stage 1A fixes
+        shell: bash
+        run: |
+          set -o pipefail
+          make firered -j$(nproc) -O 2>&1 | tee stage1a-build.log
+
+      - name: Verify ROM
+        run: |
+          test -f pokefirered.gba
+          test "$(stat -c%s pokefirered.gba)" -eq 33554432
+          sha256sum pokefirered.gba | tee pokefirered.sha256
+
+      - name: Commit validated runtime fixes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/stage1a-feedback-fix.yml
+          git add \
+            data/maps/PalletTown_Frlg/map.json \
+            data/maps/PalletTown_Frlg/scripts.inc \
+            src/battle_controller_oak_old_man.c \
+            src/event_object_movement.c \
+            include/constants/flags.h \
+            src/wallclock.c \
+            data/specials.inc \
+            data/maps/PalletTown_PlayersHouse_1F_Frlg/scripts.inc
+          git diff --cached --check
+          git commit -m "fix: refine Stage 1A Yellow opening runtime"
+          git push origin HEAD:prototype/v0.1
+          git rev-parse HEAD | tee stage1a-feedback-fix-commit.txt
+
+      - name: Upload playable Stage 1A feedback build
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-kanto-johto-stage1a-feedback-${{ github.run_id }}
+          path: |
+            pokefirered.gba
+            pokefirered.sha256
+            stage1a-feedback-fix-commit.txt
+            stage1a-catch-audit.txt
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1a-feedback-failure-${{ github.run_id }}
+          path: |
+            stage1a-build.log
+            stage1a-catch-audit.txt
+          if-no-files-found: ignore
+          retention-days: 1
