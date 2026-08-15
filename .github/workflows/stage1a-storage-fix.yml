@@ -1,0 +1,126 @@
+name: Fix Stage 1A Storage and Validate
+
+on:
+  push:
+    branches:
+      - prototype/v0.1
+    paths:
+      - .github/workflows/stage1a-storage-fix.yml
+
+permissions:
+  contents: write
+
+env:
+  UNUSED_ERROR: 0
+  DEPRECATED_ERROR: 0
+
+jobs:
+  fix-build-push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout prototype branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: prototype/v0.1
+
+      - name: Apply guarded storage syntax correction
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/pokemon_storage_system.c')
+          text = p.read_text()
+          old = '    [MSG_PARTNER_PIKACHU_STAYS] = {COMPOUND_STRING("PIKACHU refuses to leave your side."), MSG_VAR_NONE}\n'
+          new = '    [MSG_PARTNER_PIKACHU_STAYS] = {COMPOUND_STRING("PIKACHU refuses to leave your side."), MSG_VAR_NONE},\n'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one malformed Partner message, found {text.count(old)}')
+          p.write_text(text.replace(old, new, 1))
+          PY
+          git diff --check
+          git diff -- src/pokemon_storage_system.c
+
+      - name: Create local validated commit
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -- .github/workflows/stage1a-storage-fix.yml
+          git add -- src/pokemon_storage_system.c
+          git diff --cached --check
+          git diff --cached --quiet && { echo 'No correction staged.'; exit 1; }
+          git commit -m "fix: guard partner Pikachu storage message"
+          git rev-parse HEAD | tee stage1a-validated-commit.txt
+
+      - name: Install ARM toolchain and build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            binutils-arm-none-eabi \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libpng-dev \
+            python3
+
+      - name: Cache build tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            tools/bin2c/bin2c
+            tools/gbafix/gbafix
+            tools/gbagfx/gbagfx
+            tools/jsonproc/jsonproc
+            tools/mapjson/mapjson
+            tools/mid2agb/mid2agb
+            tools/preproc/preproc
+            tools/ramscrgen/ramscrgen
+            tools/rsfont/rsfont
+            tools/scaninc/scaninc
+            tools/trainerproc/trainerproc
+            tools/compresSmol/compresSmol
+            tools/compresSmol/compresSmolTilemap
+            tools/wav2agb/wav2agb
+          key: prototype-tools-${{ runner.os }}-${{ hashFiles('tools/*/Makefile', 'tools/**/*.c', 'tools/**/*.cpp', 'tools/**/*.h') }}
+
+      - name: Documentation validation
+        run: .github/docs_validate/inclusive_summary.py
+
+      - name: Full FireRed build
+        shell: bash
+        run: |
+          set -o pipefail
+          make firered -j$(nproc) -O 2>&1 | tee firered-build.log
+
+      - name: Verify ROM
+        shell: bash
+        run: |
+          test -f pokefirered.gba
+          sha256sum pokefirered.gba | tee pokefirered.sha256
+          ls -lh pokefirered.gba
+
+      - name: Push validated Stage 1A correction
+        shell: bash
+        run: git push origin HEAD:prototype/v0.1
+
+      - name: Upload validated Stage 1A ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-kanto-johto-stage1a-${{ github.run_id }}
+          path: |
+            pokefirered.gba
+            pokefirered.sha256
+            stage1a-validated-commit.txt
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1a-fix-diagnostics-${{ github.run_id }}
+          path: |
+            firered-build.log
+            stage1a-validated-commit.txt
+          if-no-files-found: ignore
+          retention-days: 1
