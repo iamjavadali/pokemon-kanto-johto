@@ -31,6 +31,12 @@ jobs:
           path = Path('.github/scripts/stage1a_foundation_apply.py')
           source = path.read_text()
 
+          # Normalize the one unused-flag line whose upstream spacing is compact.
+          source = source.replace(
+              '#define FLAG_0x0B0                         0x0B0',
+              '#define FLAG_0x0B0               0x0B0'
+          )
+
           # Replace one quoting-fragile helper block before compiling/executing the
           # guarded patch. The replacement is behaviorally equivalent and avoids
           # embedding apostrophes inside single-quoted Python source literals.
@@ -63,8 +69,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Remove the one-shot helper in the same gameplay commit so the branch
-          # finishes clean and the helper cannot run a second time.
           git rm -- .github/workflows/stage1a-foundation-apply.yml .github/scripts/stage1a_foundation_apply.py
 
           git add -- \
