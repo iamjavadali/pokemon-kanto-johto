@@ -100,7 +100,7 @@ static const u8 sText_Pm[] = _(" PM");
 
 static const u8 sTrainerWatchTextColors[] =
 {
-    TEXT_COLOR_TRANSPARENT, TEXT_COLOR_DARK_GRAY, TEXT_COLOR_LIGHT_GRAY
+    TEXT_COLOR_TRANSPARENT, TEXT_COLOR_WHITE, TEXT_COLOR_DARK_GRAY
 };
 
 static const u8 sText_Sunday[] = _("SUNDAY");

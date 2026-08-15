@@ -84,6 +84,21 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "0x0",
       "flag": "FLAG_HIDE_PALLET_WILD_PIKACHU"
+    },
+    {
+      "local_id": "LOCALID_ROUTE1_YELLOW_PIKACHU_RIGHT",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PIKACHU",
+      "x": 12,
+      "y": 39,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_UP",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_HIDE_PALLET_WILD_PIKACHU"
     }
   ],
   "warp_events": [],

@@ -11,13 +11,15 @@ Route1_EventScript_YellowOakTransitionDone:
 
 Route1_EventScript_YellowOakTriggerLeft::
 	lockall
-	applymovement LOCALID_PLAYER, Route1_Movement_PlayerShiftToCanonicalGrass
+	setvar VAR_0x8008, 0
+	applymovement LOCALID_PLAYER, Common_Movement_FaceDown
 	waitmovement 0
 	goto Route1_EventScript_YellowOakTrigger
 
 Route1_EventScript_YellowOakTriggerRight::
 	lockall
-	applymovement LOCALID_PLAYER, Route1_Movement_PlayerFaceBackTowardOak
+	setvar VAR_0x8008, 1
+	applymovement LOCALID_PLAYER, Common_Movement_FaceDown
 	waitmovement 0
 
 Route1_EventScript_YellowOakTrigger:
@@ -35,12 +37,25 @@ Route1_EventScript_YellowOakTrigger:
 	delay 16
 	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	addobject LOCALID_ROUTE1_YELLOW_OAK
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEnterGrass
+	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowOakStageRight
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Common_Movement_FaceUp
 	waitmovement 0
+	goto Route1_EventScript_YellowOakStageReady
+
+Route1_EventScript_YellowOakStageRight:
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakToRightLane
+	waitmovement 0
+	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
+	waitmovement 0
+
+Route1_EventScript_YellowOakStageReady:
 	msgbox PalletTown_Text_OakGrassUnsafeNeedMon
 	closemessage
-	applymovement LOCALID_PLAYER, Route1_Movement_PlayerFacePikachu
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakFacePikachu
+	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowPikachuRight
+
+Route1_EventScript_YellowPikachuLeft:
+	applymovement LOCALID_PLAYER, Common_Movement_FaceDown
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Common_Movement_FaceRight
 	waitmovement 0
 	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
 	addobject LOCALID_ROUTE1_YELLOW_PIKACHU
@@ -50,6 +65,22 @@ Route1_EventScript_YellowOakTrigger:
 	delay 24
 	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
 	removeobject LOCALID_ROUTE1_YELLOW_PIKACHU
+	goto Route1_EventScript_YellowPikachuCapture
+
+Route1_EventScript_YellowPikachuRight:
+	applymovement LOCALID_PLAYER, Common_Movement_FaceDown
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Common_Movement_FaceDown
+	waitmovement 0
+	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	addobject LOCALID_ROUTE1_YELLOW_PIKACHU_RIGHT
+	delay 16
+	playmoncry SPECIES_PIKACHU, CRY_MODE_NORMAL
+	waitmoncry
+	delay 24
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	removeobject LOCALID_ROUTE1_YELLOW_PIKACHU_RIGHT
+
+Route1_EventScript_YellowPikachuCapture:
 	special StartYellowPikachuCaptureBattle
 	waitstate
 	lockall
@@ -72,24 +103,8 @@ Route1_EventScript_YellowOakTrigger:
 	releaseall
 	end
 
-Route1_Movement_PlayerShiftToCanonicalGrass:
-	walk_right
-	walk_in_place_faster_down
-	step_end
-
-Route1_Movement_PlayerFaceBackTowardOak:
-	walk_in_place_faster_down
-	step_end
-
-Route1_Movement_OakEnterGrass:
-	walk_in_place_faster_up
-	step_end
-
-Route1_Movement_PlayerFacePikachu:
-	walk_in_place_faster_down
-	step_end
-
-Route1_Movement_OakFacePikachu:
+Route1_Movement_OakToRightLane:
+	walk_up
 	walk_in_place_faster_right
 	step_end
 

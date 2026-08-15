@@ -65,8 +65,17 @@
   "coord_events": [
     {
       "type": "trigger",
+      "x": 3,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F",
+      "var_value": "0",
+      "script": "PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSide"
+    },
+    {
+      "type": "trigger",
       "x": 4,
-      "y": 7,
+      "y": 8,
       "elevation": 3,
       "var": "VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F",
       "var_value": "0",
@@ -75,20 +84,11 @@
     {
       "type": "trigger",
       "x": 5,
-      "y": 7,
+      "y": 8,
       "elevation": 3,
       "var": "VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F",
       "var_value": "0",
       "script": "PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRight"
-    },
-    {
-      "type": "trigger",
-      "x": 3,
-      "y": 8,
-      "elevation": 0,
-      "var": "VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F",
-      "var_value": "0",
-      "script": "PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSide"
     }
   ],
   "bg_events": [

@@ -4,6 +4,7 @@ PalletTown_PlayersHouse_1F_Frlg_MapScripts::
 PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchLeft::
 	lockall
 	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	call PalletTown_PlayersHouse_1F_EventScript_MomAlert
 	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromLeft
 	waitmovement 0
 	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
@@ -11,6 +12,7 @@ PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchLeft::
 PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRight::
 	lockall
 	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	call PalletTown_PlayersHouse_1F_EventScript_MomAlert
 	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromRight
 	waitmovement 0
 	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
@@ -18,8 +20,17 @@ PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRight::
 PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSide::
 	lockall
 	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	call PalletTown_PlayersHouse_1F_EventScript_MomAlert
 	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromSide
 	waitmovement 0
+	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
+
+PalletTown_PlayersHouse_1F_EventScript_MomAlert:
+	playse SE_PIN
+	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
+	return
 
 PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch::
 	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FacePlayer
@@ -40,6 +51,7 @@ PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone::
 PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromLeft:
 	walk_up
 	walk_up
+	walk_up
 	walk_right
 	walk_right
 	walk_right
@@ -48,6 +60,7 @@ PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromLeft:
 	step_end
 
 PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromRight:
+	walk_up
 	walk_up
 	walk_up
 	walk_right
