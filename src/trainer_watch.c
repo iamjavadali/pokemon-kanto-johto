@@ -205,11 +205,6 @@ static void AdjustCurrentField(struct Task *task, s32 delta)
     }
 }
 
-static u8 *AppendNumber(u8 *dest, s32 value, u32 digits)
-{
-    return ConvertIntToDecimalStringN(dest, value, STR_CONV_MODE_LEADING_ZEROS, digits);
-}
-
 static u8 GetCenteredX(const u8 *str, u8 fontId)
 {
     s32 x = (24 * 8 - GetStringWidth(fontId, str, 0)) / 2;
