@@ -515,8 +515,8 @@ PalletTown_ProfessorOaksLab_EventScript_EndRivalBattle::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitLeft::
-	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepRightWatchRival
-	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitLeft
 	waitmovement LOCALID_OAKS_LAB_RIVAL
 	goto PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit
 	end
@@ -529,7 +529,7 @@ PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitMid::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitRight::
-	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepLeftWatchRival
+	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitRight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
 	goto PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit
@@ -562,8 +562,8 @@ PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuAfterBattle::
 	goto PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuRight
 
 PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuLeft::
-	setobjectxyperm LOCALID_OAKS_LAB_YELLOW_PIKACHU, 5, 8
-	setobjectmovementtype LOCALID_OAKS_LAB_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_RIGHT
+	setobjectxyperm LOCALID_OAKS_LAB_YELLOW_PIKACHU, 6, 8
+	setobjectmovementtype LOCALID_OAKS_LAB_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_LEFT
 	goto PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuCommon
 
 PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuMid::
@@ -572,8 +572,8 @@ PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuMid::
 	goto PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuCommon
 
 PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuRight::
-	setobjectxyperm LOCALID_OAKS_LAB_YELLOW_PIKACHU, 7, 8
-	setobjectmovementtype LOCALID_OAKS_LAB_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_LEFT
+	setobjectxyperm LOCALID_OAKS_LAB_YELLOW_PIKACHU, 6, 8
+	setobjectmovementtype LOCALID_OAKS_LAB_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_RIGHT
 
 PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuCommon::
 	clearflag FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU
@@ -588,8 +588,16 @@ PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight::
 	walk_down
 	step_end
 
+PalletTown_ProfessorOaksLab_Movement_YellowRivalExitLeft::
+	walk_right
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
 PalletTown_ProfessorOaksLab_Movement_YellowRivalExitRight::
-	walk_left
 	walk_left
 	walk_down
 	walk_down
@@ -1987,4 +1995,3 @@ PalletTown_ProfessorOaksLab_Text_RivalIllCompleteThePokedex::
 	.string "I think I'll try looking around\n"
 	.string "ONE ISLAND first…\p"
 	.string "Anyways, I'm outta here!$"
-

@@ -41,15 +41,17 @@ PalletTown_EventScript_MoveSignLadyToRouteEntrance::
 
 PalletTown_OnFrame::
 	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 2, PalletTown_EventScript_OakRatingScene
-	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 4, PalletTown_EventScript_YellowOakEscortFromRoute1
+	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 4, PalletTown_EventScript_YellowOakEscortFromRoute1Left
+	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 5, PalletTown_EventScript_YellowOakEscortFromRoute1Right
 	.2byte 0
 
-PalletTown_EventScript_YellowOakEscortFromRoute1:
+PalletTown_EventScript_YellowOakEscortFromRoute1Left:
 	lockall
-	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 5
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
 	textcolor NPC_TEXT_COLOR_MALE
 	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
-	goto_if_eq VAR_0x8008, 1, PalletTown_EventScript_YellowOakEscortFromRoute1Right
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
+	waitmovement LOCALID_PLAYER
 	setobjectxyperm LOCALID_PALLET_PROF_OAK, 12, 1
 	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
 	addobject LOCALID_PALLET_PROF_OAK
@@ -57,6 +59,12 @@ PalletTown_EventScript_YellowOakEscortFromRoute1:
 	goto PalletTown_EventScript_YellowOakEnterLabFromRoute1
 
 PalletTown_EventScript_YellowOakEscortFromRoute1Right:
+	lockall
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+	textcolor NPC_TEXT_COLOR_MALE
+	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
+	waitmovement LOCALID_PLAYER
 	setobjectxyperm LOCALID_PALLET_PROF_OAK, 13, 1
 	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
 	addobject LOCALID_PALLET_PROF_OAK
@@ -413,14 +421,16 @@ PalletTown_Movement_PlayerWalkToLabRight::
 	walk_to_lab
 	step_end
 
-PalletTown_Movement_PlayerWalkToLabFromRoute1Left::
+PalletTown_Movement_PlayerClearRoute1Edge::
 	walk_down
+	step_end
+
+PalletTown_Movement_PlayerWalkToLabFromRoute1Left::
 	walk_down
 	walk_to_lab
 	step_end
 
 PalletTown_Movement_PlayerWalkToLabFromRoute1Right::
-	walk_down
 	walk_down
 	walk_left
 	walk_to_lab
@@ -660,5 +670,4 @@ PalletTown_Text_LookCopiedTrainerTipsSign::
 PalletTown_Text_PressStartToOpenMenuCopy::
 	.string "TRAINER TIPS!\p"
 	.string "Press START to open the MENU!$"
-
 

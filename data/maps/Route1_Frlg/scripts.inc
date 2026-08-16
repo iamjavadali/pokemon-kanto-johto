@@ -91,12 +91,13 @@ Route1_EventScript_YellowPikachuCapture:
 	msgbox PalletTown_Text_OakComeWithMeYellow
 	closemessage
 	delay 12
-	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
 	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowEscortWalkRight
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
 	call Route1_EventScript_YellowEscortToPalletEdge
 	end
 
 Route1_EventScript_YellowEscortWalkRight::
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 5
 	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakMoveBehindPlayerRight
 	waitmovement LOCALID_ROUTE1_YELLOW_OAK
 	call Route1_EventScript_YellowEscortToPalletEdge
