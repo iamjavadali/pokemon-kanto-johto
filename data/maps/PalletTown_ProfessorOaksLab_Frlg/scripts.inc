@@ -515,7 +515,6 @@ PalletTown_ProfessorOaksLab_EventScript_EndRivalBattle::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitLeft::
-	setvar VAR_0x8004, DIR_WEST
 	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepRightWatchRival
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
@@ -523,7 +522,6 @@ PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitLeft::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitMid::
-	setvar VAR_0x8004, DIR_EAST
 	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepLeftWatchRival
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
@@ -531,7 +529,6 @@ PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitMid::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitRight::
-	setvar VAR_0x8004, DIR_WEST
 	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepLeftWatchRival
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitRight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
@@ -545,6 +542,7 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
 	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
+	callnative RevealFollowingPokemonNow
 	callnative FollowerNPC_PlaceNextToPlayer
 	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
@@ -1318,7 +1316,7 @@ PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
 	waitmovement 0
 	msgbox PalletTown_ProfessorOaksLab_Text_RivalWantsEevee
 	closemessage
-	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerPushedFromEevee
+	call PalletTown_ProfessorOaksLab_EventScript_MaybeMovePlayerForEeveeSnatch
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalSnatchEevee
 	waitmovement 0
 	removeobject LOCALID_SQUIRTLE_BALL
@@ -1385,6 +1383,13 @@ PalletTown_ProfessorOaksLab_EventScript_MovePlayerToOakYellowFront::
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalRestoreAfterClear
 	applymovement LOCALID_OAKS_LAB_PROF_OAK, Common_Movement_FacePlayer
 	waitmovement 0
+	return
+
+PalletTown_ProfessorOaksLab_EventScript_MaybeMovePlayerForEeveeSnatch:
+	getplayerxy VAR_0x8004, VAR_0x8005
+	goto_if_ne VAR_0x8005, 5, PalletTown_ProfessorOaksLab_EventScript_NoPlayerMoveForEeveeSnatch
+	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerPushedFromEevee
+PalletTown_ProfessorOaksLab_EventScript_NoPlayerMoveForEeveeSnatch:
 	return
 
 PalletTown_ProfessorOaksLab_Movement_RivalRushToEevee::

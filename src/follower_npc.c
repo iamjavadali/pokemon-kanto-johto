@@ -1440,11 +1440,8 @@ void FollowerNPC_PlaceNextToPlayer(void)
 #if FNPC_ENABLE_NPC_FOLLOWERS
     struct ObjectEvent *player;
     struct ObjectEvent *follower;
-    enum Direction preferredDirection;
-    enum Direction direction;
     s16 targetX;
-    s16 targetY;
-    u32 i;
+    enum Direction facingDirection;
 
     if (!PlayerHasFollowerNPC())
         return;
@@ -1454,35 +1451,30 @@ void FollowerNPC_PlaceNextToPlayer(void)
     if (!follower->active)
         return;
 
-    preferredDirection = VarGet(VAR_0x8004);
-    if (preferredDirection != DIR_EAST && preferredDirection != DIR_WEST)
-        preferredDirection = DIR_WEST;
-
     ObjectEventClearHeldMovementIfActive(follower);
     follower->singleMovementActive = FALSE;
     follower->heldMovementActive = FALSE;
 
-    for (i = 0; i < 2; i++)
+    // FRLG's three Oak Lab battle triggers are stored in VAR_TEMP_2.
+    // Middle lane: player steps left, so Pikachu takes the vacated middle tile.
+    // Left/right lanes: player ends in the middle, so Pikachu takes the left tile.
+    if (VarGet(VAR_TEMP_2) == 2)
     {
-        direction = (i == 0) ? preferredDirection
-                             : (preferredDirection == DIR_WEST ? DIR_EAST : DIR_WEST);
-        targetX = player->currentCoords.x + (direction == DIR_WEST ? -1 : 1);
-        targetY = player->currentCoords.y;
-
-        if (GetCollisionAtCoords(player, targetX, targetY, direction) != COLLISION_NONE)
-            continue;
-
-        MoveObjectEventToMapCoords(follower, targetX, targetY);
-        ObjectEventTurn(follower, direction == DIR_WEST ? DIR_EAST : DIR_WEST);
-        follower->invisible = FALSE;
-        SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_NONE);
-        SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
-        PlayerLogCoordinates(player);
-        return;
+        targetX = player->currentCoords.x + 1;
+        facingDirection = DIR_WEST;
+    }
+    else
+    {
+        targetX = player->currentCoords.x - 1;
+        facingDirection = DIR_EAST;
     }
 
-    // Avoid overlapping the player if future map edits block both side tiles.
-    follower->invisible = TRUE;
+    MoveObjectEventToMapCoords(follower, targetX, player->currentCoords.y);
+    ObjectEventTurn(follower, facingDirection);
+    follower->invisible = FALSE;
+    SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_NONE);
+    SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
+    PlayerLogCoordinates(player);
 #endif
 }
 

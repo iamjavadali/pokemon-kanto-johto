@@ -41,7 +41,48 @@ PalletTown_EventScript_MoveSignLadyToRouteEntrance::
 
 PalletTown_OnFrame::
 	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 2, PalletTown_EventScript_OakRatingScene
+	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 4, PalletTown_EventScript_YellowOakEscortFromRoute1
 	.2byte 0
+
+PalletTown_EventScript_YellowOakEscortFromRoute1:
+	lockall
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 5
+	textcolor NPC_TEXT_COLOR_MALE
+	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	goto_if_eq VAR_0x8008, 1, PalletTown_EventScript_YellowOakEscortFromRoute1Right
+	setobjectxyperm LOCALID_PALLET_PROF_OAK, 12, 1
+	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
+	addobject LOCALID_PALLET_PROF_OAK
+	call PalletTown_EventScript_OakLeadPlayerToLabLeft
+	goto PalletTown_EventScript_YellowOakEnterLabFromRoute1
+
+PalletTown_EventScript_YellowOakEscortFromRoute1Right:
+	setobjectxyperm LOCALID_PALLET_PROF_OAK, 13, 1
+	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
+	addobject LOCALID_PALLET_PROF_OAK
+	call PalletTown_EventScript_OakLeadPlayerToLabRight
+
+PalletTown_EventScript_YellowOakEnterLabFromRoute1:
+	opendoor 16, 13
+	waitdooranim
+	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakEnterLab
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerEnterLab
+	waitmovement 0
+	closedoor 16, 13
+	waitdooranim
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 1
+	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	setflag FLAG_HIDE_BULBASAUR_BALL
+	clearflag FLAG_HIDE_SQUIRTLE_BALL
+	setflag FLAG_HIDE_CHARMANDER_BALL
+	clearflag FLAG_HIDE_RIVAL_IN_LAB
+	setflag FLAG_DONT_TRANSITION_MUSIC
+	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
+	waitstate
+	releaseall
+	end
 
 @ Oak approaches player after exiting their house post Elite Four to check if they should receieve the National Dex
 PalletTown_EventScript_OakRatingScene::
