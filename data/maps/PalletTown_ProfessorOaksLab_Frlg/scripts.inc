@@ -540,18 +540,45 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	playse SE_EXIT
 	fadedefaultbgm
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
-	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
-	callnative UpdateFollowingPokemon
-	callnative RevealFollowingPokemonNow
-	callnative FollowerNPC_PlaceNextToPlayer
+	call PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuAfterBattle
 	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut
 	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls
+	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
+	callnative UpdateFollowingPokemon
+	setvar VAR_0x8004, LOCALID_OAKS_LAB_YELLOW_PIKACHU
+	callnative PlaceFollowingPokemonAtScriptedObject
+	setflag FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU
+	removeobject LOCALID_OAKS_LAB_YELLOW_PIKACHU
 	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4
 	releaseall
 	end
+
+PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuAfterBattle::
+	goto_if_eq VAR_TEMP_2, 1, PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuLeft
+	goto_if_eq VAR_TEMP_2, 2, PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuMid
+	goto PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuRight
+
+PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuLeft::
+	setobjectxyperm LOCALID_OAKS_LAB_YELLOW_PIKACHU, 5, 8
+	setobjectmovementtype LOCALID_OAKS_LAB_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_RIGHT
+	goto PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuCommon
+
+PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuMid::
+	setobjectxyperm LOCALID_OAKS_LAB_YELLOW_PIKACHU, 6, 8
+	setobjectmovementtype LOCALID_OAKS_LAB_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_LEFT
+	goto PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuCommon
+
+PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuRight::
+	setobjectxyperm LOCALID_OAKS_LAB_YELLOW_PIKACHU, 7, 8
+	setobjectmovementtype LOCALID_OAKS_LAB_YELLOW_PIKACHU, MOVEMENT_TYPE_FACE_LEFT
+
+PalletTown_ProfessorOaksLab_EventScript_ShowYellowPikachuCommon::
+	clearflag FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU
+	addobject LOCALID_OAKS_LAB_YELLOW_PIKACHU
+	return
 
 PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight::
 	walk_down
@@ -1312,13 +1339,15 @@ PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
 	lockall
 	textcolor NPC_TEXT_COLOR_MALE
 	goto_if_ne VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 2, PalletTown_ProfessorOaksLab_EventScript_LastPokeBall
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
+	call PalletTown_ProfessorOaksLab_EventScript_MaybeMovePlayerForEeveeSnatch
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalRushToEevee
 	waitmovement 0
 	msgbox PalletTown_ProfessorOaksLab_Text_RivalWantsEevee
 	closemessage
-	call PalletTown_ProfessorOaksLab_EventScript_MaybeMovePlayerForEeveeSnatch
-	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalSnatchEevee
-	waitmovement 0
 	removeobject LOCALID_SQUIRTLE_BALL
 	setflag FLAG_HIDE_SQUIRTLE_BALL
 	playfanfare MUS_RG_OBTAIN_KEY_ITEM
@@ -1397,20 +1426,16 @@ PalletTown_ProfessorOaksLab_Movement_RivalRushToEevee::
 	walk_right
 	walk_right
 	walk_right
+	walk_right
+	walk_in_place_faster_up
 	step_end
 
 PalletTown_ProfessorOaksLab_Movement_PlayerPushedFromEevee::
 	walk_right
 	step_end
 
-PalletTown_ProfessorOaksLab_Movement_RivalSnatchEevee::
-	walk_right
-	walk_in_place_faster_up
-	step_end
-
 PalletTown_ProfessorOaksLab_Movement_PlayerWalkBehindOakYellow::
 	walk_up
-	walk_left
 	walk_left
 	walk_left
 	walk_left

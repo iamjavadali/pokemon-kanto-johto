@@ -5,6 +5,7 @@ Route1_Frlg_MapScripts::
 Route1_EventScript_YellowOakOnTransition:
 	goto_if_ne VAR_MAP_SCENE_PALLET_TOWN_OAK, 0, Route1_EventScript_YellowOakTransitionDone
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	setflag FLAG_HIDE_ROUTE1_YELLOW_OAK
 	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
 Route1_EventScript_YellowOakTransitionDone:
 	end
@@ -35,7 +36,7 @@ Route1_EventScript_YellowOakTrigger:
 	waitmessage
 	delay 55
 	closemessage
-	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	clearflag FLAG_HIDE_ROUTE1_YELLOW_OAK
 	addobject LOCALID_ROUTE1_YELLOW_OAK
 	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowOakApproachRight
 	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEnterLeft
@@ -95,6 +96,7 @@ Route1_EventScript_YellowPikachuCapture:
 	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortSouth
 	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortSouth
 	waitmovement LOCALID_PLAYER
+	setflag FLAG_HIDE_ROUTE1_YELLOW_OAK
 	end
 
 Route1_EventScript_YellowEscortWalkRight:
@@ -103,6 +105,7 @@ Route1_EventScript_YellowEscortWalkRight:
 	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortSouth
 	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortSouth
 	waitmovement LOCALID_PLAYER
+	setflag FLAG_HIDE_ROUTE1_YELLOW_OAK
 	end
 
 Route1_Movement_PlayerEscortSouth:

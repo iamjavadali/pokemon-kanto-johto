@@ -245,6 +245,36 @@ static struct Pokemon *GetPartnerAwareFollowingMon(void)
     return GetFirstLiveMon();
 }
 
+void PlaceFollowingPokemonAtScriptedObject(void)
+{
+#if OW_FOLLOWERS_ENABLED
+    struct ObjectEvent *follower = GetFollowerObject();
+    struct ObjectEvent *source;
+    u8 sourceId;
+    u8 localId = VarGet(VAR_0x8004);
+
+    if (follower == NULL || !follower->active)
+        return;
+
+    if (TryGetObjectEventIdByLocalIdAndMap(localId,
+                                           gSaveBlock1Ptr->location.mapNum,
+                                           gSaveBlock1Ptr->location.mapGroup,
+                                           &sourceId) != 0)
+        return;
+
+    source = &gObjectEvents[sourceId];
+    if (!source->active)
+        return;
+
+    ObjectEventClearHeldMovementIfActive(follower);
+    follower->singleMovementActive = FALSE;
+    follower->heldMovementActive = FALSE;
+    MoveObjectEventToMapCoords(follower, source->currentCoords.x, source->currentCoords.y);
+    ObjectEventTurn(follower, source->facingDirection);
+    follower->invisible = FALSE;
+#endif
+}
+
 const u8 gReflectionEffectPaletteMap[16] = {
         [PALSLOT_PLAYER]                 = PALSLOT_PLAYER_REFLECTION,
         [PALSLOT_PLAYER_REFLECTION]      = PALSLOT_PLAYER_REFLECTION,

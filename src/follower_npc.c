@@ -1435,49 +1435,6 @@ void HideNPCFollower(void)
     gObjectEvents[GetFollowerNPCObjectId()].invisible = TRUE;
 }
 
-void FollowerNPC_PlaceNextToPlayer(void)
-{
-#if FNPC_ENABLE_NPC_FOLLOWERS
-    struct ObjectEvent *player;
-    struct ObjectEvent *follower;
-    s16 targetX;
-    enum Direction facingDirection;
-
-    if (!PlayerHasFollowerNPC())
-        return;
-
-    player = &gObjectEvents[gPlayerAvatar.objectEventId];
-    follower = &gObjectEvents[GetFollowerNPCObjectId()];
-    if (!follower->active)
-        return;
-
-    ObjectEventClearHeldMovementIfActive(follower);
-    follower->singleMovementActive = FALSE;
-    follower->heldMovementActive = FALSE;
-
-    // FRLG's three Oak Lab battle triggers are stored in VAR_TEMP_2.
-    // Middle lane: player steps left, so Pikachu takes the vacated middle tile.
-    // Left/right lanes: player ends in the middle, so Pikachu takes the left tile.
-    if (VarGet(VAR_TEMP_2) == 2)
-    {
-        targetX = player->currentCoords.x + 1;
-        facingDirection = DIR_WEST;
-    }
-    else
-    {
-        targetX = player->currentCoords.x - 1;
-        facingDirection = DIR_EAST;
-    }
-
-    MoveObjectEventToMapCoords(follower, targetX, player->currentCoords.y);
-    ObjectEventTurn(follower, facingDirection);
-    follower->invisible = FALSE;
-    SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_NONE);
-    SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
-    PlayerLogCoordinates(player);
-#endif
-}
-
 void FollowerNPC_WarpSetEnd(void)
 {
     struct ObjectEvent *player;

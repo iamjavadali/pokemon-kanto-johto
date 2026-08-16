@@ -68,7 +68,7 @@
       "trainer_type": "TRAINER_TYPE_NONE",
       "trainer_sight_or_berry_tree_id": "0",
       "script": "0x0",
-      "flag": "FLAG_HIDE_OAK_IN_PALLET_TOWN"
+      "flag": "FLAG_HIDE_ROUTE1_YELLOW_OAK"
     },
     {
       "local_id": "LOCALID_ROUTE1_YELLOW_PIKACHU",
