@@ -25,6 +25,8 @@ static void DebugAction_GoldenYellow_ApplyCheckpoint(u8 taskId, const void *para
 #define GY_SELECTION(name, cp, path) \
     static const struct GoldenYellowDebugMenuSelection name = { cp, path }
 
+GY_SELECTION(sGyBeforeWatch, GY_DEBUG_CP_BEFORE_TRAINER_WATCH, GY_DEBUG_RIVAL_UNSET);
+GY_SELECTION(sGyBeforeRoute1Oak, GY_DEBUG_CP_BEFORE_ROUTE1_OAK, GY_DEBUG_RIVAL_UNSET);
 GY_SELECTION(sGyOakLab, GY_DEBUG_CP_OAK_LAB_RIVAL, GY_DEBUG_RIVAL_UNSET);
 GY_SELECTION(sGyRoute22Early, GY_DEBUG_CP_ROUTE22_EARLY, GY_DEBUG_RIVAL_FLAREON);
 GY_SELECTION(sGyCerulean, GY_DEBUG_CP_CERULEAN_RIVAL, GY_DEBUG_RIVAL_JOLTEON);
@@ -78,6 +80,8 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Champion[] =
 
 static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Checkpoints[] =
 {
+    { COMPOUND_STRING("Before Trainer Watch"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeWatch },
+    { COMPOUND_STRING("Before Route 1 Oak"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRoute1Oak },
     { COMPOUND_STRING("Oak Lab Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyOakLab },
     { COMPOUND_STRING("Route 22 - Early"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyRoute22Early },
     { COMPOUND_STRING("Cerulean Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCerulean },
