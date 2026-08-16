@@ -43,6 +43,7 @@ PalletTown_OnFrame::
 	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 2, PalletTown_EventScript_OakRatingScene
 	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 4, PalletTown_EventScript_YellowOakEscortFromRoute1Left
 	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 5, PalletTown_EventScript_YellowOakEscortFromRoute1Right
+	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 6, PalletTown_EventScript_YellowOakWaitAtLabFromRoute1
 	.2byte 0
 
 PalletTown_EventScript_YellowOakEscortFromRoute1Left:
@@ -670,4 +671,3 @@ PalletTown_Text_LookCopiedTrainerTipsSign::
 PalletTown_Text_PressStartToOpenMenuCopy::
 	.string "TRAINER TIPS!\p"
 	.string "Press START to open the MENU!$"
-
