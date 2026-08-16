@@ -93,30 +93,36 @@ Route1_EventScript_YellowPikachuCapture:
 	delay 12
 	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
 	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowEscortWalkRight
-	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortSouth
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortSouth
-	waitmovement LOCALID_PLAYER
-	setflag FLAG_HIDE_ROUTE1_YELLOW_OAK
+	call Route1_EventScript_YellowEscortToPalletEdge
 	end
 
-Route1_EventScript_YellowEscortWalkRight:
+Route1_EventScript_YellowEscortWalkRight::
 	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakMoveBehindPlayerRight
 	waitmovement LOCALID_ROUTE1_YELLOW_OAK
-	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortSouth
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortSouth
-	waitmovement LOCALID_PLAYER
-	setflag FLAG_HIDE_ROUTE1_YELLOW_OAK
+	call Route1_EventScript_YellowEscortToPalletEdge
 	end
 
-Route1_Movement_PlayerEscortSouth:
-	walk_down
+Route1_EventScript_YellowEscortToPalletEdge::
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortToPalletEdge
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortToPalletEdge
+	waitmovement LOCALID_PLAYER
+	setflag FLAG_HIDE_ROUTE1_YELLOW_OAK
+	removeobject LOCALID_ROUTE1_YELLOW_OAK
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerCrossIntoPallet
+	waitmovement LOCALID_PLAYER
+	return
+
+Route1_Movement_PlayerEscortToPalletEdge::
 	walk_down
 	walk_down
 	step_end
 
-Route1_Movement_OakEscortSouth:
+Route1_Movement_OakEscortToPalletEdge::
 	walk_down
 	walk_down
+	step_end
+
+Route1_Movement_PlayerCrossIntoPallet::
 	walk_down
 	step_end
 

@@ -1432,6 +1432,7 @@ PalletTown_ProfessorOaksLab_Movement_RivalRushToEevee::
 
 PalletTown_ProfessorOaksLab_Movement_PlayerPushedFromEevee::
 	walk_right
+	walk_in_place_faster_left
 	step_end
 
 PalletTown_ProfessorOaksLab_Movement_PlayerWalkBehindOakYellow::
