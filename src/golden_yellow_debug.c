@@ -178,7 +178,7 @@ static void GoldenYellowDebug_CreatePartnerPikachu(const struct GoldenYellowDebu
 
     ScriptGiveMon(SPECIES_PIKACHU_STARTER, profile->level, ITEM_NONE);
     for (i = 0; i < MAX_MON_MOVES; i++)
-        SetMonMoveSlot(&gPlayerParty[0], profile->moves[i], i);
+        SetMonMoveSlot(&gParties[B_TRAINER_PLAYER][0], profile->moves[i], i);
 }
 
 static void GoldenYellowDebug_SetTestParty(const struct GoldenYellowDebugPartnerProfile *partner,
