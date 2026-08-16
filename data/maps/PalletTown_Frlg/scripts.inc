@@ -41,132 +41,7 @@ PalletTown_EventScript_MoveSignLadyToRouteEntrance::
 
 PalletTown_OnFrame::
 	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 2, PalletTown_EventScript_OakRatingScene
-	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 4, PalletTown_EventScript_YellowOakEscortToLab
 	.2byte 0
-
-PalletTown_EventScript_YellowOakEscortToLab:
-	lockall
-	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 5
-	textcolor NPC_TEXT_COLOR_MALE
-	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
-	goto_if_eq VAR_0x8008, 1, PalletTown_EventScript_YellowOakEscortRight
-	setobjectxyperm LOCALID_PALLET_PROF_OAK, 12, 4
-	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
-	addobject LOCALID_PALLET_PROF_OAK
-	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_YellowOakContinueToLabLeft
-	applymovement LOCALID_PLAYER, PalletTown_Movement_YellowPlayerContinueToLabLeft
-	waitmovement 0
-	goto PalletTown_EventScript_YellowOakEnterLab
-
-PalletTown_EventScript_YellowOakEscortRight:
-	setobjectxyperm LOCALID_PALLET_PROF_OAK, 13, 4
-	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
-	addobject LOCALID_PALLET_PROF_OAK
-	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_YellowOakContinueToLabRight
-	applymovement LOCALID_PLAYER, PalletTown_Movement_YellowPlayerContinueToLabRight
-	waitmovement 0
-
-PalletTown_Movement_YellowOakContinueToLabLeft:
-	walk_left
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_in_place_faster_up
-	step_end
-
-PalletTown_Movement_YellowPlayerContinueToLabLeft:
-	walk_left
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	step_end
-
-PalletTown_Movement_YellowOakContinueToLabRight:
-	walk_left
-	walk_left
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	walk_in_place_faster_up
-	step_end
-
-PalletTown_Movement_YellowPlayerContinueToLabRight:
-	walk_left
-	walk_left
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_right
-	walk_right
-	walk_right
-	walk_right
-	step_end
-
-PalletTown_EventScript_YellowOakEnterLab:
-	opendoor 16, 13
-	waitdooranim
-	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakEnterLab
-	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerEnterLab
-	waitmovement 0
-	closedoor 16, 13
-	waitdooranim
-	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 1
-	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
-	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
-	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
-	setflag FLAG_HIDE_BULBASAUR_BALL
-	clearflag FLAG_HIDE_SQUIRTLE_BALL
-	setflag FLAG_HIDE_CHARMANDER_BALL
-	clearflag FLAG_HIDE_RIVAL_IN_LAB
-	setflag FLAG_DONT_TRANSITION_MUSIC
-	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
-	waitstate
-	releaseall
-	end
 
 @ Oak approaches player after exiting their house post Elite Four to check if they should receieve the National Dex
 PalletTown_EventScript_OakRatingScene::
@@ -309,20 +184,20 @@ PalletTown_EventScript_OakTriggerRight::
 	end
 
 PalletTown_EventScript_OakTrigger::
-	famechecker FAMECHECKER_OAK, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
-	textcolor NPC_TEXT_COLOR_MALE
-	delay 30
-	playbgm MUS_RG_OAK, 0
-	message PalletTown_Text_OakDontGoOut
-	waitmessage
-	delay 85
-	closemessage
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement 0
-	delay 30
+	delay 16
+	famechecker FAMECHECKER_OAK, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
+	textcolor NPC_TEXT_COLOR_MALE
+	delay 20
+	playbgm MUS_RG_OAK, 0
+	message PalletTown_Text_OakDontGoOut
+	waitmessage
+	delay 55
+	closemessage
 	addobject LOCALID_PALLET_PROF_OAK
 	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_OakEnterLeft
 	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_OakEnterRight

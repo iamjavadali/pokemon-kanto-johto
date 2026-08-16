@@ -1435,6 +1435,32 @@ void HideNPCFollower(void)
     gObjectEvents[GetFollowerNPCObjectId()].invisible = TRUE;
 }
 
+void FollowerNPC_PlaceToPlayerLeft(void)
+{
+#if FNPC_ENABLE_NPC_FOLLOWERS
+    struct ObjectEvent *player;
+    struct ObjectEvent *follower;
+
+    if (!PlayerHasFollowerNPC())
+        return;
+
+    player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    follower = &gObjectEvents[GetFollowerNPCObjectId()];
+    if (!follower->active)
+        return;
+
+    ObjectEventClearHeldMovementIfActive(follower);
+    follower->singleMovementActive = FALSE;
+    follower->heldMovementActive = FALSE;
+    MoveObjectEventToMapCoords(follower, player->currentCoords.x - 1, player->currentCoords.y);
+    ObjectEventTurn(follower, DIR_EAST);
+    follower->invisible = FALSE;
+    SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_NONE);
+    SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
+    PlayerLogCoordinates(player);
+#endif
+}
+
 void FollowerNPC_WarpSetEnd(void)
 {
     struct ObjectEvent *player;

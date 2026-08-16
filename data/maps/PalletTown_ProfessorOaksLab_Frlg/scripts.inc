@@ -542,11 +542,7 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
 	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
-	callnative RevealFollowingPokemonNow
-	getplayerxy VAR_0x8004, VAR_0x8005
-	subvar VAR_0x8004, 1
-	setobjectxy OBJ_EVENT_ID_NPC_FOLLOWER, VAR_0x8004, VAR_0x8005
-	turnobject OBJ_EVENT_ID_NPC_FOLLOWER, DIR_EAST
+	callnative FollowerNPC_PlaceToPlayerLeft
 	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
@@ -1331,10 +1327,7 @@ PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
 	msgbox PalletTown_ProfessorOaksLab_Text_RivalKeepingEevee
 	msgbox PalletTown_ProfessorOaksLab_Text_OakAllowsEevee
 	closemessage
-	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalClearOakPath
-	waitmovement 0
-	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerWalkToOakYellow
-	waitmovement 0
+	call PalletTown_ProfessorOaksLab_EventScript_MovePlayerToOakYellow
 	msgbox PalletTown_ProfessorOaksLab_Text_OakGiveCaughtPikachu
 	setvar PLAYER_STARTER_NUM, 2
 	setvar PLAYER_STARTER_SPECIES, SPECIES_PIKACHU_STARTER
@@ -1372,6 +1365,25 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowStarterGift::
 	releaseall
 	end
 
+PalletTown_ProfessorOaksLab_EventScript_MovePlayerToOakYellow::
+	getplayerxy VAR_0x8004, VAR_0x8005
+	goto_if_eq VAR_0x8005, 5, PalletTown_ProfessorOaksLab_EventScript_MovePlayerToOakYellowFront
+	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerWalkBehindOakYellow
+	waitmovement 0
+	applymovement LOCALID_OAKS_LAB_PROF_OAK, Common_Movement_FacePlayer
+	waitmovement 0
+	return
+
+PalletTown_ProfessorOaksLab_EventScript_MovePlayerToOakYellowFront::
+	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalClearOakPath
+	waitmovement 0
+	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerWalkToOakYellow
+	waitmovement 0
+	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalRestoreAfterClear
+	applymovement LOCALID_OAKS_LAB_PROF_OAK, Common_Movement_FacePlayer
+	waitmovement 0
+	return
+
 PalletTown_ProfessorOaksLab_Movement_RivalRushToEevee::
 	walk_down
 	walk_right
@@ -1388,6 +1400,15 @@ PalletTown_ProfessorOaksLab_Movement_RivalSnatchEevee::
 	walk_in_place_faster_up
 	step_end
 
+PalletTown_ProfessorOaksLab_Movement_PlayerWalkBehindOakYellow::
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_in_place_faster_down
+	step_end
+
 PalletTown_ProfessorOaksLab_Movement_PlayerWalkToOakYellow::
 	walk_left
 	walk_left
@@ -1402,8 +1423,12 @@ PalletTown_ProfessorOaksLab_Movement_RivalClearOakPath::
 	walk_in_place_faster_up
 	step_end
 
-PalletTown_ProfessorOaksLab_Movement_RivalReadyAfterEevee::
+PalletTown_ProfessorOaksLab_Movement_RivalRestoreAfterClear::
 	walk_up
+	walk_in_place_faster_up
+	step_end
+
+PalletTown_ProfessorOaksLab_Movement_RivalReadyAfterEevee::
 	walk_left
 	walk_left
 	walk_left
