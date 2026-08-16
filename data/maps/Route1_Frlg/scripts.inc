@@ -147,7 +147,7 @@ Route1_Movement_OakEnterRight:
 	walk_in_place_faster_right
 	step_end
 
-@ This script runs from Pallet Town coord events after Oak has already left Route 1.
+@ This script runs from Pallet Town's scene-state handler after Oak has already left Route 1.
 @ Oak is deliberately staged at the Lab door before the player is walked across town.
 PalletTown_EventScript_YellowOakWaitAtLabFromRoute1::
 	lockall
@@ -161,16 +161,75 @@ PalletTown_EventScript_YellowOakWaitAtLabFromRoute1::
 	goto_if_eq VAR_0x8004, 13, PalletTown_EventScript_YellowOakWaitAtLabFromRoute1Right
 	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
 	waitmovement LOCALID_PLAYER
-	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToLabFromRoute1Left
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToOakNoticeFromRoute1Left
 	waitmovement LOCALID_PLAYER
-	goto PalletTown_EventScript_YellowOakEnterLabFromRoute1
+	goto PalletTown_EventScript_YellowOakNoticeAtLab
 
 PalletTown_EventScript_YellowOakWaitAtLabFromRoute1Right:
 	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
 	waitmovement LOCALID_PLAYER
-	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToLabFromRoute1Right
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToOakNoticeFromRoute1Right
+	waitmovement LOCALID_PLAYER
+
+PalletTown_EventScript_YellowOakNoticeAtLab:
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement LOCALID_PLAYER
+	delay 12
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceLeft
+	waitmovement 0
+	delay 8
+	msgbox PalletTown_Text_OakThereYouAreComeInside
+	closemessage
+	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceUp
+	waitmovement LOCALID_PALLET_PROF_OAK
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerApproachOakAfterNotice
 	waitmovement LOCALID_PLAYER
 	goto PalletTown_EventScript_YellowOakEnterLabFromRoute1
+
+PalletTown_Movement_PlayerWalkToOakNoticeFromRoute1Left:
+	walk_down
+	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
+PalletTown_Movement_PlayerWalkToOakNoticeFromRoute1Right:
+	walk_down
+	walk_left
+	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	step_end
+
+PalletTown_Movement_PlayerApproachOakAfterNotice:
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	step_end
+
+PalletTown_Text_OakThereYouAreComeInside:
+	.string "OAK: Ah, there you are!\n"
+	.string "Come inside.$"
 
 Route1_EventScript_MartClerk::
 	lock
@@ -232,4 +291,3 @@ Route1_Text_CanJumpFromLedges::
 Route1_Text_RouteSign::
 	.string "ROUTE 1\n"
 	.string "PALLET TOWN - VIRIDIAN CITY$"
-
