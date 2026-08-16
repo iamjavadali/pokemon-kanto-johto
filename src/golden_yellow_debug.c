@@ -8,11 +8,13 @@
 #include "overworld.h"
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
+#include "rtc.h"
 #include "script.h"
 #include "script_pokemon_util.h"
 #include "constants/flags.h"
 #include "constants/items.h"
 #include "constants/maps.h"
+#include "constants/moves.h"
 #include "constants/species.h"
 #include "constants/vars.h"
 
@@ -26,6 +28,12 @@ struct GoldenYellowDebugMon
     u8 level;
 };
 
+struct GoldenYellowDebugPartnerProfile
+{
+    u8 level;
+    enum Move moves[MAX_MON_MOVES];
+};
+
 struct GoldenYellowDebugWarp
 {
     u16 map;
@@ -33,34 +41,73 @@ struct GoldenYellowDebugWarp
     s16 y;
 };
 
-static const struct GoldenYellowDebugMon sPartyOakLab[] =
+static const struct GoldenYellowDebugPartnerProfile sPartnerOakLab =
 {
-    { SPECIES_PIKACHU_STARTER, 5 },
+    .level = 5,
+    .moves = { MOVE_THUNDER_SHOCK, MOVE_GROWL, MOVE_NONE, MOVE_NONE },
+};
+
+static const struct GoldenYellowDebugPartnerProfile sPartnerRoute22 =
+{
+    .level = 10,
+    .moves = { MOVE_THUNDER_SHOCK, MOVE_GROWL, MOVE_TAIL_WHIP, MOVE_THUNDER_WAVE },
+};
+
+static const struct GoldenYellowDebugPartnerProfile sPartnerCerulean =
+{
+    .level = 20,
+    .moves = { MOVE_THUNDER_SHOCK, MOVE_QUICK_ATTACK, MOVE_DOUBLE_TEAM, MOVE_THUNDER_WAVE },
+};
+
+static const struct GoldenYellowDebugPartnerProfile sPartnerSSAnne =
+{
+    .level = 24,
+    .moves = { MOVE_THUNDERBOLT, MOVE_QUICK_ATTACK, MOVE_DOUBLE_TEAM, MOVE_THUNDER_WAVE },
+};
+
+static const struct GoldenYellowDebugPartnerProfile sPartnerTower =
+{
+    .level = 30,
+    .moves = { MOVE_THUNDERBOLT, MOVE_QUICK_ATTACK, MOVE_DOUBLE_TEAM, MOVE_SLAM },
+};
+
+static const struct GoldenYellowDebugPartnerProfile sPartnerSilph =
+{
+    .level = 42,
+    .moves = { MOVE_THUNDERBOLT, MOVE_QUICK_ATTACK, MOVE_DOUBLE_TEAM, MOVE_SLAM },
+};
+
+static const struct GoldenYellowDebugPartnerProfile sPartnerLateRoute22 =
+{
+    .level = 55,
+    .moves = { MOVE_THUNDERBOLT, MOVE_QUICK_ATTACK, MOVE_DOUBLE_TEAM, MOVE_SLAM },
+};
+
+static const struct GoldenYellowDebugPartnerProfile sPartnerChampion =
+{
+    .level = 66,
+    .moves = { MOVE_THUNDERBOLT, MOVE_QUICK_ATTACK, MOVE_DOUBLE_TEAM, MOVE_SLAM },
 };
 
 static const struct GoldenYellowDebugMon sPartyRoute22[] =
 {
-    { SPECIES_PIKACHU_STARTER, 10 },
     { SPECIES_NIDORAN_M, 8 },
 };
 
 static const struct GoldenYellowDebugMon sPartyCerulean[] =
 {
-    { SPECIES_PIKACHU_STARTER, 20 },
     { SPECIES_BUTTERFREE, 18 },
     { SPECIES_NIDORINO, 18 },
 };
 
 static const struct GoldenYellowDebugMon sPartySSAnne[] =
 {
-    { SPECIES_PIKACHU_STARTER, 24 },
     { SPECIES_BUTTERFREE, 22 },
     { SPECIES_NIDORINO, 22 },
 };
 
 static const struct GoldenYellowDebugMon sPartyTower[] =
 {
-    { SPECIES_PIKACHU_STARTER, 30 },
     { SPECIES_CHARMELEON, 30 },
     { SPECIES_IVYSAUR, 30 },
     { SPECIES_WARTORTLE, 30 },
@@ -68,7 +115,6 @@ static const struct GoldenYellowDebugMon sPartyTower[] =
 
 static const struct GoldenYellowDebugMon sPartySilph[] =
 {
-    { SPECIES_PIKACHU_STARTER, 42 },
     { SPECIES_CHARIZARD, 42 },
     { SPECIES_VENUSAUR, 42 },
     { SPECIES_BLASTOISE, 42 },
@@ -76,7 +122,6 @@ static const struct GoldenYellowDebugMon sPartySilph[] =
 
 static const struct GoldenYellowDebugMon sPartyLateRoute22[] =
 {
-    { SPECIES_PIKACHU_STARTER, 55 },
     { SPECIES_CHARIZARD, 55 },
     { SPECIES_VENUSAUR, 55 },
     { SPECIES_BLASTOISE, 55 },
@@ -85,7 +130,6 @@ static const struct GoldenYellowDebugMon sPartyLateRoute22[] =
 
 static const struct GoldenYellowDebugMon sPartyChampion[] =
 {
-    { SPECIES_PIKACHU_STARTER, 66 },
     { SPECIES_CHARIZARD, 65 },
     { SPECIES_VENUSAUR, 65 },
     { SPECIES_BLASTOISE, 65 },
@@ -128,42 +172,106 @@ static void GoldenYellowDebug_SetParty(const struct GoldenYellowDebugMon *party,
         ScriptGiveMon(party[i].species, party[i].level, ITEM_NONE);
 }
 
-static void GoldenYellowDebug_ApplyOpeningComplete(bool32 partnerFollowing)
+static void GoldenYellowDebug_CreatePartnerPikachu(const struct GoldenYellowDebugPartnerProfile *profile)
 {
-    FlagSet(FLAG_PALLET_LADY_NOT_BLOCKING_SIGN);
-    FlagSet(FLAG_OPENED_START_MENU);
-    FlagSet(FLAG_VISITED_OAKS_LAB);
-    FlagSet(FLAG_SYS_POKEMON_GET);
+    u8 i;
+
+    ScriptGiveMon(SPECIES_PIKACHU_STARTER, profile->level, ITEM_NONE);
+    for (i = 0; i < MAX_MON_MOVES; i++)
+        SetMonMoveSlot(&gPlayerParty[0], profile->moves[i], i);
+}
+
+static void GoldenYellowDebug_SetTestParty(const struct GoldenYellowDebugPartnerProfile *partner,
+                                            const struct GoldenYellowDebugMon *party,
+                                            u8 count)
+{
+    GoldenYellowDebug_CreatePartnerPikachu(partner);
+    GoldenYellowDebug_SetParty(party, count);
+}
+
+static void GoldenYellowDebug_ApplyNewGameBaseline(void)
+{
+    FlagClear(FLAG_GOT_TRAINER_WATCH);
+    FlagClear(FLAG_TRAINER_WATCH_TIME_VALID);
+    FlagClear(FLAG_PARTNER_PIKACHU_FOLLOWING);
+    FlagClear(FLAG_BEAT_RIVAL_IN_OAKS_LAB);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 0);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_OAK, 0);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 0);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 0);
+    VarSet(VAR_YELLOW_RIVAL_EEVEE_STATE, GY_DEBUG_RIVAL_UNSET);
     FlagSet(FLAG_HIDE_PALLET_WILD_PIKACHU);
     FlagSet(FLAG_HIDE_ROUTE1_YELLOW_OAK);
-    VarSet(VAR_MAP_SCENE_PALLET_TOWN_OAK, 1);
+    FlagSet(FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU);
+}
 
-    if (partnerFollowing)
-    {
-        FlagSet(FLAG_BEAT_RIVAL_IN_OAKS_LAB);
-        FlagSet(FLAG_PARTNER_PIKACHU_FOLLOWING);
-        FlagSet(FLAG_HIDE_RIVAL_IN_LAB);
-        FlagClear(FLAG_HIDE_OAK_IN_HIS_LAB);
-        VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6);
-    }
-    else
-    {
-        FlagClear(FLAG_BEAT_RIVAL_IN_OAKS_LAB);
-        FlagClear(FLAG_PARTNER_PIKACHU_FOLLOWING);
-        FlagClear(FLAG_HIDE_RIVAL_IN_LAB);
-        FlagClear(FLAG_HIDE_OAK_IN_HIS_LAB);
-        FlagSet(FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU);
-        VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3);
-    }
+static void GoldenYellowDebug_ApplyThroughTrainerWatch(void)
+{
+    FlagSet(FLAG_GOT_TRAINER_WATCH);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1);
+
+    // Match Mom's Watch setup semantics. Real/emulated RTC is preferred;
+    // hardware without RTC receives a deterministic valid fallback.
+    if (TrainerWatchCheckClock() == 0)
+        TrainerWatchSetManualDateTime(2026, MONTH_JAN, 1, 12, 0);
+}
+
+static void GoldenYellowDebug_ApplyRoute1OakReady(void)
+{
+    GoldenYellowDebug_ApplyThroughTrainerWatch();
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_OAK, 0);
+    FlagSet(FLAG_HIDE_OAK_IN_PALLET_TOWN);
+    FlagSet(FLAG_HIDE_ROUTE1_YELLOW_OAK);
+    FlagSet(FLAG_HIDE_PALLET_WILD_PIKACHU);
+}
+
+static void GoldenYellowDebug_ApplyOakLabRivalReady(void)
+{
+    GoldenYellowDebug_ApplyRoute1OakReady();
+
+    // Persistent results of the accepted Route 1 capture and Lab gift scenes.
+    FlagSet(FLAG_VISITED_OAKS_LAB);
+    FlagSet(FLAG_SYS_POKEMON_GET);
+    FlagSet(FLAG_PALLET_LADY_NOT_BLOCKING_SIGN);
+    FlagSet(FLAG_HIDE_PALLET_WILD_PIKACHU);
+    FlagSet(FLAG_HIDE_ROUTE1_YELLOW_OAK);
+    FlagSet(FLAG_HIDE_OAK_IN_PALLET_TOWN);
+    FlagClear(FLAG_HIDE_OAK_IN_HIS_LAB);
+    FlagClear(FLAG_HIDE_RIVAL_IN_LAB);
+    FlagSet(FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU);
+
+    // Yellow's Eevee is taken and the captured Pikachu is given to the player;
+    // all three FRLG table balls are therefore gone before the rival battle.
+    FlagSet(FLAG_HIDE_BULBASAUR_BALL);
+    FlagSet(FLAG_HIDE_SQUIRTLE_BALL);
+    FlagSet(FLAG_HIDE_CHARMANDER_BALL);
+
+    VarSet(VAR_STARTER_MON, 2);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_OAK, 1);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 3);
+    VarSet(VAR_YELLOW_RIVAL_EEVEE_STATE, GY_DEBUG_RIVAL_UNSET);
+
+    GoldenYellowDebug_CreatePartnerPikachu(&sPartnerOakLab);
+}
+
+static void GoldenYellowDebug_ApplyOakLabComplete(void)
+{
+    GoldenYellowDebug_ApplyOakLabRivalReady();
+    FlagSet(FLAG_BEAT_RIVAL_IN_OAKS_LAB);
+    FlagSet(FLAG_PARTNER_PIKACHU_FOLLOWING);
+    FlagSet(FLAG_HIDE_RIVAL_IN_LAB);
+    FlagSet(FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4);
 }
 
 static void GoldenYellowDebug_ApplyPokedexState(void)
 {
     FlagSet(FLAG_SYS_POKEDEX_GET);
-    FlagSet(FLAG_SYS_B_DASH);
+    VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6);
     VarSet(VAR_MAP_SCENE_VIRIDIAN_CITY_MART, 2);
     VarSet(VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 1);
     VarSet(VAR_MAP_SCENE_PALLET_TOWN_RIVALS_HOUSE, 1);
+    VarSet(VAR_MAP_SCENE_ROUTE22, 1);
 }
 
 static void GoldenYellowDebug_SetRivalPath(enum GoldenYellowDebugRivalPath path)
@@ -215,6 +323,8 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
 {
     static const struct GoldenYellowDebugWarp sWarps[GY_DEBUG_CP_COUNT] =
     {
+        [GY_DEBUG_CP_BEFORE_TRAINER_WATCH] = { MAP_PALLET_TOWN_PLAYERS_HOUSE_1F, 5, 7 },
+        [GY_DEBUG_CP_BEFORE_ROUTE1_OAK] = { MAP_ROUTE1, 12, 40 },
         [GY_DEBUG_CP_OAK_LAB_RIVAL] = { MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 9 },
         [GY_DEBUG_CP_ROUTE22_EARLY] = { MAP_ROUTE22, 34, 5 },
         [GY_DEBUG_CP_CERULEAN_RIVAL] = { MAP_CERULEAN_CITY, 23, 7 },
@@ -229,36 +339,44 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         return FALSE;
 
     GoldenYellowDebug_ResetStoryState();
+    GoldenYellowDebug_ApplyNewGameBaseline();
 
     switch (checkpoint)
     {
-    case GY_DEBUG_CP_OAK_LAB_RIVAL:
-        GoldenYellowDebug_ApplyOpeningComplete(FALSE);
-        GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_UNSET);
+    case GY_DEBUG_CP_BEFORE_TRAINER_WATCH:
         GoldenYellowDebug_SetBadges(0);
-        GoldenYellowDebug_SetParty(sPartyOakLab, ARRAY_COUNT(sPartyOakLab));
+        break;
+    case GY_DEBUG_CP_BEFORE_ROUTE1_OAK:
+        GoldenYellowDebug_ApplyRoute1OakReady();
+        GoldenYellowDebug_SetBadges(0);
+        break;
+    case GY_DEBUG_CP_OAK_LAB_RIVAL:
+        GoldenYellowDebug_ApplyOakLabRivalReady();
+        GoldenYellowDebug_SetBadges(0);
         break;
     case GY_DEBUG_CP_ROUTE22_EARLY:
-        GoldenYellowDebug_ApplyOpeningComplete(TRUE);
+        GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_FLAREON);
         VarSet(VAR_MAP_SCENE_ROUTE22, 1);
         FlagClear(FLAG_HIDE_ROUTE_22_RIVAL);
         GoldenYellowDebug_SetBadges(0);
-        GoldenYellowDebug_SetParty(sPartyRoute22, ARRAY_COUNT(sPartyRoute22));
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerRoute22, sPartyRoute22, ARRAY_COUNT(sPartyRoute22));
         break;
     case GY_DEBUG_CP_CERULEAN_RIVAL:
-        GoldenYellowDebug_ApplyOpeningComplete(TRUE);
+        GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
         VarSet(VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 0);
         FlagClear(FLAG_HIDE_CERULEAN_RIVAL);
         GoldenYellowDebug_SetBadges(1);
-        GoldenYellowDebug_SetParty(sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_SS_ANNE_RIVAL:
-        GoldenYellowDebug_ApplyOpeningComplete(TRUE);
+        GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
@@ -266,10 +384,11 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         VarSet(VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR, 0);
         FlagClear(FLAG_HIDE_SS_ANNE_RIVAL);
         GoldenYellowDebug_SetBadges(2);
-        GoldenYellowDebug_SetParty(sPartySSAnne, ARRAY_COUNT(sPartySSAnne));
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerSSAnne, sPartySSAnne, ARRAY_COUNT(sPartySSAnne));
         break;
     case GY_DEBUG_CP_POKEMON_TOWER_RIVAL:
-        GoldenYellowDebug_ApplyOpeningComplete(TRUE);
+        GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
@@ -278,10 +397,11 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         VarSet(VAR_MAP_SCENE_POKEMON_TOWER_2F, 0);
         FlagClear(FLAG_HIDE_TOWER_RIVAL);
         GoldenYellowDebug_SetBadges(4);
-        GoldenYellowDebug_SetParty(sPartyTower, ARRAY_COUNT(sPartyTower));
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerTower, sPartyTower, ARRAY_COUNT(sPartyTower));
         break;
     case GY_DEBUG_CP_SILPH_RIVAL:
-        GoldenYellowDebug_ApplyOpeningComplete(TRUE);
+        GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
@@ -291,10 +411,11 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         VarSet(VAR_MAP_SCENE_SILPH_CO_7F, 0);
         FlagClear(FLAG_HIDE_SILPH_RIVAL);
         GoldenYellowDebug_SetBadges(4);
-        GoldenYellowDebug_SetParty(sPartySilph, ARRAY_COUNT(sPartySilph));
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerSilph, sPartySilph, ARRAY_COUNT(sPartySilph));
         break;
     case GY_DEBUG_CP_ROUTE22_LATE_RIVAL:
-        GoldenYellowDebug_ApplyOpeningComplete(TRUE);
+        GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
@@ -305,10 +426,11 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         VarSet(VAR_MAP_SCENE_ROUTE22, 3);
         FlagClear(FLAG_HIDE_ROUTE_22_RIVAL);
         GoldenYellowDebug_SetBadges(8);
-        GoldenYellowDebug_SetParty(sPartyLateRoute22, ARRAY_COUNT(sPartyLateRoute22));
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerLateRoute22, sPartyLateRoute22, ARRAY_COUNT(sPartyLateRoute22));
         break;
     case GY_DEBUG_CP_CHAMPION_RIVAL:
-        GoldenYellowDebug_ApplyOpeningComplete(TRUE);
+        GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
@@ -321,7 +443,8 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         FlagClear(FLAG_SYS_GAME_CLEAR);
         FlagClear(FLAG_IS_CHAMPION);
         GoldenYellowDebug_SetBadges(8);
-        GoldenYellowDebug_SetParty(sPartyChampion, ARRAY_COUNT(sPartyChampion));
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerChampion, sPartyChampion, ARRAY_COUNT(sPartyChampion));
         break;
     default:
         return FALSE;
