@@ -77,9 +77,7 @@ static void Task_OakSpeech_AskPlayerGender(u8);
 static void Task_OakSpeech_ShowGenderOptions(u8);
 static void Task_OakSpeech_HandleGenderInput(u8);
 static void Task_OakSpeech_ClearGenderWindows(u8);
-static void Task_OakSpeech_LoadPlayerPic(u8);
 static void Task_OakSpeech_YourNameWhatIsIt(u8);
-static void Task_OakSpeech_FadeOutForPlayerNamingScreen(u8);
 static void Task_OakSpeech_MoveRivalDisplayNameOptions(u8);
 static void Task_OakSpeech_RepeatNameQuestion(u8);
 static void Task_OakSpeech_HandleRivalNameInput(u8);
@@ -1362,17 +1360,6 @@ static void Task_OakSpeech_ClearGenderWindows(u8 taskId)
     gTasks[taskId].func = Task_OakSpeech_YourNameWhatIsIt;
 }
 
-static void Task_OakSpeech_LoadPlayerPic(u8 taskId)
-{
-    if (gSaveBlock2Ptr->playerGender == MALE)
-        LoadTrainerPic(MALE_PLAYER_PIC, 0);
-    else
-        LoadTrainerPic(FEMALE_PLAYER_PIC, 0);
-    CreateFadeOutTask(taskId, 2);
-    gTasks[taskId].tTimer = 32;
-    gTasks[taskId].func = Task_OakSpeech_YourNameWhatIsIt;
-}
-
 static void Task_OakSpeech_YourNameWhatIsIt(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
@@ -1390,16 +1377,6 @@ static void Task_OakSpeech_YourNameWhatIsIt(u8 taskId)
             OakSpeechPrintMessage(gOakSpeech_Text_YourNameWhatIsIt, sOakSpeechResources->textSpeed, FALSE);
             gTasks[taskId].func = Task_OakSpeech_MoveRivalDisplayNameOptions;
         }
-    }
-}
-
-static void Task_OakSpeech_FadeOutForPlayerNamingScreen(u8 taskId)
-{
-    if (!IsTextPrinterActiveOnWindow(WIN_INTRO_TEXTBOX))
-    {
-        BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 16, RGB_BLACK);
-        sOakSpeechResources->hasPlayerBeenNamed = FALSE;
-        gTasks[taskId].func = Task_OakSpeech_DoNamingScreen;
     }
 }
 
@@ -2198,20 +2175,3 @@ static void GetDefaultName(u8 hasPlayerBeenNamed, u8 nameChoice)
 #undef tMenuWindowId
 #undef tTextboxWindowId
 #undef tDelta
-#undef tPlayerPicFadeOutTimer
-#undef tScaleDelta
-#undef tPlayerIsShrunk
-#undef shrinkTimer
-#undef tPlayerPicFadeWhiteTimer
-#undef tUnderflowingTimer
-#undef tSecondaryTimer
-#undef tBlendCoefficient
-#undef tNameNotConfirmed
-#undef sBodySpriteId
-#undef tParentTaskId
-#undef tBlendTarget1
-#undef tBlendTarget2
-#undef tUnusedState
-#undef tFadeTimer
-
-#endif // IS_FRLG
