@@ -91,46 +91,45 @@ Route1_EventScript_YellowPikachuCapture:
 	msgbox PalletTown_Text_OakComeWithMeYellow
 	closemessage
 	delay 12
-	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowEscortWalkRight
-	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
-	call Route1_EventScript_YellowEscortToPalletEdge
-	end
+	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowOakLeaveRight
 
-Route1_EventScript_YellowEscortWalkRight::
-	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 5
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakMoveBehindPlayerRight
+Route1_EventScript_YellowOakLeaveLeft:
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakLeaveForPalletLeft
 	waitmovement LOCALID_ROUTE1_YELLOW_OAK
-	call Route1_EventScript_YellowEscortToPalletEdge
-	end
+	goto Route1_EventScript_YellowPlayerFollowToPallet
 
-Route1_EventScript_YellowEscortToPalletEdge::
-	applymovement LOCALID_PLAYER, Route1_Movement_PlayerEscortToPalletEdge
-	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakEscortToPalletEdge
-	waitmovement LOCALID_PLAYER
+Route1_EventScript_YellowOakLeaveRight:
+	applymovement LOCALID_ROUTE1_YELLOW_OAK, Route1_Movement_OakLeaveForPalletRight
+	waitmovement LOCALID_ROUTE1_YELLOW_OAK
+
+Route1_EventScript_YellowPlayerFollowToPallet:
 	setflag FLAG_HIDE_ROUTE1_YELLOW_OAK
 	removeobject LOCALID_ROUTE1_YELLOW_OAK
-	applymovement LOCALID_PLAYER, Route1_Movement_PlayerCrossIntoPallet
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 6
+	delay 8
+	applymovement LOCALID_PLAYER, Route1_Movement_PlayerWalkToPallet
 	waitmovement LOCALID_PLAYER
-	return
+	end
 
-Route1_Movement_PlayerEscortToPalletEdge::
+Route1_Movement_OakLeaveForPalletLeft:
 	walk_down
 	walk_down
+	walk_down
+	set_invisible
 	step_end
 
-Route1_Movement_OakEscortToPalletEdge::
+Route1_Movement_OakLeaveForPalletRight:
 	walk_down
 	walk_down
+	walk_down
+	walk_down
+	set_invisible
 	step_end
 
-Route1_Movement_PlayerCrossIntoPallet::
+Route1_Movement_PlayerWalkToPallet:
 	walk_down
-	step_end
-
-Route1_Movement_OakMoveBehindPlayerRight:
 	walk_down
-	walk_right
-	walk_in_place_faster_down
+	walk_down
 	step_end
 
 Route1_Movement_OakEnterLeft:
@@ -147,6 +146,31 @@ Route1_Movement_OakEnterRight:
 	walk_up
 	walk_in_place_faster_right
 	step_end
+
+@ This script runs from Pallet Town coord events after Oak has already left Route 1.
+@ Oak is deliberately staged at the Lab door before the player is walked across town.
+PalletTown_EventScript_YellowOakWaitAtLabFromRoute1::
+	lockall
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+	textcolor NPC_TEXT_COLOR_MALE
+	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	setobjectxyperm LOCALID_PALLET_PROF_OAK, 16, 14
+	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_UP
+	addobject LOCALID_PALLET_PROF_OAK
+	getplayerxy VAR_0x8004, VAR_0x8005
+	goto_if_eq VAR_0x8004, 13, PalletTown_EventScript_YellowOakWaitAtLabFromRoute1Right
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
+	waitmovement LOCALID_PLAYER
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToLabFromRoute1Left
+	waitmovement LOCALID_PLAYER
+	goto PalletTown_EventScript_YellowOakEnterLabFromRoute1
+
+PalletTown_EventScript_YellowOakWaitAtLabFromRoute1Right:
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
+	waitmovement LOCALID_PLAYER
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToLabFromRoute1Right
+	waitmovement LOCALID_PLAYER
+	goto PalletTown_EventScript_YellowOakEnterLabFromRoute1
 
 Route1_EventScript_MartClerk::
 	lock
