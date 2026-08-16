@@ -23,6 +23,10 @@ Route1_EventScript_YellowOakTriggerRight::
 	waitmovement 0
 
 Route1_EventScript_YellowOakTrigger:
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
 	famechecker FAMECHECKER_OAK, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
 	textcolor NPC_TEXT_COLOR_MALE
 	delay 20
@@ -31,10 +35,6 @@ Route1_EventScript_YellowOakTrigger:
 	waitmessage
 	delay 55
 	closemessage
-	playse SE_PIN
-	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
-	waitmovement 0
-	delay 16
 	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	addobject LOCALID_ROUTE1_YELLOW_OAK
 	goto_if_eq VAR_0x8008, 1, Route1_EventScript_YellowOakApproachRight
@@ -108,7 +108,7 @@ Route1_EventScript_YellowEscortWarpLeft:
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	removeobject LOCALID_ROUTE1_YELLOW_OAK
 	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
-	warpsilent MAP_PALLET_TOWN, 12, 0
+	warpsilent MAP_PALLET_TOWN, 12, 3
 	waitstate
 	end
 
@@ -116,7 +116,7 @@ Route1_EventScript_YellowEscortWarpRight:
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	removeobject LOCALID_ROUTE1_YELLOW_OAK
 	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 4
-	warpsilent MAP_PALLET_TOWN, 13, 0
+	warpsilent MAP_PALLET_TOWN, 13, 3
 	waitstate
 	end
 

@@ -27,7 +27,7 @@ PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSide::
 
 PalletTown_PlayersHouse_1F_EventScript_MomAlert:
 	playse SE_PIN
-	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_ExclamationMark
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement 0
 	delay 16
 	msgbox PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving

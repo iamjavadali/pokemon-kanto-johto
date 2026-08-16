@@ -281,9 +281,13 @@ PalletTown_ProfessorOaksLab_EventScript_RivalBattleTriggerRight::
 
 PalletTown_ProfessorOaksLab_EventScript_RivalBattle::
 	textcolor NPC_TEXT_COLOR_MALE
-	playbgm MUS_RG_ENCOUNTER_RIVAL, 0
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
 	waitmovement 0
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
+	playbgm MUS_RG_ENCOUNTER_RIVAL, 0
 	goto_if_eq VAR_TEMP_2, 1, PalletTown_ProfessorOaksLab_EventScript_YellowRivalApproachLeft
 	goto_if_eq VAR_TEMP_2, 2, PalletTown_ProfessorOaksLab_EventScript_YellowRivalApproachMid
 	goto_if_eq VAR_TEMP_2, 3, PalletTown_ProfessorOaksLab_EventScript_YellowRivalApproachRight
@@ -538,11 +542,11 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
 	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
+	callnative RevealFollowingPokemonNow
 	getplayerxy VAR_0x8004, VAR_0x8005
 	subvar VAR_0x8004, 1
 	setobjectxy OBJ_EVENT_ID_NPC_FOLLOWER, VAR_0x8004, VAR_0x8005
 	turnobject OBJ_EVENT_ID_NPC_FOLLOWER, DIR_EAST
-	callnative RevealFollowingPokemonNow
 	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
@@ -1327,6 +1331,8 @@ PalletTown_ProfessorOaksLab_EventScript_SquirtleBall::
 	msgbox PalletTown_ProfessorOaksLab_Text_RivalKeepingEevee
 	msgbox PalletTown_ProfessorOaksLab_Text_OakAllowsEevee
 	closemessage
+	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_RivalClearOakPath
+	waitmovement 0
 	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerWalkToOakYellow
 	waitmovement 0
 	msgbox PalletTown_ProfessorOaksLab_Text_OakGiveCaughtPikachu
@@ -1391,7 +1397,13 @@ PalletTown_ProfessorOaksLab_Movement_PlayerWalkToOakYellow::
 	walk_in_place_faster_up
 	step_end
 
+PalletTown_ProfessorOaksLab_Movement_RivalClearOakPath::
+	walk_down
+	walk_in_place_faster_up
+	step_end
+
 PalletTown_ProfessorOaksLab_Movement_RivalReadyAfterEevee::
+	walk_up
 	walk_left
 	walk_left
 	walk_left

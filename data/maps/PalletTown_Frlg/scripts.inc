@@ -50,17 +50,101 @@ PalletTown_EventScript_YellowOakEscortToLab:
 	textcolor NPC_TEXT_COLOR_MALE
 	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
 	goto_if_eq VAR_0x8008, 1, PalletTown_EventScript_YellowOakEscortRight
-	setobjectxyperm LOCALID_PALLET_PROF_OAK, 12, 1
+	setobjectxyperm LOCALID_PALLET_PROF_OAK, 12, 4
 	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
 	addobject LOCALID_PALLET_PROF_OAK
-	call PalletTown_EventScript_OakLeadPlayerToLabLeft
+	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_YellowOakContinueToLabLeft
+	applymovement LOCALID_PLAYER, PalletTown_Movement_YellowPlayerContinueToLabLeft
+	waitmovement 0
 	goto PalletTown_EventScript_YellowOakEnterLab
 
 PalletTown_EventScript_YellowOakEscortRight:
-	setobjectxyperm LOCALID_PALLET_PROF_OAK, 13, 1
+	setobjectxyperm LOCALID_PALLET_PROF_OAK, 13, 4
 	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
 	addobject LOCALID_PALLET_PROF_OAK
-	call PalletTown_EventScript_OakLeadPlayerToLabRight
+	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_YellowOakContinueToLabRight
+	applymovement LOCALID_PLAYER, PalletTown_Movement_YellowPlayerContinueToLabRight
+	waitmovement 0
+
+PalletTown_Movement_YellowOakContinueToLabLeft:
+	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
+PalletTown_Movement_YellowPlayerContinueToLabLeft:
+	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	step_end
+
+PalletTown_Movement_YellowOakContinueToLabRight:
+	walk_left
+	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
+PalletTown_Movement_YellowPlayerContinueToLabRight:
+	walk_left
+	walk_left
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_down
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	step_end
 
 PalletTown_EventScript_YellowOakEnterLab:
 	opendoor 16, 13
