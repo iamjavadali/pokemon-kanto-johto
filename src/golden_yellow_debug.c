@@ -1,6 +1,7 @@
 #include "global.h"
 #include "golden_yellow_debug.h"
 #include "event_data.h"
+#include "field_screen_effect.h"
 #include "follower_npc.h"
 #include "item_menu.h"
 #include "money.h"
