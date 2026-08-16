@@ -112,7 +112,7 @@ u32 GetFollowerNPCObjectId(void);
 bool32 CheckFollowerNPCFlag(u32 flag);
 bool32 FollowerNPC_IsCollisionExempt(struct ObjectEvent *obstacle, struct ObjectEvent *collider);
 void HideNPCFollower(void);
-void FollowerNPC_PlaceToPlayerLeft(void);
+void FollowerNPC_PlaceNextToPlayer(void);
 void FollowerNPC_WarpSetEnd(void);
 
 bool32 FollowerNPCCanBike(void);

@@ -515,6 +515,7 @@ PalletTown_ProfessorOaksLab_EventScript_EndRivalBattle::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitLeft::
+	setvar VAR_0x8004, DIR_WEST
 	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepRightWatchRival
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
@@ -522,13 +523,15 @@ PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitLeft::
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitMid::
-	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepRightWatchRival
+	setvar VAR_0x8004, DIR_EAST
+	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepLeftWatchRival
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitStraight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
 	goto PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit
 	end
 
 PalletTown_ProfessorOaksLab_EventScript_YellowRivalExitRight::
+	setvar VAR_0x8004, DIR_WEST
 	applymovement LOCALID_PLAYER, PalletTown_ProfessorOaksLab_Movement_PlayerStepLeftWatchRival
 	applymovement LOCALID_OAKS_LAB_RIVAL, PalletTown_ProfessorOaksLab_Movement_YellowRivalExitRight
 	waitmovement LOCALID_OAKS_LAB_RIVAL
@@ -542,7 +545,7 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	setflag FLAG_BEAT_RIVAL_IN_OAKS_LAB
 	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
-	callnative FollowerNPC_PlaceToPlayerLeft
+	callnative FollowerNPC_PlaceNextToPlayer
 	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry

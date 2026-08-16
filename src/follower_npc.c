@@ -1435,11 +1435,16 @@ void HideNPCFollower(void)
     gObjectEvents[GetFollowerNPCObjectId()].invisible = TRUE;
 }
 
-void FollowerNPC_PlaceToPlayerLeft(void)
+void FollowerNPC_PlaceNextToPlayer(void)
 {
 #if FNPC_ENABLE_NPC_FOLLOWERS
     struct ObjectEvent *player;
     struct ObjectEvent *follower;
+    enum Direction preferredDirection;
+    enum Direction direction;
+    s16 targetX;
+    s16 targetY;
+    u32 i;
 
     if (!PlayerHasFollowerNPC())
         return;
@@ -1449,15 +1454,35 @@ void FollowerNPC_PlaceToPlayerLeft(void)
     if (!follower->active)
         return;
 
+    preferredDirection = VarGet(VAR_0x8004);
+    if (preferredDirection != DIR_EAST && preferredDirection != DIR_WEST)
+        preferredDirection = DIR_WEST;
+
     ObjectEventClearHeldMovementIfActive(follower);
     follower->singleMovementActive = FALSE;
     follower->heldMovementActive = FALSE;
-    MoveObjectEventToMapCoords(follower, player->currentCoords.x - 1, player->currentCoords.y);
-    ObjectEventTurn(follower, DIR_EAST);
-    follower->invisible = FALSE;
-    SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_NONE);
-    SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
-    PlayerLogCoordinates(player);
+
+    for (i = 0; i < 2; i++)
+    {
+        direction = (i == 0) ? preferredDirection
+                             : (preferredDirection == DIR_WEST ? DIR_EAST : DIR_WEST);
+        targetX = player->currentCoords.x + (direction == DIR_WEST ? -1 : 1);
+        targetY = player->currentCoords.y;
+
+        if (GetCollisionAtCoords(player, targetX, targetY, direction) != COLLISION_NONE)
+            continue;
+
+        MoveObjectEventToMapCoords(follower, targetX, targetY);
+        ObjectEventTurn(follower, direction == DIR_WEST ? DIR_EAST : DIR_WEST);
+        follower->invisible = FALSE;
+        SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_NONE);
+        SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
+        PlayerLogCoordinates(player);
+        return;
+    }
+
+    // Avoid overlapping the player if future map edits block both side tiles.
+    follower->invisible = TRUE;
 #endif
 }
 
