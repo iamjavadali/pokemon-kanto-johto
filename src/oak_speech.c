@@ -2175,3 +2175,20 @@ static void GetDefaultName(u8 hasPlayerBeenNamed, u8 nameChoice)
 #undef tMenuWindowId
 #undef tTextboxWindowId
 #undef tDelta
+#undef tPlayerPicFadeOutTimer
+#undef tScaleDelta
+#undef tPlayerIsShrunk
+#undef shrinkTimer
+#undef tPlayerPicFadeWhiteTimer
+#undef tUnderflowingTimer
+#undef tSecondaryTimer
+#undef tBlendCoefficient
+#undef tNameNotConfirmed
+#undef sBodySpriteId
+#undef tParentTaskId
+#undef tBlendTarget1
+#undef tBlendTarget2
+#undef tUnusedState
+#undef tFadeTimer
+
+#endif // IS_FRLG
