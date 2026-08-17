@@ -3,6 +3,8 @@
 
 #include "global.h"
 
+// Golden Yellow story checkpoints are cumulative developer-state reconstructions.
+// They must never replace the corresponding production story scripts.
 enum GoldenYellowDebugCheckpoint
 {
     GY_DEBUG_CP_BEFORE_TRAINER_WATCH,
