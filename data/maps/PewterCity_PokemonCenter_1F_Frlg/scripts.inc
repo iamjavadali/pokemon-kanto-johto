@@ -25,8 +25,27 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	playbgm MUS_RG_JIGGLYPUFF, 0
 	message PewterCity_PokemonCenter_1F_Text_Jigglypuff
 	waitmessage
-	callnative GoldenYellow_CheckPartnerPikachuFollowing
-	goto_if_eq VAR_RESULT, FALSE, PewterCity_PokemonCenter_1F_EventScript_JigglypuffWait
+	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, PewterCity_PokemonCenter_1F_EventScript_JigglypuffWait
+	setvar VAR_0x8004, 0
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 1
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 2
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 3
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 4
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 5
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_ne VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_JigglypuffWait
+
+PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy::
 	applymovement OBJ_EVENT_ID_NPC_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
 	waitmovement OBJ_EVENT_ID_NPC_FOLLOWER
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
