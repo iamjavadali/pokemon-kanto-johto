@@ -92,35 +92,103 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Champion[] =
     { NULL }
 };
 
-static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_EarlyKanto[] =
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_CampaignOpeningPewter[] =
 {
+    { COMPOUND_STRING("Before Trainer Watch"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeWatch },
+    { COMPOUND_STRING("Before Route 1 Oak"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRoute1Oak },
+    { COMPOUND_STRING("Oak Lab Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyOakLab },
+    { COMPOUND_STRING("Route 22 - Early"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyRoute22Early },
     { COMPOUND_STRING("Before Brock"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeBrock },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_CampaignMtMoonCerulean[] =
+{
     { COMPOUND_STRING("Mt. Moon Fossil"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyMtMoonFossil },
     { COMPOUND_STRING("Mt. Moon Jessie/James"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyMtMoonJessieJames },
     { COMPOUND_STRING("Before Misty"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeMisty },
+    { COMPOUND_STRING("Cerulean Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCerulean },
     { COMPOUND_STRING("Nugget Bridge Rocket"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyNuggetBridgeRocket },
+    { COMPOUND_STRING("Charmander Gift"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCharmanderGift },
     { COMPOUND_STRING("Before Bill"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeBill },
     { COMPOUND_STRING("Bulbasaur Gift"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBulbasaurGift },
-    { COMPOUND_STRING("Charmander Gift"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCharmanderGift },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_CampaignVermilion[] =
+{
+    { COMPOUND_STRING("S.S. Anne Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnne },
     { COMPOUND_STRING("S.S. Anne Captain"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnneCaptain },
     { COMPOUND_STRING("Before Lt. Surge"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeLtSurge },
     { COMPOUND_STRING("Squirtle Gift"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySquirtleGift },
     { NULL }
 };
 
-static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Checkpoints[] =
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Campaign[] =
 {
-    { COMPOUND_STRING("Before Trainer Watch"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeWatch },
-    { COMPOUND_STRING("Before Route 1 Oak"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRoute1Oak },
-    { COMPOUND_STRING("Oak Lab Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyOakLab },
+    { COMPOUND_STRING("Opening & Pewter…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_CampaignOpeningPewter },
+    { COMPOUND_STRING("Mt. Moon & Cerulean…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_CampaignMtMoonCerulean },
+    { COMPOUND_STRING("Vermilion…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_CampaignVermilion },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Rivals[] =
+{
+    { COMPOUND_STRING("Oak Lab"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyOakLab },
     { COMPOUND_STRING("Route 22 - Early"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyRoute22Early },
-    { COMPOUND_STRING("Cerulean Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCerulean },
-    { COMPOUND_STRING("S.S. Anne Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnne },
-    { COMPOUND_STRING("Early Kanto…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_EarlyKanto },
+    { COMPOUND_STRING("Cerulean"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCerulean },
+    { COMPOUND_STRING("S.S. Anne"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnne },
     { COMPOUND_STRING("Pokemon Tower…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Tower },
     { COMPOUND_STRING("Silph Co.…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Silph },
     { COMPOUND_STRING("Route 22 - Late…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Route22Late },
     { COMPOUND_STRING("Champion…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Champion },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_YellowOpening[] =
+{
+    { COMPOUND_STRING("Before Trainer Watch"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeWatch },
+    { COMPOUND_STRING("Before Route 1 Oak"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRoute1Oak },
+    { COMPOUND_STRING("Oak Lab"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyOakLab },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Gifts[] =
+{
+    { COMPOUND_STRING("Bulbasaur"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBulbasaurGift },
+    { COMPOUND_STRING("Charmander"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCharmanderGift },
+    { COMPOUND_STRING("Squirtle"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySquirtleGift },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_JessieJames[] =
+{
+    { COMPOUND_STRING("Mt. Moon"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyMtMoonJessieJames },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_YellowEvents[] =
+{
+    { COMPOUND_STRING("Partner & Opening…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_YellowOpening },
+    { COMPOUND_STRING("Gift Pokemon…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Gifts },
+    { COMPOUND_STRING("Jessie & James…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_JessieJames },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Gyms[] =
+{
+    { COMPOUND_STRING("Brock"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeBrock },
+    { COMPOUND_STRING("Misty"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeMisty },
+    { COMPOUND_STRING("Lt. Surge"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeLtSurge },
+    { NULL }
+};
+
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Checkpoints[] =
+{
+    { COMPOUND_STRING("Campaign Progression…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Campaign },
+    { COMPOUND_STRING("Rival Battles…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Rivals },
+    { COMPOUND_STRING("Yellow Events…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_YellowEvents },
+    { COMPOUND_STRING("Gym Leaders…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Gyms },
     { NULL }
 };
 
