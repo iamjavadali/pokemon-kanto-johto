@@ -1,7 +1,9 @@
 #include "global.h"
 #include "script_movement.h"
+#include "event_data.h"
 #include "event_object_movement.h"
 #include "event_scripts.h"
+#include "follower_helper.h"
 #include "task.h"
 #include "util.h"
 #include "constants/event_objects.h"
@@ -230,14 +232,24 @@ static void ScriptMovement_TakeStep(u8 taskId, u8 moveScrId, u8 objEventId, cons
 {
     u8 nextMoveActionId;
     struct ObjectEvent *obj = &gObjectEvents[objEventId];
+    struct ObjectEvent *follower;
+
+    if (FlagGet(FLAG_SAFE_FOLLOWER_MOVEMENT))
+    {
+        follower = GetFollowerObject();
+        if (follower != NULL && follower->active)
+            UnfreezeObjectEvent(follower);
+    }
 
     if (ObjectEventIsHeldMovementActive(obj) && !ObjectEventClearHeldMovementIfFinished(obj))
     {
         // If, while undergoing scripted movement,
         // a non-player object collides with an active follower Pokémon,
-        // put that follower into a pokeball
+        // put that follower into a pokeball unless this scene explicitly allows
+        // safe scripted follower movement.
         // (sTimer helps limit this expensive check to once per step)
-        if (OW_FOLLOWERS_SCRIPT_MOVEMENT && gSprites[obj->spriteId].sTimer == 1
+        if (OW_FOLLOWERS_SCRIPT_MOVEMENT && !FlagGet(FLAG_SAFE_FOLLOWER_MOVEMENT)
+         && gSprites[obj->spriteId].sTimer == 1
          && (objEventId = GetObjectObjectCollidesWith(obj, 0, 0, TRUE)) < OBJECT_EVENTS_COUNT
             // switch `obj` to follower
          && ((obj = &gObjectEvents[objEventId])->movementType == MOVEMENT_TYPE_FOLLOW_PLAYER)

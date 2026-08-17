@@ -689,6 +689,7 @@ PewterCity_EventScript_RunningShoesAideTriggerBottom::
 	end
 
 PewterCity_EventScript_AideGiveRunningShoes::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	textcolor NPC_TEXT_COLOR_MALE
 	call_if_eq VAR_TEMP_1, 1, PewterCity_EventScript_AideNoticePlayer
 	call_if_eq VAR_TEMP_1, 2, PewterCity_EventScript_AideNoticePlayer
@@ -729,6 +730,7 @@ PewterCity_EventScript_AideGiveRunningShoes::
 	removeobject LOCALID_PEWTER_AIDE
 	setflag FLAG_SYS_B_DASH
 	setvar VAR_MAP_SCENE_PEWTER_CITY, 2
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
 PewterCity_EventScript_AideNoticePlayer::
