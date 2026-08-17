@@ -282,6 +282,12 @@ static void GoldenYellowDebug_ApplyPokedexState(void)
     VarSet(VAR_MAP_SCENE_ROUTE22, 1);
 }
 
+static void GoldenYellowDebug_CompleteViridianTeachyTV(void)
+{
+    VarSet(VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 2);
+    AddBagItem(ITEM_TEACHY_TV, 1);
+}
+
 static void GoldenYellowDebug_SetRivalPath(enum GoldenYellowDebugRivalPath path)
 {
     if (path == GY_DEBUG_RIVAL_UNSET || path > GY_DEBUG_RIVAL_VAPOREON)
@@ -325,6 +331,7 @@ static void GoldenYellowDebug_ApplyEarlyKantoFoundation(enum GoldenYellowDebugRi
 {
     GoldenYellowDebug_ApplyOakLabComplete();
     GoldenYellowDebug_ApplyPokedexState();
+    GoldenYellowDebug_CompleteViridianTeachyTV();
     GoldenYellowDebug_CompleteRoute22Early();
     GoldenYellowDebug_SetRivalPath(rivalPath);
 }
@@ -468,6 +475,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_CERULEAN_RIVAL:
         GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
+        GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
         VarSet(VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 0);
@@ -479,6 +487,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_SS_ANNE_RIVAL:
         GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
+        GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
@@ -491,6 +500,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_POKEMON_TOWER_RIVAL:
         GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
+        GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
@@ -504,6 +514,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_SILPH_RIVAL:
         GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
+        GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
@@ -518,6 +529,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_ROUTE22_LATE_RIVAL:
         GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
+        GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
@@ -533,6 +545,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_CHAMPION_RIVAL:
         GoldenYellowDebug_ApplyOakLabComplete();
         GoldenYellowDebug_ApplyPokedexState();
+        GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
