@@ -467,6 +467,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         [GY_DEBUG_CP_BEFORE_TEACHY_TV] = { MAP_VIRIDIAN_CITY, 20, 9 },
         [GY_DEBUG_CP_BEFORE_PEWTER_GUIDE] = { MAP_PEWTER_CITY, 41, 22 },
         [GY_DEBUG_CP_BEFORE_RUNNING_SHOES] = { MAP_PEWTER_CITY, 45, 22 },
+        [GY_DEBUG_CP_BEFORE_JIGGLYPUFF] = { MAP_PEWTER_CITY_POKEMON_CENTER_1F, 2, 3 },
     };
 
     if (checkpoint >= GY_DEBUG_CP_COUNT)
@@ -679,6 +680,14 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
         GoldenYellowDebug_CompleteBrock();
         FlagClear(FLAG_SYS_B_DASH);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
+        break;
+    case GY_DEBUG_CP_BEFORE_JIGGLYPUFF:
+        GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
+        GoldenYellowDebug_SetBadgeMask(0);
+        VarSet(VAR_MAP_SCENE_PEWTER_CITY, 0);
+        FlagClear(FLAG_HIDE_PEWTER_CITY_GYM_GUIDE);
+        FlagSet(FLAG_HIDE_PEWTER_CITY_RUNNING_SHOES_GUY);
         GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
         break;
     default:

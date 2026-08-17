@@ -48,6 +48,7 @@ GY_SELECTION(sGyChampionVaporeon, GY_DEBUG_CP_CHAMPION_RIVAL, GY_DEBUG_RIVAL_VAP
 // Rival path. Rival-specific checkpoints remain available for all three paths.
 GY_SELECTION(sGyBeforeTeachyTV, GY_DEBUG_CP_BEFORE_TEACHY_TV, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyBeforePewterGuide, GY_DEBUG_CP_BEFORE_PEWTER_GUIDE, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyBeforeJigglypuff, GY_DEBUG_CP_BEFORE_JIGGLYPUFF, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyBeforeBrock, GY_DEBUG_CP_BEFORE_BROCK, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyBeforeRunningShoes, GY_DEBUG_CP_BEFORE_RUNNING_SHOES, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyMtMoonFossil, GY_DEBUG_CP_MT_MOON_FOSSIL, GY_DEBUG_RIVAL_JOLTEON);
@@ -103,6 +104,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_CampaignOpen
     { COMPOUND_STRING("Route 22 - Early"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyRoute22Early },
     { COMPOUND_STRING("Before Teachy TV"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeTeachyTV },
     { COMPOUND_STRING("Before Pewter Guide"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforePewterGuide },
+    { COMPOUND_STRING("Before Jigglypuff"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeJigglypuff },
     { COMPOUND_STRING("Before Brock"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeBrock },
     { COMPOUND_STRING("Before Running Shoes"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRunningShoes },
     { NULL }
