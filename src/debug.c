@@ -192,16 +192,10 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Checkpoints[
     { NULL }
 };
 
-static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow[] =
-{
-    { COMPOUND_STRING("Story Checkpoints…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Checkpoints },
-    { NULL }
-};
-
 static const struct DebugMenuOption sDebugMenu_Actions_Main_GoldenYellow[] =
 {
     { COMPOUND_STRING("Utilities…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_Utilities },
-    { COMPOUND_STRING("Golden Yellow…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow },
+    { COMPOUND_STRING("Golden Yellow…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Checkpoints },
     { COMPOUND_STRING("PC/Bag…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_PCBag },
     { COMPOUND_STRING("Party…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_Party },
     { COMPOUND_STRING("Give X…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_Give },
