@@ -32,6 +32,13 @@ enum GoldenYellowDebugCheckpoint
     GY_DEBUG_CP_BEFORE_LT_SURGE,
     GY_DEBUG_CP_SQUIRTLE_GIFT,
 
+    // Stage 1B pre-change validation boundaries. Keep these appended so all
+    // previously accepted checkpoint IDs remain stable; the debug UI presents
+    // them in chronological campaign order independently of numeric ID.
+    GY_DEBUG_CP_BEFORE_TEACHY_TV,
+    GY_DEBUG_CP_BEFORE_PEWTER_GUIDE,
+    GY_DEBUG_CP_BEFORE_RUNNING_SHOES,
+
     GY_DEBUG_CP_COUNT,
 };
 

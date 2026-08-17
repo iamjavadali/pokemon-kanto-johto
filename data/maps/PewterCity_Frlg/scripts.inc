@@ -279,6 +279,10 @@ PewterCity_EventScript_GymGuideTriggerRight::
 	end
 
 PewterCity_EventScript_GymGuideTrigger::
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox PewterCity_Text_BrocksLookingForChallengersFollowMe
 	closemessage

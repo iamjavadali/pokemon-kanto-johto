@@ -46,7 +46,10 @@ GY_SELECTION(sGyChampionVaporeon, GY_DEBUG_CP_CHAMPION_RIVAL, GY_DEBUG_RIVAL_VAP
 
 // D1 early-Kanto main-line selections use Jolteon as the deterministic default
 // Rival path. Rival-specific checkpoints remain available for all three paths.
+GY_SELECTION(sGyBeforeTeachyTV, GY_DEBUG_CP_BEFORE_TEACHY_TV, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyBeforePewterGuide, GY_DEBUG_CP_BEFORE_PEWTER_GUIDE, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyBeforeBrock, GY_DEBUG_CP_BEFORE_BROCK, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyBeforeRunningShoes, GY_DEBUG_CP_BEFORE_RUNNING_SHOES, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyMtMoonFossil, GY_DEBUG_CP_MT_MOON_FOSSIL, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyMtMoonJessieJames, GY_DEBUG_CP_MT_MOON_JESSIE_JAMES, GY_DEBUG_RIVAL_JOLTEON);
 GY_SELECTION(sGyBeforeMisty, GY_DEBUG_CP_BEFORE_MISTY, GY_DEBUG_RIVAL_JOLTEON);
@@ -98,7 +101,10 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_CampaignOpen
     { COMPOUND_STRING("Before Route 1 Oak"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRoute1Oak },
     { COMPOUND_STRING("Oak Lab Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyOakLab },
     { COMPOUND_STRING("Route 22 - Early"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyRoute22Early },
+    { COMPOUND_STRING("Before Teachy TV"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeTeachyTV },
+    { COMPOUND_STRING("Before Pewter Guide"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforePewterGuide },
     { COMPOUND_STRING("Before Brock"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeBrock },
+    { COMPOUND_STRING("Before Running Shoes"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRunningShoes },
     { NULL }
 };
 
@@ -150,6 +156,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_YellowOpenin
     { COMPOUND_STRING("Before Trainer Watch"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeWatch },
     { COMPOUND_STRING("Before Route 1 Oak"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeRoute1Oak },
     { COMPOUND_STRING("Oak Lab"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyOakLab },
+    { COMPOUND_STRING("Before Teachy TV"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeTeachyTV },
     { NULL }
 };
 

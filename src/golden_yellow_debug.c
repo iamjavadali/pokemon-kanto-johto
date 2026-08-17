@@ -301,6 +301,29 @@ static void GoldenYellowDebug_CompleteRoute22Early(void)
     FlagSet(FLAG_HIDE_ROUTE_22_RIVAL);
 }
 
+static void GoldenYellowDebug_CompleteBrock(void)
+{
+    FlagSet(FLAG_DEFEATED_BROCK);
+    GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
+    VarSet(VAR_MAP_SCENE_PEWTER_CITY, 1);
+    FlagSet(FLAG_HIDE_PEWTER_CITY_GYM_GUIDE);
+    FlagClear(FLAG_HIDE_PEWTER_CITY_RUNNING_SHOES_GUY);
+}
+
+static void GoldenYellowDebug_CompleteRunningShoes(void)
+{
+    FlagSet(FLAG_SYS_B_DASH);
+    VarSet(VAR_MAP_SCENE_PEWTER_CITY, 2);
+    FlagSet(FLAG_HIDE_PEWTER_CITY_GYM_GUIDE);
+    FlagSet(FLAG_HIDE_PEWTER_CITY_RUNNING_SHOES_GUY);
+}
+
+static void GoldenYellowDebug_CompletePewterProgression(void)
+{
+    GoldenYellowDebug_CompleteBrock();
+    GoldenYellowDebug_CompleteRunningShoes();
+}
+
 static void GoldenYellowDebug_CompleteCeruleanRival(void)
 {
     VarSet(VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 1);
@@ -339,7 +362,7 @@ static void GoldenYellowDebug_ApplyEarlyKantoFoundation(enum GoldenYellowDebugRi
 static void GoldenYellowDebug_ApplyThroughPewter(enum GoldenYellowDebugRivalPath rivalPath)
 {
     GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
-    GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
+    GoldenYellowDebug_CompletePewterProgression();
 }
 
 static void GoldenYellowDebug_ApplyThroughMtMoonFossil(enum GoldenYellowDebugRivalPath rivalPath)
@@ -441,6 +464,9 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         [GY_DEBUG_CP_SS_ANNE_CAPTAIN] = { MAP_SSANNE_CAPTAINS_OFFICE, 4, 6 },
         [GY_DEBUG_CP_BEFORE_LT_SURGE] = { MAP_VERMILION_CITY_GYM, 5, 18 },
         [GY_DEBUG_CP_SQUIRTLE_GIFT] = { MAP_VERMILION_CITY, 17, 10 },
+        [GY_DEBUG_CP_BEFORE_TEACHY_TV] = { MAP_VIRIDIAN_CITY, 20, 9 },
+        [GY_DEBUG_CP_BEFORE_PEWTER_GUIDE] = { MAP_PEWTER_CITY, 41, 22 },
+        [GY_DEBUG_CP_BEFORE_RUNNING_SHOES] = { MAP_PEWTER_CITY, 45, 22 },
     };
 
     if (checkpoint >= GY_DEBUG_CP_COUNT)
@@ -477,6 +503,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
+        GoldenYellowDebug_CompletePewterProgression();
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
         VarSet(VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 0);
         FlagClear(FLAG_HIDE_CERULEAN_RIVAL);
@@ -489,6 +516,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
+        GoldenYellowDebug_CompletePewterProgression();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
         VarSet(VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR, 0);
@@ -502,6 +530,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
+        GoldenYellowDebug_CompletePewterProgression();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
         GoldenYellowDebug_SetRivalPath(rivalPath);
@@ -516,6 +545,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
+        GoldenYellowDebug_CompletePewterProgression();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
         GoldenYellowDebug_CompleteTowerRival();
@@ -531,6 +561,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
+        GoldenYellowDebug_CompletePewterProgression();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
         GoldenYellowDebug_CompleteTowerRival();
@@ -547,6 +578,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_ApplyPokedexState();
         GoldenYellowDebug_CompleteViridianTeachyTV();
         GoldenYellowDebug_CompleteRoute22Early();
+        GoldenYellowDebug_CompletePewterProgression();
         GoldenYellowDebug_CompleteCeruleanRival();
         GoldenYellowDebug_CompleteSSAnneRival();
         GoldenYellowDebug_CompleteTowerRival();
@@ -564,7 +596,9 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_BEFORE_BROCK:
         GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
         GoldenYellowDebug_SetBadgeMask(0);
+        VarSet(VAR_MAP_SCENE_PEWTER_CITY, 0);
         FlagClear(FLAG_HIDE_PEWTER_CITY_GYM_GUIDE);
+        FlagSet(FLAG_HIDE_PEWTER_CITY_RUNNING_SHOES_GUY);
         GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
         break;
     case GY_DEBUG_CP_MT_MOON_FOSSIL:
@@ -624,6 +658,28 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     case GY_DEBUG_CP_SQUIRTLE_GIFT:
         GoldenYellowDebug_ApplyThroughSurge(rivalPath);
         GoldenYellowDebug_SetPartnerOnly(&sPartnerSSAnne);
+        break;
+    case GY_DEBUG_CP_BEFORE_TEACHY_TV:
+        GoldenYellowDebug_ApplyOakLabComplete();
+        GoldenYellowDebug_ApplyPokedexState();
+        GoldenYellowDebug_CompleteRoute22Early();
+        GoldenYellowDebug_SetRivalPath(rivalPath);
+        GoldenYellowDebug_SetBadgeMask(0);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
+        break;
+    case GY_DEBUG_CP_BEFORE_PEWTER_GUIDE:
+        GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
+        GoldenYellowDebug_SetBadgeMask(0);
+        VarSet(VAR_MAP_SCENE_PEWTER_CITY, 0);
+        FlagClear(FLAG_HIDE_PEWTER_CITY_GYM_GUIDE);
+        FlagSet(FLAG_HIDE_PEWTER_CITY_RUNNING_SHOES_GUY);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
+        break;
+    case GY_DEBUG_CP_BEFORE_RUNNING_SHOES:
+        GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
+        GoldenYellowDebug_CompleteBrock();
+        FlagClear(FLAG_SYS_B_DASH);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
         break;
     default:
         return FALSE;
