@@ -15,6 +15,21 @@ enum GoldenYellowDebugCheckpoint
     GY_DEBUG_CP_SILPH_RIVAL,
     GY_DEBUG_CP_ROUTE22_LATE_RIVAL,
     GY_DEBUG_CP_CHAMPION_RIVAL,
+
+    // D1 — Early Kanto story checkpoint spine. Appended after the accepted D0
+    // IDs so existing debug selections remain numerically stable.
+    GY_DEBUG_CP_BEFORE_BROCK,
+    GY_DEBUG_CP_MT_MOON_FOSSIL,
+    GY_DEBUG_CP_MT_MOON_JESSIE_JAMES,
+    GY_DEBUG_CP_BEFORE_MISTY,
+    GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET,
+    GY_DEBUG_CP_BEFORE_BILL,
+    GY_DEBUG_CP_BULBASAUR_GIFT,
+    GY_DEBUG_CP_CHARMANDER_GIFT,
+    GY_DEBUG_CP_SS_ANNE_CAPTAIN,
+    GY_DEBUG_CP_BEFORE_LT_SURGE,
+    GY_DEBUG_CP_SQUIRTLE_GIFT,
+
     GY_DEBUG_CP_COUNT,
 };
 

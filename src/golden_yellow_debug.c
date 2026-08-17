@@ -3,6 +3,7 @@
 #include "event_data.h"
 #include "field_screen_effect.h"
 #include "follower_npc.h"
+#include "item.h"
 #include "item_menu.h"
 #include "money.h"
 #include "overworld.h"
@@ -19,6 +20,12 @@
 #include "constants/vars.h"
 
 #define VAR_YELLOW_RIVAL_EEVEE_STATE 0x40FD
+
+#define GY_BADGE_BOULDER (1 << 0)
+#define GY_BADGE_CASCADE (1 << 1)
+#define GY_BADGE_THUNDER (1 << 2)
+#define GY_BADGES_FIRST_FOUR 0x0F
+#define GY_BADGES_ALL 0xFF
 
 extern const u8 EventScript_ResetAllMapFlagsFrlg[];
 
@@ -151,13 +158,13 @@ static void GoldenYellowDebug_ResetStoryState(void)
     SetMoney(&gSaveBlock1Ptr->money, 3000);
 }
 
-static void GoldenYellowDebug_SetBadges(u8 count)
+static void GoldenYellowDebug_SetBadgeMask(u8 badgeMask)
 {
     u8 i;
 
     for (i = 0; i < NUM_BADGES; i++)
     {
-        if (i < count)
+        if (badgeMask & (1 << i))
             FlagSet(gBadgeFlags[i]);
         else
             FlagClear(gBadgeFlags[i]);
@@ -189,6 +196,12 @@ static void GoldenYellowDebug_SetTestParty(const struct GoldenYellowDebugPartner
     GoldenYellowDebug_SetParty(party, count);
 }
 
+static void GoldenYellowDebug_SetPartnerOnly(const struct GoldenYellowDebugPartnerProfile *partner)
+{
+    ZeroPlayerPartyMons();
+    GoldenYellowDebug_CreatePartnerPikachu(partner);
+}
+
 static void GoldenYellowDebug_ApplyNewGameBaseline(void)
 {
     FlagClear(FLAG_GOT_TRAINER_WATCH);
@@ -210,8 +223,6 @@ static void GoldenYellowDebug_ApplyThroughTrainerWatch(void)
     FlagSet(FLAG_GOT_TRAINER_WATCH);
     VarSet(VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1);
 
-    // Match Mom's Watch setup semantics. Real/emulated RTC is preferred;
-    // hardware without RTC receives a deterministic valid fallback.
     if (TrainerWatchCheckClock() == 0)
         TrainerWatchSetManualDateTime(2026, MONTH_JAN, 1, 12, 0);
 }
@@ -229,7 +240,6 @@ static void GoldenYellowDebug_ApplyOakLabRivalReady(void)
 {
     GoldenYellowDebug_ApplyRoute1OakReady();
 
-    // Persistent results of the accepted Route 1 capture and Lab gift scenes.
     FlagSet(FLAG_VISITED_OAKS_LAB);
     FlagSet(FLAG_SYS_POKEMON_GET);
     FlagSet(FLAG_PALLET_LADY_NOT_BLOCKING_SIGN);
@@ -240,8 +250,6 @@ static void GoldenYellowDebug_ApplyOakLabRivalReady(void)
     FlagClear(FLAG_HIDE_RIVAL_IN_LAB);
     FlagSet(FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU);
 
-    // Yellow's Eevee is taken and the captured Pikachu is given to the player;
-    // all three FRLG table balls are therefore gone before the rival battle.
     FlagSet(FLAG_HIDE_BULBASAUR_BALL);
     FlagSet(FLAG_HIDE_SQUIRTLE_BALL);
     FlagSet(FLAG_HIDE_CHARMANDER_BALL);
@@ -276,7 +284,7 @@ static void GoldenYellowDebug_ApplyPokedexState(void)
 
 static void GoldenYellowDebug_SetRivalPath(enum GoldenYellowDebugRivalPath path)
 {
-    if (path > GY_DEBUG_RIVAL_VAPOREON)
+    if (path == GY_DEBUG_RIVAL_UNSET || path > GY_DEBUG_RIVAL_VAPOREON)
         path = GY_DEBUG_RIVAL_JOLTEON;
     VarSet(VAR_YELLOW_RIVAL_EEVEE_STATE, path);
 }
@@ -311,6 +319,88 @@ static void GoldenYellowDebug_CompleteSilphRival(void)
     FlagSet(FLAG_HIDE_SILPH_RIVAL);
 }
 
+// D1 cumulative story-state helpers. These deliberately do not construct test
+// parties; checkpoint party setup remains a separate concern below.
+static void GoldenYellowDebug_ApplyEarlyKantoFoundation(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyOakLabComplete();
+    GoldenYellowDebug_ApplyPokedexState();
+    GoldenYellowDebug_CompleteRoute22Early();
+    GoldenYellowDebug_SetRivalPath(rivalPath);
+}
+
+static void GoldenYellowDebug_ApplyThroughPewter(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
+    GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
+}
+
+static void GoldenYellowDebug_ApplyThroughMtMoonFossil(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughPewter(rivalPath);
+    FlagSet(FLAG_GOT_FOSSIL_FROM_MT_MOON);
+    FlagSet(FLAG_GOT_HELIX_FOSSIL);
+    FlagSet(FLAG_HIDE_DOME_FOSSIL);
+    FlagSet(FLAG_HIDE_HELIX_FOSSIL);
+    VarSet(VAR_MAP_SCENE_MT_MOON_B2F, 1);
+    AddBagItem(ITEM_HELIX_FOSSIL, 1);
+}
+
+static void GoldenYellowDebug_ApplyThroughMtMoon(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    // Jessie/James are not yet rebuilt in the FRLG map script. Until that scene
+    // owns a project flag, the fossil boundary is the last persistent state
+    // shared by both the source Yellow sequence and the current build.
+    GoldenYellowDebug_ApplyThroughMtMoonFossil(rivalPath);
+}
+
+static void GoldenYellowDebug_ApplyThroughMisty(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughMtMoon(rivalPath);
+    GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER | GY_BADGE_CASCADE);
+}
+
+static void GoldenYellowDebug_ApplyThroughNuggetBridge(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughMisty(rivalPath);
+    GoldenYellowDebug_CompleteCeruleanRival();
+    VarSet(VAR_MAP_SCENE_ROUTE24, 1);
+    FlagSet(FLAG_HIDE_NUGGET_BRIDGE_ROCKET);
+    AddBagItem(ITEM_NUGGET, 1);
+}
+
+static void GoldenYellowDebug_ApplyThroughBill(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughNuggetBridge(rivalPath);
+    FlagSet(FLAG_HELPED_BILL_IN_SEA_COTTAGE);
+    FlagSet(FLAG_GOT_SS_TICKET);
+    FlagSet(FLAG_GOT_SS_TICKET_DUP);
+    FlagSet(FLAG_HIDE_BILL_CLEFAIRY);
+    FlagClear(FLAG_HIDE_BILL_HUMAN_SEA_COTTAGE);
+    AddBagItem(ITEM_SS_TICKET, 1);
+}
+
+static void GoldenYellowDebug_ApplyThroughSSAnneRival(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughBill(rivalPath);
+    GoldenYellowDebug_CompleteSSAnneRival();
+}
+
+static void GoldenYellowDebug_ApplyThroughCaptain(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughSSAnneRival(rivalPath);
+    FlagSet(FLAG_GOT_HM01);
+    FlagSet(FLAG_HIDE_SS_ANNE);
+    AddBagItem(ITEM_HM01, 1);
+}
+
+static void GoldenYellowDebug_ApplyThroughSurge(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughCaptain(rivalPath);
+    GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER | GY_BADGE_CASCADE | GY_BADGE_THUNDER);
+    FlagSet(FLAG_GOT_TM34_FROM_SURGE);
+}
+
 static void GoldenYellowDebug_Warp(const struct GoldenYellowDebugWarp *warp)
 {
     SetWarpDestination(MAP_GROUP(warp->map), MAP_NUM(warp->map), WARP_ID_NONE, warp->x, warp->y);
@@ -333,6 +423,17 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         [GY_DEBUG_CP_SILPH_RIVAL] = { MAP_SILPH_CO_7F, 2, 3 },
         [GY_DEBUG_CP_ROUTE22_LATE_RIVAL] = { MAP_ROUTE22, 34, 5 },
         [GY_DEBUG_CP_CHAMPION_RIVAL] = { MAP_POKEMON_LEAGUE_CHAMPIONS_ROOM, 6, 19 },
+        [GY_DEBUG_CP_BEFORE_BROCK] = { MAP_PEWTER_CITY_GYM, 6, 13 },
+        [GY_DEBUG_CP_MT_MOON_FOSSIL] = { MAP_MT_MOON_B2F, 14, 12 },
+        [GY_DEBUG_CP_MT_MOON_JESSIE_JAMES] = { MAP_MT_MOON_B2F, 6, 11 },
+        [GY_DEBUG_CP_BEFORE_MISTY] = { MAP_CERULEAN_CITY_GYM, 8, 17 },
+        [GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET] = { MAP_ROUTE24, 10, 16 },
+        [GY_DEBUG_CP_BEFORE_BILL] = { MAP_ROUTE25_SEA_COTTAGE, 7, 8 },
+        [GY_DEBUG_CP_BULBASAUR_GIFT] = { MAP_CERULEAN_CITY, 23, 7 },
+        [GY_DEBUG_CP_CHARMANDER_GIFT] = { MAP_ROUTE24, 5, 20 },
+        [GY_DEBUG_CP_SS_ANNE_CAPTAIN] = { MAP_SSANNE_CAPTAINS_OFFICE, 4, 6 },
+        [GY_DEBUG_CP_BEFORE_LT_SURGE] = { MAP_VERMILION_CITY_GYM, 5, 18 },
+        [GY_DEBUG_CP_SQUIRTLE_GIFT] = { MAP_VERMILION_CITY, 17, 10 },
     };
 
     if (checkpoint >= GY_DEBUG_CP_COUNT)
@@ -344,15 +445,15 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
     switch (checkpoint)
     {
     case GY_DEBUG_CP_BEFORE_TRAINER_WATCH:
-        GoldenYellowDebug_SetBadges(0);
+        GoldenYellowDebug_SetBadgeMask(0);
         break;
     case GY_DEBUG_CP_BEFORE_ROUTE1_OAK:
         GoldenYellowDebug_ApplyRoute1OakReady();
-        GoldenYellowDebug_SetBadges(0);
+        GoldenYellowDebug_SetBadgeMask(0);
         break;
     case GY_DEBUG_CP_OAK_LAB_RIVAL:
         GoldenYellowDebug_ApplyOakLabRivalReady();
-        GoldenYellowDebug_SetBadges(0);
+        GoldenYellowDebug_SetBadgeMask(0);
         break;
     case GY_DEBUG_CP_ROUTE22_EARLY:
         GoldenYellowDebug_ApplyOakLabComplete();
@@ -360,7 +461,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_FLAREON);
         VarSet(VAR_MAP_SCENE_ROUTE22, 1);
         FlagClear(FLAG_HIDE_ROUTE_22_RIVAL);
-        GoldenYellowDebug_SetBadges(0);
+        GoldenYellowDebug_SetBadgeMask(0);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerRoute22, sPartyRoute22, ARRAY_COUNT(sPartyRoute22));
         break;
@@ -371,7 +472,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
         VarSet(VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 0);
         FlagClear(FLAG_HIDE_CERULEAN_RIVAL);
-        GoldenYellowDebug_SetBadges(1);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
@@ -383,7 +484,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
         VarSet(VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR, 0);
         FlagClear(FLAG_HIDE_SS_ANNE_RIVAL);
-        GoldenYellowDebug_SetBadges(2);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER | GY_BADGE_CASCADE);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerSSAnne, sPartySSAnne, ARRAY_COUNT(sPartySSAnne));
         break;
@@ -396,7 +497,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetRivalPath(rivalPath);
         VarSet(VAR_MAP_SCENE_POKEMON_TOWER_2F, 0);
         FlagClear(FLAG_HIDE_TOWER_RIVAL);
-        GoldenYellowDebug_SetBadges(4);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGES_FIRST_FOUR);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerTower, sPartyTower, ARRAY_COUNT(sPartyTower));
         break;
@@ -410,7 +511,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetRivalPath(rivalPath);
         VarSet(VAR_MAP_SCENE_SILPH_CO_7F, 0);
         FlagClear(FLAG_HIDE_SILPH_RIVAL);
-        GoldenYellowDebug_SetBadges(4);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGES_FIRST_FOUR);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerSilph, sPartySilph, ARRAY_COUNT(sPartySilph));
         break;
@@ -425,7 +526,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetRivalPath(rivalPath);
         VarSet(VAR_MAP_SCENE_ROUTE22, 3);
         FlagClear(FLAG_HIDE_ROUTE_22_RIVAL);
-        GoldenYellowDebug_SetBadges(8);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGES_ALL);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerLateRoute22, sPartyLateRoute22, ARRAY_COUNT(sPartyLateRoute22));
         break;
@@ -442,9 +543,74 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         FlagSet(FLAG_HIDE_ROUTE_22_RIVAL);
         FlagClear(FLAG_SYS_GAME_CLEAR);
         FlagClear(FLAG_IS_CHAMPION);
-        GoldenYellowDebug_SetBadges(8);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGES_ALL);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerChampion, sPartyChampion, ARRAY_COUNT(sPartyChampion));
+        break;
+
+    case GY_DEBUG_CP_BEFORE_BROCK:
+        GoldenYellowDebug_ApplyEarlyKantoFoundation(rivalPath);
+        GoldenYellowDebug_SetBadgeMask(0);
+        FlagClear(FLAG_HIDE_PEWTER_CITY_GYM_GUIDE);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
+        break;
+    case GY_DEBUG_CP_MT_MOON_FOSSIL:
+        GoldenYellowDebug_ApplyThroughPewter(rivalPath);
+        FlagClear(FLAG_GOT_FOSSIL_FROM_MT_MOON);
+        FlagClear(FLAG_GOT_DOME_FOSSIL);
+        FlagClear(FLAG_GOT_HELIX_FOSSIL);
+        FlagClear(FLAG_HIDE_DOME_FOSSIL);
+        FlagClear(FLAG_HIDE_HELIX_FOSSIL);
+        VarSet(VAR_MAP_SCENE_MT_MOON_B2F, 0);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
+        break;
+    case GY_DEBUG_CP_MT_MOON_JESSIE_JAMES:
+        GoldenYellowDebug_ApplyThroughMtMoonFossil(rivalPath);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        break;
+    case GY_DEBUG_CP_BEFORE_MISTY:
+        GoldenYellowDebug_ApplyThroughMtMoon(rivalPath);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        break;
+    case GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET:
+        GoldenYellowDebug_ApplyThroughMisty(rivalPath);
+        GoldenYellowDebug_CompleteCeruleanRival();
+        VarSet(VAR_MAP_SCENE_ROUTE24, 0);
+        FlagClear(FLAG_HIDE_NUGGET_BRIDGE_ROCKET);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        break;
+    case GY_DEBUG_CP_BEFORE_BILL:
+        GoldenYellowDebug_ApplyThroughNuggetBridge(rivalPath);
+        FlagClear(FLAG_HELPED_BILL_IN_SEA_COTTAGE);
+        FlagClear(FLAG_GOT_SS_TICKET);
+        FlagClear(FLAG_GOT_SS_TICKET_DUP);
+        FlagClear(FLAG_HIDE_BILL_CLEFAIRY);
+        FlagSet(FLAG_HIDE_BILL_HUMAN_SEA_COTTAGE);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        break;
+    case GY_DEBUG_CP_BULBASAUR_GIFT:
+        GoldenYellowDebug_ApplyThroughBill(rivalPath);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        break;
+    case GY_DEBUG_CP_CHARMANDER_GIFT:
+        GoldenYellowDebug_ApplyThroughBill(rivalPath);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        break;
+    case GY_DEBUG_CP_SS_ANNE_CAPTAIN:
+        GoldenYellowDebug_ApplyThroughSSAnneRival(rivalPath);
+        FlagClear(FLAG_GOT_HM01);
+        FlagClear(FLAG_HIDE_SS_ANNE);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerSSAnne);
+        break;
+    case GY_DEBUG_CP_BEFORE_LT_SURGE:
+        GoldenYellowDebug_ApplyThroughCaptain(rivalPath);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER | GY_BADGE_CASCADE);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerSSAnne);
+        break;
+    case GY_DEBUG_CP_SQUIRTLE_GIFT:
+        GoldenYellowDebug_ApplyThroughSurge(rivalPath);
+        GoldenYellowDebug_SetPartnerOnly(&sPartnerSSAnne);
         break;
     default:
         return FALSE;

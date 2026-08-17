@@ -44,6 +44,20 @@ GY_SELECTION(sGyChampionJolteon, GY_DEBUG_CP_CHAMPION_RIVAL, GY_DEBUG_RIVAL_JOLT
 GY_SELECTION(sGyChampionFlareon, GY_DEBUG_CP_CHAMPION_RIVAL, GY_DEBUG_RIVAL_FLAREON);
 GY_SELECTION(sGyChampionVaporeon, GY_DEBUG_CP_CHAMPION_RIVAL, GY_DEBUG_RIVAL_VAPOREON);
 
+// D1 early-Kanto main-line selections use Jolteon as the deterministic default
+// Rival path. Rival-specific checkpoints remain available for all three paths.
+GY_SELECTION(sGyBeforeBrock, GY_DEBUG_CP_BEFORE_BROCK, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyMtMoonFossil, GY_DEBUG_CP_MT_MOON_FOSSIL, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyMtMoonJessieJames, GY_DEBUG_CP_MT_MOON_JESSIE_JAMES, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyBeforeMisty, GY_DEBUG_CP_BEFORE_MISTY, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyNuggetBridgeRocket, GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyBeforeBill, GY_DEBUG_CP_BEFORE_BILL, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyBulbasaurGift, GY_DEBUG_CP_BULBASAUR_GIFT, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyCharmanderGift, GY_DEBUG_CP_CHARMANDER_GIFT, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGySSAnneCaptain, GY_DEBUG_CP_SS_ANNE_CAPTAIN, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGyBeforeLtSurge, GY_DEBUG_CP_BEFORE_LT_SURGE, GY_DEBUG_RIVAL_JOLTEON);
+GY_SELECTION(sGySquirtleGift, GY_DEBUG_CP_SQUIRTLE_GIFT, GY_DEBUG_RIVAL_JOLTEON);
+
 #undef GY_SELECTION
 
 static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Tower[] =
@@ -78,6 +92,22 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Champion[] =
     { NULL }
 };
 
+static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_EarlyKanto[] =
+{
+    { COMPOUND_STRING("Before Brock"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeBrock },
+    { COMPOUND_STRING("Mt. Moon Fossil"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyMtMoonFossil },
+    { COMPOUND_STRING("Mt. Moon Jessie/James"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyMtMoonJessieJames },
+    { COMPOUND_STRING("Before Misty"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeMisty },
+    { COMPOUND_STRING("Nugget Bridge Rocket"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyNuggetBridgeRocket },
+    { COMPOUND_STRING("Before Bill"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeBill },
+    { COMPOUND_STRING("Bulbasaur Gift"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBulbasaurGift },
+    { COMPOUND_STRING("Charmander Gift"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCharmanderGift },
+    { COMPOUND_STRING("S.S. Anne Captain"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnneCaptain },
+    { COMPOUND_STRING("Before Lt. Surge"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeLtSurge },
+    { COMPOUND_STRING("Squirtle Gift"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySquirtleGift },
+    { NULL }
+};
+
 static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Checkpoints[] =
 {
     { COMPOUND_STRING("Before Trainer Watch"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeWatch },
@@ -86,6 +116,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_Checkpoints[
     { COMPOUND_STRING("Route 22 - Early"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyRoute22Early },
     { COMPOUND_STRING("Cerulean Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyCerulean },
     { COMPOUND_STRING("S.S. Anne Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnne },
+    { COMPOUND_STRING("Early Kanto…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_EarlyKanto },
     { COMPOUND_STRING("Pokemon Tower…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Tower },
     { COMPOUND_STRING("Silph Co.…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Silph },
     { COMPOUND_STRING("Route 22 - Late…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Route22Late },
