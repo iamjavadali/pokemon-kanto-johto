@@ -50,8 +50,8 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	goto_if_ne VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
 
 PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy::
-	applymovement OBJ_EVENT_ID_NPC_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
-	waitmovement OBJ_EVENT_ID_NPC_FOLLOWER
+	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
+	waitmovement OBJ_EVENT_ID_FOLLOWER
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_WEAK
 	waitmoncry
 	delay 32
