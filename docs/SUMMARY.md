@@ -23,6 +23,7 @@
 - [Styleguide and Principles](./STYLEGUIDE.md)
 - [Credits](./CREDITS.md)
 - [Kanto + Johto Project Rules](projects/KANTO_JOHTO_MASTER_RULES.md)
+- [D1 — Early Kanto Story Checkpoints](development/D1_Early_Kanto_Checkpoints_Plan.md)
 - [Tutorials]()
   - [What are AI Flags?](tutorials/ai_flags.md)
     - [How to add new AI Flags](tutorials/ai_logic.md)
