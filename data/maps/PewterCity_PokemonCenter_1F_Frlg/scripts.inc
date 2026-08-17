@@ -25,7 +25,11 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	playbgm MUS_RG_JIGGLYPUFF, 0
 	message PewterCity_PokemonCenter_1F_Text_Jigglypuff
 	waitmessage
-	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, PewterCity_PokemonCenter_1F_EventScript_JigglypuffWait
+	delay 455
+	playbgm MUS_POKE_CENTER, 1
+	closemessage
+	delay 16
+	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
 	setvar VAR_0x8004, 0
 	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
 	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
@@ -43,27 +47,28 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
 	setvar VAR_0x8004, 5
 	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
-	goto_if_ne VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_JigglypuffWait
+	goto_if_ne VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
 
 PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy::
 	applymovement OBJ_EVENT_ID_NPC_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
 	waitmovement OBJ_EVENT_ID_NPC_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_WEAK
 	waitmoncry
+	delay 32
 
-PewterCity_PokemonCenter_1F_EventScript_JigglypuffWait::
-	delay 455
-	playbgm MUS_POKE_CENTER, 1
+PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish::
 	release
 	end
 
 PewterCity_PokemonCenter_1F_Movement_PartnerSleepy:
 	face_down
 	delay_16
+	walk_in_place_slow_down
+	walk_in_place_slow_down
+	delay_16
 	delay_16
 	delay_16
 	face_player
-	delay_16
 	delay_16
 	step_end
 
