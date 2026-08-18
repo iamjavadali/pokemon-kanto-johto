@@ -54,7 +54,17 @@ PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy::
 	waitmovement OBJ_EVENT_ID_FOLLOWER
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_WEAK
 	waitmoncry
-	delay 32
+	callnative GoldenYellow_ShowFollowerSleepEmote, waitstate=1
+	message PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep
+	waitmessage
+	waitbuttonpress
+	closemessage
+	delay 16
+	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerWake
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	delay 16
 
 PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish::
 	release
@@ -70,6 +80,20 @@ PewterCity_PokemonCenter_1F_Movement_PartnerSleepy:
 	delay_16
 	face_player
 	delay_16
+	step_end
+
+PewterCity_PokemonCenter_1F_Movement_PartnerWake:
+	face_away_player
+	lock_facing_direction
+	jump_in_place_down
+	unlock_facing_direction
+	face_player
+	delay_8
+	jump_in_place_up
+	jump_in_place_down
+	jump_in_place_left
+	jump_in_place_right
+	face_player
 	step_end
 
 PewterCity_PokemonCenter_1F_EventScript_Youngster::
@@ -95,6 +119,10 @@ PewterCity_PokemonCenter_1F_Text_TeamRocketMtMoonImOnPhone::
 
 PewterCity_PokemonCenter_1F_Text_Jigglypuff::
 	.string "JIGGLYPUFF: Puu pupuu!$"
+
+PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep::
+	.string "PIKACHU looks fast asleep…\p"
+	.string "Better wake it up.$"
 
 PewterCity_PokemonCenter_1F_Text_WhenJiggylypuffSingsMonsGetDrowsy::
 	.string "Yawn!\p"
