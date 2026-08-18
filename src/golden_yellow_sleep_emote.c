@@ -14,6 +14,7 @@ static const u16 sGoldenYellowSleepEmotePal[] =
     INCGFX_U16("graphics/field_effects/pics/emotion_sleep.png", ".gbapal");
 
 static void SpriteCB_GoldenYellowSleepEmote(struct Sprite *sprite);
+static bool8 GoldenYellow_WaitForPlayerFaceFollower(void);
 
 static const struct OamData sGoldenYellowSleepEmoteOam =
 {
@@ -95,7 +96,7 @@ void GoldenYellow_ShowFollowerSleepEmote(void)
     SpriteCB_GoldenYellowSleepEmote(&gSprites[spriteId]);
 }
 
-void GoldenYellow_FacePlayerTowardFollower(void)
+void GoldenYellow_FacePlayerTowardFollower(struct ScriptContext *ctx)
 {
     struct ObjectEvent *follower = GetFollowerObject();
     struct ObjectEvent *player;
@@ -121,7 +122,18 @@ void GoldenYellow_FacePlayerTowardFollower(void)
     else
         return;
 
-    PlayerTurnInPlace(direction);
+    ObjectEventClearHeldMovementIfActive(player);
+    if (ObjectEventSetHeldMovement(player, GetFaceDirectionMovementAction(direction)))
+        return;
+
+    SetupNativeScript(ctx, GoldenYellow_WaitForPlayerFaceFollower);
+}
+
+static bool8 GoldenYellow_WaitForPlayerFaceFollower(void)
+{
+    struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+
+    return ObjectEventClearHeldMovementIfFinished(player) != 0;
 }
 
 static void SpriteCB_GoldenYellowSleepEmote(struct Sprite *sprite)
