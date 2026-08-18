@@ -55,6 +55,8 @@ PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy::
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_WEAK
 	waitmoncry
 	callnative GoldenYellow_ShowFollowerSleepEmote, waitstate=1
+	callnative GoldenYellow_FacePlayerTowardFollower
+	delay 8
 	message PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep
 	waitmessage
 	waitbuttonpress
