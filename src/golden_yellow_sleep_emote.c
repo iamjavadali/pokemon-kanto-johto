@@ -1,5 +1,6 @@
 #include "global.h"
 #include "event_object_movement.h"
+#include "field_player_avatar.h"
 #include "palette.h"
 #include "script.h"
 #include "sprite.h"
@@ -92,6 +93,35 @@ void GoldenYellow_ShowFollowerSleepEmote(void)
     gSprites[spriteId].coordOffsetEnabled = TRUE;
     gSprites[spriteId].sFollowerObjectEventId = follower - gObjectEvents;
     SpriteCB_GoldenYellowSleepEmote(&gSprites[spriteId]);
+}
+
+void GoldenYellow_FacePlayerTowardFollower(void)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+    struct ObjectEvent *player;
+    s16 deltaX;
+    s16 deltaY;
+    enum Direction direction;
+
+    if (follower == NULL || !follower->active)
+        return;
+
+    player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    deltaX = follower->currentCoords.x - player->currentCoords.x;
+    deltaY = follower->currentCoords.y - player->currentCoords.y;
+
+    if (deltaX > 0)
+        direction = DIR_EAST;
+    else if (deltaX < 0)
+        direction = DIR_WEST;
+    else if (deltaY > 0)
+        direction = DIR_SOUTH;
+    else if (deltaY < 0)
+        direction = DIR_NORTH;
+    else
+        return;
+
+    PlayerTurnInPlace(direction);
 }
 
 static void SpriteCB_GoldenYellowSleepEmote(struct Sprite *sprite)
