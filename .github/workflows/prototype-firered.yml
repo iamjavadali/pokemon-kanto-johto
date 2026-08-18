@@ -4,55 +4,261 @@ on:
   push:
     branches:
       - 'prototype/**'
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
+
+env:
+  GAME_REVISION: 0
+  GAME_LANGUAGE: ENGLISH
+  COMPARE: 0
+  UNUSED_ERROR: 1
+  DEPRECATED_ERROR: 1
 
 jobs:
-  assemble-golden-yellow-docs:
-    if: ${{ github.event.head_commit.message == 'chore: trigger Golden Yellow docs assembly' }}
+  build-firered-prototype:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
-      - name: Checkout canonical branch
+      - name: Checkout triggering SHA
         uses: actions/checkout@v4
         with:
-          ref: prototype/v0.1
-          fetch-depth: 0
+          fetch-depth: 2
 
-      - name: Reconstruct and verify exact project docs
+      - name: Resolve validation delta
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p docs/golden-yellow-build
 
-          cat .project_docs_staging/Master.part00 \
-              .project_docs_staging/Master.part01 \
-              .project_docs_staging/Master.part02 \
-              .project_docs_staging/Master.part03 \
-            | base64 -d | gzip -d > docs/golden-yellow-build/Pokemon_Golden_Yellow_Project_Master.md
+          BASE_SHA=""
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            CANDIDATE_BASE="${{ github.event.before }}"
+            if [[ -n "$CANDIDATE_BASE" && ! "$CANDIDATE_BASE" =~ ^0+$ ]]; then
+              BASE_SHA="$CANDIDATE_BASE"
+            fi
+          fi
 
-          cat .project_docs_staging/HardRules.part00 \
-              .project_docs_staging/HardRules.part01 \
-              .project_docs_staging/HardRules.part02 \
-            | base64 -d | gzip -d > docs/golden-yellow-build/Pokemon_Golden_Yellow_Hard_Rules.md
+          if [[ -z "$BASE_SHA" ]]; then
+            BASE_SHA="$(git rev-parse HEAD^ 2>/dev/null || true)"
+          fi
 
-          cat .project_docs_staging/CurrentState.part00 \
-              .project_docs_staging/CurrentState.part01 \
-            | base64 -d | gzip -d > docs/golden-yellow-build/Pokemon_Golden_Yellow_Current_Project_State.md
+          if [[ -n "$BASE_SHA" ]] && ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            echo "Base SHA is outside the shallow checkout; deepening branch history."
+            git fetch --no-tags --depth=64 origin "$GITHUB_REF" || true
+          fi
 
-          echo 'db65ba8c05a6a3557b23e630b62e515e925d3688ea2df2427f61ebbcb54c8553  docs/golden-yellow-build/Pokemon_Golden_Yellow_Project_Master.md' | sha256sum -c -
-          echo 'ca1e4e440a9a0f35fdde1e539f1022afb4a0383348891752ac3280fb1e4379f5  docs/golden-yellow-build/Pokemon_Golden_Yellow_Hard_Rules.md' | sha256sum -c -
-          echo '03cdd011d4d3ab1b679129d9fd0d8b9ae8de54b9b19ae342d9c5c069c14a8b17  docs/golden-yellow-build/Pokemon_Golden_Yellow_Current_Project_State.md' | sha256sum -c -
+          if [[ -n "$BASE_SHA" ]] && ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            echo "Base SHA $BASE_SHA is unavailable; targeted source compilation will be skipped."
+            BASE_SHA=""
+          fi
 
-      - name: Restore workflow and commit clean documentation tree
+          echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+          echo "Validation head: $GITHUB_SHA"
+          echo "Validation base: ${BASE_SHA:-<none>}"
+
+      - name: Source sanity gate
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git show 8708aab6fce45327b7204b3a75a8b1b52e2402b4:.github/workflows/prototype-firered.yml > .github/workflows/prototype-firered.yml
-          git rm -r .project_docs_staging
-          git rm .github/workflows/project-docs-assemble.yml
-          git add .github/workflows/prototype-firered.yml docs/golden-yellow-build
-          git commit -m 'docs: add Golden Yellow project documentation [skip ci]'
-          git push origin HEAD:prototype/v0.1
+
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          if [[ "$ACTUAL_SHA" != "$GITHUB_SHA" ]]; then
+            echo "Expected triggering SHA $GITHUB_SHA but checked out $ACTUAL_SHA" >&2
+            exit 1
+          fi
+
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "Checkout is not clean:" >&2
+            git status --short >&2
+            exit 1
+          fi
+
+          echo "== Commit whitespace check =="
+          git show --check --oneline --no-renames "$GITHUB_SHA" --
+
+          if [[ -n "${BASE_SHA:-}" ]]; then
+            echo "== Push-delta whitespace check =="
+            git diff --check "$BASE_SHA" "$GITHUB_SHA"
+          fi
+
+          echo "== Documentation index validation =="
+          .github/docs_validate/inclusive_summary.py
+
+      - name: Install ARM toolchain and build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            binutils-arm-none-eabi \
+            gcc-arm-none-eabi \
+            libnewlib-arm-none-eabi \
+            libpng-dev \
+            python3
+
+      - name: Cache build tools
+        uses: actions/cache@v4
+        with:
+          path: |
+            tools/bin2c/bin2c
+            tools/gbafix/gbafix
+            tools/gbagfx/gbagfx
+            tools/jsonproc/jsonproc
+            tools/mapjson/mapjson
+            tools/mid2agb/mid2agb
+            tools/preproc/preproc
+            tools/ramscrgen/ramscrgen
+            tools/rsfont/rsfont
+            tools/scaninc/scaninc
+            tools/trainerproc/trainerproc
+            tools/compresSmol/compresSmol
+            tools/compresSmol/compresSmolTilemap
+            tools/wav2agb/wav2agb
+          key: prototype-tools-${{ runner.os }}-${{ hashFiles('tools/*/Makefile', 'tools/**/*.c', 'tools/**/*.cpp', 'tools/**/*.h') }}
+
+      - name: Strict changed-source preflight
+        shell: bash
+        run: |
+          set -uo pipefail
+          : > preflight.log
+
+          if [[ -z "${BASE_SHA:-}" ]]; then
+            echo "No usable validation base; skipping targeted C-object compilation." | tee -a preflight.log
+            exit 0
+          fi
+
+          mapfile -t changed_c < <(
+            git diff --diff-filter=ACMR --name-only "$BASE_SHA" "$GITHUB_SHA" -- \
+              ':(glob)src/*.c' \
+              ':(glob)src/**/*.c'
+          )
+
+          if ((${#changed_c[@]} == 0)); then
+            echo "No changed C sources in this push; skipping targeted C-object compilation." | tee -a preflight.log
+            exit 0
+          fi
+
+          targets=()
+          for source in "${changed_c[@]}"; do
+            target="build/firered/${source%.c}.o"
+            targets+=("$target")
+            echo "Preflight target: $source -> $target" | tee -a preflight.log
+          done
+
+          echo "== Strict targeted FireRed object compilation ==" | tee -a preflight.log
+          set +e
+          make BUILD=firered -k -j"$(nproc)" -O "${targets[@]}" 2>&1 | tee -a preflight.log
+          status=${PIPESTATUS[0]}
+          set -e
+
+          if ((status != 0)); then
+            {
+              echo "### Strict changed-source preflight failed"
+              echo
+              echo "Commit: \`$GITHUB_SHA\`"
+              echo
+              echo '```text'
+              grep -E 'error:|fatal error:|undefined reference|multiple definition|collect2:|make(\[[0-9]+\])?: \*\*\*' preflight.log | tail -n 100 || true
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit "$status"
+          fi
+
+      - name: Full strict FireRed build
+        shell: bash
+        run: |
+          set -uo pipefail
+          : > firered-build.log
+
+          set +e
+          make firered -k -j"$(nproc)" -O 2>&1 | tee firered-build.log
+          status=${PIPESTATUS[0]}
+          set -e
+
+          if ((status != 0)); then
+            {
+              echo "### Full strict FireRed build failed"
+              echo
+              echo "Commit: \`$GITHUB_SHA\`"
+              echo
+              echo '```text'
+              grep -E 'error:|fatal error:|undefined reference|multiple definition|collect2:|make(\[[0-9]+\])?: \*\*\*' firered-build.log | tail -n 120 || true
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit "$status"
+          fi
+
+      - name: Validate ROM and record provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ROM="pokefirered.gba"
+          test -s "$ROM"
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          rom = Path("pokefirered.gba").read_bytes()
+          if len(rom) < 0xC0:
+              raise SystemExit("ROM is too small to contain a valid GBA header")
+          if len(rom) > 32 * 1024 * 1024:
+              raise SystemExit(f"ROM exceeds GBA 32 MiB addressable size: {len(rom)} bytes")
+          if rom[0xB2] != 0x96:
+              raise SystemExit(f"Invalid GBA fixed header byte: 0x{rom[0xB2]:02X}")
+
+          expected = (-(sum(rom[0xA0:0xBD]) + 0x19)) & 0xFF
+          if rom[0xBD] != expected:
+              raise SystemExit(
+                  f"Invalid GBA header checksum: stored 0x{rom[0xBD]:02X}, expected 0x{expected:02X}"
+              )
+
+          title = rom[0xA0:0xAC].rstrip(b"\0").decode("ascii", errors="replace")
+          game_code = rom[0xAC:0xB0].decode("ascii", errors="replace")
+          print(f"GBA header OK: title={title!r} game_code={game_code!r}")
+          PY
+
+          ROM_SIZE="$(wc -c < "$ROM" | tr -d ' ')"
+          ROM_SHA="$(sha256sum "$ROM" | awk '{print $1}')"
+          printf '%s  %s\n' "$ROM_SHA" "$ROM" | tee pokefirered.sha256
+
+          cat > build-provenance.txt <<EOF
+          branch=$GITHUB_REF_NAME
+          source_sha=$GITHUB_SHA
+          workflow=$GITHUB_WORKFLOW
+          run_id=$GITHUB_RUN_ID
+          run_attempt=$GITHUB_RUN_ATTEMPT
+          event=$GITHUB_EVENT_NAME
+          rom=$ROM
+          rom_size_bytes=$ROM_SIZE
+          rom_sha256=$ROM_SHA
+          EOF
+
+          cat build-provenance.txt
+
+          {
+            echo "### FireRed prototype validated"
+            echo
+            echo "- Source SHA: \`$GITHUB_SHA\`"
+            echo "- ROM size: $ROM_SIZE bytes"
+            echo "- ROM SHA-256: \`$ROM_SHA\`"
+            echo "- GBA header checksum: valid"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload playable prototype ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-kanto-johto-firered-${{ github.sha }}
+          path: |
+            pokefirered.gba
+            pokefirered.sha256
+            build-provenance.txt
+          if-no-files-found: error
+          retention-days: 1
