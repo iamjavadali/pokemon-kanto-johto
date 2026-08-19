@@ -4,122 +4,13 @@
 #include "constants/event_objects.h"
 #include "constants/event_object_movement.h"
 
-#define GOLDEN_YELLOW_ROCKET_FRAME_SIZE 256
+#define GOLDEN_YELLOW_ROCKET_FRAME_SIZE 512
 #define GOLDEN_YELLOW_ROCKET_FRAME_WORDS (GOLDEN_YELLOW_ROCKET_FRAME_SIZE / sizeof(u32))
 
-static const struct OamData sGoldenYellowRocketOam_16x32 =
-{
-    .shape = SPRITE_SHAPE(16x32),
-    .size = SPRITE_SIZE(16x32),
-    .priority = 2,
-};
-
-static const struct Subsprite sGoldenYellowRocketSubsprite_16x32_Priority2[] =
-{
-    {
-        .x = -8,
-        .y = -16,
-        .shape = SPRITE_SHAPE(16x32),
-        .size = SPRITE_SIZE(16x32),
-        .tileOffset = 0,
-        .priority = 2,
-    },
-};
-
-static const struct Subsprite sGoldenYellowRocketSubsprite_16x32_Priority1[] =
-{
-    {
-        .x = -8,
-        .y = -16,
-        .shape = SPRITE_SHAPE(16x32),
-        .size = SPRITE_SIZE(16x32),
-        .tileOffset = 0,
-        .priority = 1,
-    },
-};
-
-static const struct Subsprite sGoldenYellowRocketSubsprite_16x32_Mixed2[] =
-{
-    {
-        .x = -8,
-        .y = -16,
-        .shape = SPRITE_SHAPE(16x16),
-        .size = SPRITE_SIZE(16x16),
-        .tileOffset = 0,
-        .priority = 2,
-    },
-    {
-        .x = -8,
-        .y = 0,
-        .shape = SPRITE_SHAPE(16x8),
-        .size = SPRITE_SIZE(16x8),
-        .tileOffset = 4,
-        .priority = 2,
-    },
-    {
-        .x = -8,
-        .y = 8,
-        .shape = SPRITE_SHAPE(16x8),
-        .size = SPRITE_SIZE(16x8),
-        .tileOffset = 6,
-        .priority = 3,
-    },
-};
-
-static const struct Subsprite sGoldenYellowRocketSubsprite_16x32_Mixed3[] =
-{
-    {
-        .x = -8,
-        .y = -16,
-        .shape = SPRITE_SHAPE(16x16),
-        .size = SPRITE_SIZE(16x16),
-        .tileOffset = 0,
-        .priority = 2,
-    },
-    {
-        .x = -8,
-        .y = 0,
-        .shape = SPRITE_SHAPE(16x16),
-        .size = SPRITE_SIZE(16x16),
-        .tileOffset = 4,
-        .priority = 3,
-    },
-};
-
-static const struct Subsprite sGoldenYellowRocketSubsprite_16x32_Mixed4[] =
-{
-    {
-        .x = -8,
-        .y = -16,
-        .shape = SPRITE_SHAPE(16x16),
-        .size = SPRITE_SIZE(16x16),
-        .tileOffset = 0,
-        .priority = 1,
-    },
-    {
-        .x = -8,
-        .y = 0,
-        .shape = SPRITE_SHAPE(16x16),
-        .size = SPRITE_SIZE(16x16),
-        .tileOffset = 4,
-        .priority = 3,
-    },
-};
-
-static const struct SubspriteTable sGoldenYellowRocketOamTables_16x32[] =
-{
-    {},
-    { ARRAY_COUNT(sGoldenYellowRocketSubsprite_16x32_Priority2), sGoldenYellowRocketSubsprite_16x32_Priority2 },
-    { ARRAY_COUNT(sGoldenYellowRocketSubsprite_16x32_Priority1), sGoldenYellowRocketSubsprite_16x32_Priority1 },
-    { ARRAY_COUNT(sGoldenYellowRocketSubsprite_16x32_Mixed2), sGoldenYellowRocketSubsprite_16x32_Mixed2 },
-    { ARRAY_COUNT(sGoldenYellowRocketSubsprite_16x32_Mixed3), sGoldenYellowRocketSubsprite_16x32_Mixed3 },
-    { ARRAY_COUNT(sGoldenYellowRocketSubsprite_16x32_Mixed4), sGoldenYellowRocketSubsprite_16x32_Mixed4 },
-};
-
 static const u32 sObjectEventPic_Jessie[] =
-    INCGFX_U32("graphics/object_events/pics/people/jessie.png", ".4bpp", "-mwidth 2 -mheight 4");
+    INCGFX_U32("graphics/object_events/pics/people/jessie.png", ".4bpp", "-mwidth 4 -mheight 4");
 static const u32 sObjectEventPic_James[] =
-    INCGFX_U32("graphics/object_events/pics/people/james.png", ".4bpp", "-mwidth 2 -mheight 4");
+    INCGFX_U32("graphics/object_events/pics/people/james.png", ".4bpp", "-mwidth 4 -mheight 4");
 
 #define ROCKET_FRAME(gfx, frame) \
     { .data = (gfx) + GOLDEN_YELLOW_ROCKET_FRAME_WORDS * (frame), .size = GOLDEN_YELLOW_ROCKET_FRAME_SIZE }
@@ -212,15 +103,15 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_Jessie =
     .paletteTag = OBJ_EVENT_PAL_TAG_NPC_PINK,
     .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
     .size = GOLDEN_YELLOW_ROCKET_FRAME_SIZE,
-    .width = 16,
+    .width = 32,
     .height = 32,
     .paletteSlot = PALSLOT_NPC_2,
     .shadowSize = SHADOW_SIZE_M,
     .inanimate = FALSE,
     .compressed = FALSE,
     .tracks = TRACKS_FOOT,
-    .oam = &sGoldenYellowRocketOam_16x32,
-    .subspriteTables = sGoldenYellowRocketOamTables_16x32,
+    .oam = &gObjectEventBaseOam_32x32,
+    .subspriteTables = sOamTables_32x32,
     .anims = sAnimTable_JessieJames,
     .images = sPicTable_Jessie,
 };
@@ -231,15 +122,15 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_James =
     .paletteTag = OBJ_EVENT_PAL_TAG_NPC_PINK,
     .reflectionPaletteTag = OBJ_EVENT_PAL_TAG_NONE,
     .size = GOLDEN_YELLOW_ROCKET_FRAME_SIZE,
-    .width = 16,
+    .width = 32,
     .height = 32,
     .paletteSlot = PALSLOT_NPC_2,
     .shadowSize = SHADOW_SIZE_M,
     .inanimate = FALSE,
     .compressed = FALSE,
     .tracks = TRACKS_FOOT,
-    .oam = &sGoldenYellowRocketOam_16x32,
-    .subspriteTables = sGoldenYellowRocketOamTables_16x32,
+    .oam = &gObjectEventBaseOam_32x32,
+    .subspriteTables = sOamTables_32x32,
     .anims = sAnimTable_JessieJames,
     .images = sPicTable_James,
 };
