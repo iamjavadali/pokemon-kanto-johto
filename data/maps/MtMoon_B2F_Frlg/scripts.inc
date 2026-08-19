@@ -147,8 +147,8 @@ MtMoon_B2F_EventScript_DontTakeFossilAll::
 	releaseall
 	end
 
-@ Spawn Meowth inside the visible upper-left corridor, then use only the
-@ corridor/opening tiles visible in the fossil-room geometry.
+@ Spawn Meowth on the second northwest corridor row, then let it enter
+@ the fossil lane without reusing the Jessie/James trigger row.
 MtMoon_B2F_EventScript_MeowthStealsHelix::
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
@@ -270,7 +270,6 @@ MtMoon_B2F_Movement_MeowthUpperCorridorToHelix::
 	walk_right
 	walk_right
 	walk_right
-	walk_right
 	face_down
 	step_end
 
@@ -281,17 +280,15 @@ MtMoon_B2F_Movement_MeowthUpperCorridorToDome::
 	walk_right
 	walk_right
 	walk_right
-	walk_right
 	face_down
 	step_end
 
 MtMoon_B2F_Movement_MeowthStepOntoFossil::
-	walk_down
+	walk_right
 	face_down
 	step_end
 
 MtMoon_B2F_Movement_MeowthEscapeHeadStart::
-	walk_up
 	walk_left
 	step_end
 
@@ -322,7 +319,6 @@ MtMoon_B2F_Movement_MiguelPanic::
 
 MtMoon_B2F_Movement_MiguelChaseHelix::
 	walk_up
-	walk_up
 	walk_left
 	walk_left
 	walk_left
@@ -334,7 +330,6 @@ MtMoon_B2F_Movement_MiguelChaseHelix::
 
 MtMoon_B2F_Movement_MiguelChaseDome::
 	walk_up
-	walk_up
 	walk_left
 	walk_left
 	walk_left
@@ -344,17 +339,80 @@ MtMoon_B2F_Movement_MiguelChaseDome::
 	step_end
 
 MtMoon_B2F_EventScript_JessieJamesActor::
-	goto MtMoon_B2F_EventScript_JessieJamesTrigger
-	end
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
 
-@ Mockup-aligned faceoff left of the exit ladder:
-@ Partner (3,7) + player (4,7), facing south.
-@ Jessie (2,9) + Meowth (3,9) + James (4,9), facing north.
 MtMoon_B2F_EventScript_JessieJamesTrigger::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	setobjectxy LOCALID_PLAYER, 4, 7
-	setobjectxy OBJ_EVENT_ID_FOLLOWER, 3, 7
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX8Y6::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y6
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y6
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX7Y6::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y6
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y6
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX8Y7::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y7
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y7
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX7Y7::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y7
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y7
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX8Y8::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y8
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y8
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX7Y8::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y8
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y8
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX8Y9::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y9
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y9
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesTriggerX7Y9::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y9
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y9
+	waitmovement 0
+	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
+
+MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	setobjectxy LOCALID_JESSIE, 2, 9
 	setobjectxy LOCALID_ROCKET_MEOWTH, 3, 9
 	setobjectxy LOCALID_JAMES, 4, 9
@@ -429,6 +487,158 @@ MtMoon_B2F_EventScript_FinishRecoveredFossil::
 	copyobjectxytoperm LOCALID_MIGUEL
 	releaseall
 	end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX8Y6::
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX7Y6::
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX8Y7::
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX7Y7::
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX8Y8::
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX7Y8::
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX8Y9::
+	walk_up
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PlayerApproachRocketX7Y9::
+	walk_up
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX8Y6::
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX7Y6::
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX8Y7::
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX7Y7::
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX8Y8::
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX7Y8::
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX8Y9::
+	walk_up
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerApproachRocketX7Y9::
+	walk_up
+	walk_up
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	face_down
+	step_end
 
 MtMoon_B2F_EventScript_DroppedFossil::
 	msgbox MtMoon_B2F_Text_DroppedFossil, MSGBOX_SIGN
