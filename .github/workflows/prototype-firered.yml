@@ -94,9 +94,31 @@ jobs:
           .github/docs_validate/inclusive_summary.py
 
       - name: Install ARM toolchain and build dependencies
+        timeout-minutes: 5
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
+          set -euo pipefail
+
+          APT_OPTS=(
+            -o Acquire::Retries=3
+            -o Acquire::http::Timeout=20
+            -o Acquire::https::Timeout=20
+          )
+
+          # GitHub-hosted Ubuntu runners can intermittently stall on the Azure
+          # Ubuntu mirror. Prefer the canonical archive when that mirror is used.
+          if [[ -f /etc/apt/sources.list.d/ubuntu.sources ]]; then
+            sudo sed -i \
+              's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' \
+              /etc/apt/sources.list.d/ubuntu.sources
+          elif [[ -f /etc/apt/sources.list ]]; then
+            sudo sed -i \
+              's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' \
+              /etc/apt/sources.list
+          fi
+
+          sudo apt-get "${APT_OPTS[@]}" update
+          sudo apt-get "${APT_OPTS[@]}" install -y --no-install-recommends \
             binutils-arm-none-eabi \
             gcc-arm-none-eabi \
             libnewlib-arm-none-eabi \
