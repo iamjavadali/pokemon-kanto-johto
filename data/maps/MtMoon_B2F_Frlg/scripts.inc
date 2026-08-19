@@ -501,107 +501,107 @@ MtMoon_B2F_Text_JessieJamesStopRightThere::
 	.string "Stop right there!$"
 
 MtMoon_B2F_Text_JessieJamesFossilIsTeamRockets::
-	.string "That fossil is TEAM ROCKET's!\\p"
+	.string "That fossil is TEAM ROCKET's!\p"
 	.string "Surrender now, or prepare to fight!$"
 
 MtMoon_B2F_Text_JessieJamesDefeat::
 	.string "A brat beat us?$"
 
 MtMoon_B2F_Text_JessieJamesBlastOff::
-	.string "TEAM ROCKET, blast off at the\\n"
+	.string "TEAM ROCKET, blast off at the\n"
 	.string "speed of light!$"
 
 MtMoon_B2F_Text_MiguelIntro::
-	.string "Hey, stop!\\p"
-	.string "I found these fossils!\\n"
+	.string "Hey, stop!\p"
+	.string "I found these fossils!\n"
 	.string "They're both mine!$"
 
 MtMoon_B2F_Text_MiguelDefeat::
-	.string "Okay!\\n"
+	.string "Okay!\n"
 	.string "I'll share!$"
 
 MtMoon_B2F_Text_WellEachTakeAFossil::
-	.string "We'll each take a fossil!\\n"
+	.string "We'll each take a fossil!\n"
 	.string "No being greedy!$"
 
 MtMoon_B2F_Text_ThenThisFossilIsMine::
-	.string "All right.\\n"
+	.string "All right.\n"
 	.string "Then this fossil is mine!$"
 
 MtMoon_B2F_Text_MeowthStoleFossil::
 	.string "MEOWTH snatched the other fossil!$"
 
 MtMoon_B2F_Text_MiguelAfterTheFossil::
-	.string "Hey! My fossil!\\n"
+	.string "Hey! My fossil!\n"
 	.string "Come back here!$"
 
 MtMoon_B2F_Text_MiguelYouRecoveredIt::
-	.string "You got it back!\\n"
+	.string "You got it back!\n"
 	.string "That was my fossil...$"
 
 MtMoon_B2F_Text_MiguelKeepRecoveredFossil::
-	.string "You beat TEAM ROCKET for it.\\p"
-	.string "Go ahead. Keep that fossil, too.\\p"
-	.string "The lab on CINNABAR ISLAND can\\n"
+	.string "You beat TEAM ROCKET for it.\p"
+	.string "Go ahead. Keep that fossil, too.\p"
+	.string "The lab on CINNABAR ISLAND can\n"
 	.string "regenerate fossils into POKéMON.$"
 
 MtMoon_B2F_Text_DroppedFossil::
-	.string "TEAM ROCKET dropped the stolen\\n"
+	.string "TEAM ROCKET dropped the stolen\n"
 	.string "fossil.$"
 
 MtMoon_B2F_Text_LabOnCinnabarRegeneratesFossils::
-	.string "Far away, on CINNABAR ISLAND,\\n"
-	.string "there's a POKéMON LAB.\\p"
-	.string "They do research on regenerating\\n"
+	.string "Far away, on CINNABAR ISLAND,\n"
+	.string "there's a POKéMON LAB.\p"
+	.string "They do research on regenerating\n"
 	.string "fossils.$"
 
 MtMoon_B2F_Text_Grunt1Intro::
-	.string "We, TEAM ROCKET, shall find the\\n"
-	.string "fossils!\\p"
-	.string "Reviving POKéMON from them will\\n"
+	.string "We, TEAM ROCKET, shall find the\n"
+	.string "fossils!\p"
+	.string "Reviving POKéMON from them will\n"
 	.string "earn us huge riches!$"
 
 MtMoon_B2F_Text_Grunt1Defeat::
-	.string "Urgh!\\n"
+	.string "Urgh!\n"
 	.string "Now I'm mad!$"
 
 MtMoon_B2F_Text_Grunt1PostBattle::
-	.string "You made me mad!\\n"
+	.string "You made me mad!\n"
 	.string "TEAM ROCKET will blacklist you!$"
 
 MtMoon_B2F_Text_Grunt2Intro::
-	.string "We, TEAM ROCKET, are POKéMON\\n"
-	.string "gangsters!\\l"
+	.string "We, TEAM ROCKET, are POKéMON\n"
+	.string "gangsters!\l"
 	.string "We strike fear with our strength!$"
 
 MtMoon_B2F_Text_Grunt2Defeat::
 	.string "I blew it!$"
 
 MtMoon_B2F_Text_Grunt2PostBattle::
-	.string "Darn it all!\\n"
+	.string "Darn it all!\n"
 	.string "My associates won't stand for this!$"
 
 MtMoon_B2F_Text_Grunt3Intro::
-	.string "We're pulling a big job here!\\n"
+	.string "We're pulling a big job here!\n"
 	.string "Get lost, kid!$"
 
 MtMoon_B2F_Text_Grunt3Defeat::
 	.string "So, you are good…$"
 
 MtMoon_B2F_Text_Grunt3PostBattle::
-	.string "If you find a fossil, give it to me\\n"
+	.string "If you find a fossil, give it to me\n"
 	.string "and scram!$"
 
 MtMoon_B2F_Text_Grunt4Intro::
-	.string "Little kids shouldn't be messing\\n"
-	.string "around with grown-ups!\\p"
+	.string "Little kids shouldn't be messing\n"
+	.string "around with grown-ups!\p"
 	.string "It could be bad news!$"
 
 MtMoon_B2F_Text_Grunt4Defeat::
 	.string "I'm steamed!$"
 
 MtMoon_B2F_Text_Grunt4PostBattle::
-	.string "POKéMON lived here long before\\n"
+	.string "POKéMON lived here long before\n"
 	.string "people came.$"
 
 MtMoon_B2F_Text_YouWantDomeFossil::
