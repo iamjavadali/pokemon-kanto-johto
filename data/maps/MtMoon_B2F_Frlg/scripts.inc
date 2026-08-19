@@ -9,12 +9,18 @@ MtMoon_B2F_OnTransition::
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
 	setflag FLAG_0x0B7
+	setflag FLAG_0x0B8
 	end
 
 MtMoon_B2F_EventScript_ShowJessieJames::
 	clearflag FLAG_0x0B5
 	clearflag FLAG_0x0B6
 	clearflag FLAG_0x0B7
+	setflag FLAG_0x0B8
+	setobjectxy LOCALID_JESSIE, 6, 9
+	setobjectxy LOCALID_ROCKET_MEOWTH, 6, 10
+	setobjectxy LOCALID_JAMES, 6, 11
+	setobjectxy LOCALID_MIGUEL, 10, 11
 	end
 
 MtMoon_B2F_EventScript_JessieJamesCompletedTransition::
@@ -22,6 +28,8 @@ MtMoon_B2F_EventScript_JessieJamesCompletedTransition::
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
 	setflag FLAG_0x0B7
+	setflag FLAG_0x0B8
+	setobjectxy LOCALID_MIGUEL, 13, 11
 	end
 
 MtMoon_B2F_EventScript_ShowFossils::
@@ -69,34 +77,108 @@ MtMoon_B2F_EventScript_MiguelGoPickFossil::
 	end
 
 MtMoon_B2F_EventScript_DomeFossil::
-	lock
+	lockall
 	faceplayer
 	msgbox MtMoon_B2F_Text_YouWantDomeFossil, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, MtMoon_B2F_EventScript_DontTakeFossil
+	goto_if_eq VAR_RESULT, NO, MtMoon_B2F_EventScript_DontTakeFossilAll
 	removeobject LOCALID_DOME_FOSSIL
+	setflag FLAG_HIDE_DOME_FOSSIL
 	giveitem_msg MtMoon_B2F_Text_ObtainedDomeFossil, ITEM_DOME_FOSSIL, 1, MUS_RG_OBTAIN_KEY_ITEM
 	closemessage
 	delay 10
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelToHelixFossil
-	waitmovement 0
-	copyobjectxytoperm LOCALID_MIGUEL
+	waitmovement LOCALID_MIGUEL
 	textcolor NPC_TEXT_COLOR_MALE
-	playfanfare MUS_RG_OBTAIN_KEY_ITEM
-	message MtMoon_B2F_Text_ThenThisFossilIsMine
-	waitmessage
-	waitfanfare
-	removeobject LOCALID_HELIX_FOSSIL
+	msgbox MtMoon_B2F_Text_ThenThisFossilIsMine
 	setflag FLAG_GOT_DOME_FOSSIL
 	setflag FLAG_GOT_FOSSIL_FROM_MT_MOON
-	setvar VAR_MAP_SCENE_MT_MOON_B2F, 2
+	call MtMoon_B2F_EventScript_MeowthStealsHelix
+	releaseall
+	end
+
+MtMoon_B2F_EventScript_HelixFossil::
+	lockall
+	faceplayer
+	msgbox MtMoon_B2F_Text_YouWantHelixFossil, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, MtMoon_B2F_EventScript_DontTakeFossilAll
+	removeobject LOCALID_HELIX_FOSSIL
+	setflag FLAG_HIDE_HELIX_FOSSIL
+	giveitem_msg MtMoon_B2F_Text_ObtainedHelixFossil, ITEM_HELIX_FOSSIL, 1, MUS_RG_OBTAIN_KEY_ITEM
+	closemessage
+	delay 10
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelToDomeFossil
+	waitmovement LOCALID_MIGUEL
+	textcolor NPC_TEXT_COLOR_MALE
+	msgbox MtMoon_B2F_Text_ThenThisFossilIsMine
+	setflag FLAG_GOT_HELIX_FOSSIL
+	setflag FLAG_GOT_FOSSIL_FROM_MT_MOON
+	call MtMoon_B2F_EventScript_MeowthStealsDome
+	releaseall
+	end
+
+MtMoon_B2F_EventScript_DontTakeFossilAll::
+	releaseall
+	end
+
+MtMoon_B2F_EventScript_MeowthStealsHelix::
+	setflag FLAG_0x0B5
+	setflag FLAG_0x0B6
+	clearflag FLAG_0x0B7
+	setflag FLAG_0x0B8
+	setobjectxy LOCALID_ROCKET_MEOWTH, 10, 7
+	addobject LOCALID_ROCKET_MEOWTH
+	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
+	waitmoncry
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthToHelix
+	waitmovement LOCALID_ROCKET_MEOWTH
+	removeobject LOCALID_HELIX_FOSSIL
+	setflag FLAG_HIDE_HELIX_FOSSIL
+	msgbox MtMoon_B2F_Text_MeowthStoleFossil
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelPanic
+	waitmovement LOCALID_MIGUEL
+	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthFleeFromHelix
+	waitmovement LOCALID_ROCKET_MEOWTH
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseFromHelix
+	waitmovement LOCALID_MIGUEL
+	goto MtMoon_B2F_EventScript_StageJessieJames
+
+MtMoon_B2F_EventScript_MeowthStealsDome::
+	setflag FLAG_0x0B5
+	setflag FLAG_0x0B6
+	clearflag FLAG_0x0B7
+	setflag FLAG_0x0B8
+	setobjectxy LOCALID_ROCKET_MEOWTH, 10, 7
+	addobject LOCALID_ROCKET_MEOWTH
+	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
+	waitmoncry
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthToDome
+	waitmovement LOCALID_ROCKET_MEOWTH
+	removeobject LOCALID_DOME_FOSSIL
+	setflag FLAG_HIDE_DOME_FOSSIL
+	msgbox MtMoon_B2F_Text_MeowthStoleFossil
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelPanic
+	waitmovement LOCALID_MIGUEL
+	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthFleeFromDome
+	waitmovement LOCALID_ROCKET_MEOWTH
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseFromDome
+	waitmovement LOCALID_MIGUEL
+	goto MtMoon_B2F_EventScript_StageJessieJames
+
+MtMoon_B2F_EventScript_StageJessieJames::
+	setobjectxy LOCALID_ROCKET_MEOWTH, 6, 10
 	clearflag FLAG_0x0B5
 	clearflag FLAG_0x0B6
 	clearflag FLAG_0x0B7
+	setobjectxy LOCALID_JESSIE, 6, 9
+	setobjectxy LOCALID_JAMES, 6, 11
 	addobject LOCALID_JESSIE
 	addobject LOCALID_JAMES
-	addobject LOCALID_ROCKET_MEOWTH
-	release
-	end
+	setobjectxy LOCALID_MIGUEL, 10, 11
+	copyobjectxytoperm LOCALID_MIGUEL
+	setvar VAR_MAP_SCENE_MT_MOON_B2F, 2
+	return
 
 MtMoon_B2F_Movement_MiguelToHelixFossil::
 	walk_right
@@ -105,59 +187,101 @@ MtMoon_B2F_Movement_MiguelToHelixFossil::
 	walk_up
 	step_end
 
-MtMoon_B2F_EventScript_HelixFossil::
-	lock
-	faceplayer
-	msgbox MtMoon_B2F_Text_YouWantHelixFossil, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, MtMoon_B2F_EventScript_DontTakeFossil
-	removeobject LOCALID_HELIX_FOSSIL
-	giveitem_msg MtMoon_B2F_Text_ObtainedHelixFossil, ITEM_HELIX_FOSSIL, 1, MUS_RG_OBTAIN_KEY_ITEM
-	closemessage
-	delay 10
-	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelToDomeFossil
-	waitmovement 0
-	copyobjectxytoperm LOCALID_MIGUEL
-	textcolor NPC_TEXT_COLOR_MALE
-	playfanfare MUS_RG_OBTAIN_KEY_ITEM
-	message MtMoon_B2F_Text_ThenThisFossilIsMine
-	waitmessage
-	waitfanfare
-	removeobject LOCALID_DOME_FOSSIL
-	setflag FLAG_GOT_HELIX_FOSSIL
-	setflag FLAG_GOT_FOSSIL_FROM_MT_MOON
-	setvar VAR_MAP_SCENE_MT_MOON_B2F, 2
-	clearflag FLAG_0x0B5
-	clearflag FLAG_0x0B6
-	clearflag FLAG_0x0B7
-	addobject LOCALID_JESSIE
-	addobject LOCALID_JAMES
-	addobject LOCALID_ROCKET_MEOWTH
-	release
-	end
-
-MtMoon_B2F_EventScript_DontTakeFossil::
-	release
-	end
-
 MtMoon_B2F_Movement_MiguelToDomeFossil::
 	walk_up
 	walk_up
 	walk_up
 	step_end
 
+MtMoon_B2F_Movement_MeowthToHelix::
+	walk_right
+	walk_right
+	walk_right
+	step_end
+
+MtMoon_B2F_Movement_MeowthToDome::
+	walk_right
+	walk_right
+	step_end
+
+MtMoon_B2F_Movement_MeowthFleeFromHelix::
+	walk_down
+	walk_down
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	step_end
+
+MtMoon_B2F_Movement_MeowthFleeFromDome::
+	walk_down
+	walk_down
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	step_end
+
+MtMoon_B2F_Movement_MiguelPanic::
+	walk_in_place_faster_down
+	walk_in_place_faster_up
+	walk_in_place_faster_down
+	step_end
+
+MtMoon_B2F_Movement_MiguelChaseFromHelix::
+	walk_down
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	step_end
+
+MtMoon_B2F_Movement_MiguelChaseFromDome::
+	walk_down
+	walk_down
+	walk_left
+	walk_left
+	walk_left
+	step_end
+
 MtMoon_B2F_EventScript_JessieJamesActor::
-	goto MtMoon_B2F_EventScript_JessieJamesTrigger
+	goto MtMoon_B2F_EventScript_JessieJamesTriggerCenter
 	end
+
+MtMoon_B2F_EventScript_JessieJamesTriggerNorth::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 9, 10
+	goto MtMoon_B2F_EventScript_JessieJamesTrigger
+
+MtMoon_B2F_EventScript_JessieJamesTriggerCenter::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 9, 11
+	goto MtMoon_B2F_EventScript_JessieJamesTrigger
+
+MtMoon_B2F_EventScript_JessieJamesTriggerSouth::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 9, 10
+	goto MtMoon_B2F_EventScript_JessieJamesTrigger
 
 MtMoon_B2F_EventScript_JessieJamesTrigger::
 	lockall
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerFaceJessieJames
-	waitmovement LOCALID_PLAYER
-	waitse
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerFaceJessieJames
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketFacePlayer
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketFacePlayer
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketFacePlayer
+	waitmovement 0
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerChallenge
+	waitmovement OBJ_EVENT_ID_FOLLOWER
 	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox MtMoon_B2F_Text_JessieJamesStopRightThere
 	msgbox MtMoon_B2F_Text_JessieJamesFossilIsTeamRockets
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	playbgm MUS_RG_ENCOUNTER_ROCKET, 0
 	setvar VAR_LAST_TALKED, LOCALID_JESSIE
 	trainerbattle_no_intro TRAINER_JESSIE_JAMES_MT_MOON, MtMoon_B2F_Text_JessieJamesDefeat
@@ -176,6 +300,26 @@ MtMoon_B2F_EventScript_JessieJamesTrigger::
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
 	setflag FLAG_0x0B7
+	clearflag FLAG_0x0B8
+	setobjectxy LOCALID_DROPPED_FOSSIL, 8, 10
+	addobject LOCALID_DROPPED_FOSSIL
+	setobjectxy LOCALID_MIGUEL, 10, 11
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelToDroppedFossil
+	waitmovement LOCALID_MIGUEL
+	msgbox MtMoon_B2F_Text_MiguelYouRecoveredIt
+	removeobject LOCALID_DROPPED_FOSSIL
+	setflag FLAG_0x0B8
+	goto_if_set FLAG_GOT_DOME_FOSSIL, MtMoon_B2F_EventScript_AwardHelixFossil
+	giveitem ITEM_DOME_FOSSIL, 1
+	setflag FLAG_GOT_DOME_FOSSIL
+	goto MtMoon_B2F_EventScript_FinishRecoveredFossil
+
+MtMoon_B2F_EventScript_AwardHelixFossil::
+	giveitem ITEM_HELIX_FOSSIL, 1
+	setflag FLAG_GOT_HELIX_FOSSIL
+
+MtMoon_B2F_EventScript_FinishRecoveredFossil::
+	msgbox MtMoon_B2F_Text_MiguelKeepRecoveredFossil
 	setobjectxy LOCALID_MIGUEL, 13, 11
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceRight
 	waitmovement LOCALID_MIGUEL
@@ -183,8 +327,24 @@ MtMoon_B2F_EventScript_JessieJamesTrigger::
 	releaseall
 	end
 
+MtMoon_B2F_EventScript_DroppedFossil::
+	msgbox MtMoon_B2F_Text_DroppedFossil, MSGBOX_SIGN
+	end
+
 MtMoon_B2F_Movement_PlayerFaceJessieJames::
 	face_left
+	step_end
+
+MtMoon_B2F_Movement_PartnerFaceJessieJames::
+	face_left
+	step_end
+
+MtMoon_B2F_Movement_PartnerChallenge::
+	jump_in_place_left
+	step_end
+
+MtMoon_B2F_Movement_RocketFacePlayer::
+	face_right
 	step_end
 
 MtMoon_B2F_Movement_MeowthLeave::
@@ -202,6 +362,12 @@ MtMoon_B2F_Movement_JamesLeave::
 	walk_up
 	walk_left
 	walk_left
+	step_end
+
+MtMoon_B2F_Movement_MiguelToDroppedFossil::
+	walk_left
+	walk_left
+	face_up
 	step_end
 
 MtMoon_B2F_Movement_MiguelFaceRight::
@@ -258,6 +424,27 @@ MtMoon_B2F_Text_WellEachTakeAFossil::
 MtMoon_B2F_Text_ThenThisFossilIsMine::
 	.string "All right.\n"
 	.string "Then this fossil is mine!$"
+
+MtMoon_B2F_Text_MeowthStoleFossil::
+	.string "MEOWTH snatched the other fossil!$"
+
+MtMoon_B2F_Text_MiguelAfterTheFossil::
+	.string "Hey! My fossil!\n"
+	.string "Come back here!$"
+
+MtMoon_B2F_Text_MiguelYouRecoveredIt::
+	.string "You got it back!\n"
+	.string "That was my fossil...$"
+
+MtMoon_B2F_Text_MiguelKeepRecoveredFossil::
+	.string "You beat TEAM ROCKET for it.\p"
+	.string "Go ahead. Keep that fossil, too.\p"
+	.string "The lab on CINNABAR ISLAND can\n"
+	.string "regenerate fossils into POKéMON.$"
+
+MtMoon_B2F_Text_DroppedFossil::
+	.string "TEAM ROCKET dropped the stolen\n"
+	.string "fossil.$"
 
 MtMoon_B2F_Text_LabOnCinnabarRegeneratesFossils::
 	.string "Far away, on CINNABAR ISLAND,\n"
