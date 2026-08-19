@@ -4,6 +4,24 @@ MtMoon_B2F_Frlg_MapScripts::
 
 MtMoon_B2F_OnTransition::
 	call_if_unset FLAG_GOT_FOSSIL_FROM_MT_MOON, MtMoon_B2F_EventScript_ShowFossils
+	goto_if_defeated TRAINER_JESSIE_JAMES_MT_MOON, MtMoon_B2F_EventScript_JessieJamesCompletedTransition
+	goto_if_eq VAR_MAP_SCENE_MT_MOON_B2F, 2, MtMoon_B2F_EventScript_ShowJessieJames
+	setflag FLAG_0x0B5
+	setflag FLAG_0x0B6
+	setflag FLAG_0x0B7
+	end
+
+MtMoon_B2F_EventScript_ShowJessieJames::
+	clearflag FLAG_0x0B5
+	clearflag FLAG_0x0B6
+	clearflag FLAG_0x0B7
+	end
+
+MtMoon_B2F_EventScript_JessieJamesCompletedTransition::
+	setvar VAR_MAP_SCENE_MT_MOON_B2F, 3
+	setflag FLAG_0x0B5
+	setflag FLAG_0x0B6
+	setflag FLAG_0x0B7
 	end
 
 MtMoon_B2F_EventScript_ShowFossils::
@@ -70,6 +88,13 @@ MtMoon_B2F_EventScript_DomeFossil::
 	removeobject LOCALID_HELIX_FOSSIL
 	setflag FLAG_GOT_DOME_FOSSIL
 	setflag FLAG_GOT_FOSSIL_FROM_MT_MOON
+	setvar VAR_MAP_SCENE_MT_MOON_B2F, 2
+	clearflag FLAG_0x0B5
+	clearflag FLAG_0x0B6
+	clearflag FLAG_0x0B7
+	addobject LOCALID_JESSIE
+	addobject LOCALID_JAMES
+	addobject LOCALID_ROCKET_MEOWTH
 	release
 	end
 
@@ -100,6 +125,13 @@ MtMoon_B2F_EventScript_HelixFossil::
 	removeobject LOCALID_DOME_FOSSIL
 	setflag FLAG_GOT_HELIX_FOSSIL
 	setflag FLAG_GOT_FOSSIL_FROM_MT_MOON
+	setvar VAR_MAP_SCENE_MT_MOON_B2F, 2
+	clearflag FLAG_0x0B5
+	clearflag FLAG_0x0B6
+	clearflag FLAG_0x0B7
+	addobject LOCALID_JESSIE
+	addobject LOCALID_JAMES
+	addobject LOCALID_ROCKET_MEOWTH
 	release
 	end
 
@@ -111,6 +143,69 @@ MtMoon_B2F_Movement_MiguelToDomeFossil::
 	walk_up
 	walk_up
 	walk_up
+	step_end
+
+MtMoon_B2F_EventScript_JessieJamesActor::
+	goto MtMoon_B2F_EventScript_JessieJamesTrigger
+	end
+
+MtMoon_B2F_EventScript_JessieJamesTrigger::
+	lockall
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerFaceJessieJames
+	waitmovement LOCALID_PLAYER
+	waitse
+	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox MtMoon_B2F_Text_JessieJamesStopRightThere
+	msgbox MtMoon_B2F_Text_JessieJamesFossilIsTeamRockets
+	playbgm MUS_RG_ENCOUNTER_ROCKET, 0
+	setvar VAR_LAST_TALKED, LOCALID_JESSIE
+	trainerbattle_no_intro TRAINER_JESSIE_JAMES_MT_MOON, MtMoon_B2F_Text_JessieJamesDefeat
+	setvar VAR_MAP_SCENE_MT_MOON_B2F, 3
+	msgbox MtMoon_B2F_Text_JessieJamesBlastOff
+	closemessage
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthLeave
+	waitmovement LOCALID_ROCKET_MEOWTH
+	removeobject LOCALID_ROCKET_MEOWTH
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieLeave
+	waitmovement LOCALID_JESSIE
+	removeobject LOCALID_JESSIE
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesLeave
+	waitmovement LOCALID_JAMES
+	removeobject LOCALID_JAMES
+	setflag FLAG_0x0B5
+	setflag FLAG_0x0B6
+	setflag FLAG_0x0B7
+	setobjectxy LOCALID_MIGUEL, 13, 11
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceRight
+	waitmovement LOCALID_MIGUEL
+	copyobjectxytoperm LOCALID_MIGUEL
+	releaseall
+	end
+
+MtMoon_B2F_Movement_PlayerFaceJessieJames::
+	face_left
+	step_end
+
+MtMoon_B2F_Movement_MeowthLeave::
+	walk_left
+	walk_left
+	step_end
+
+MtMoon_B2F_Movement_JessieLeave::
+	walk_down
+	walk_left
+	walk_left
+	step_end
+
+MtMoon_B2F_Movement_JamesLeave::
+	walk_up
+	walk_left
+	walk_left
+	step_end
+
+MtMoon_B2F_Movement_MiguelFaceRight::
+	face_right
 	step_end
 
 MtMoon_B2F_EventScript_Grunt1::
@@ -132,6 +227,20 @@ MtMoon_B2F_EventScript_Grunt4::
 	trainerbattle_single TRAINER_TEAM_ROCKET_GRUNT_4, MtMoon_B2F_Text_Grunt4Intro, MtMoon_B2F_Text_Grunt4Defeat
 	msgbox MtMoon_B2F_Text_Grunt4PostBattle, MSGBOX_AUTOCLOSE
 	end
+
+MtMoon_B2F_Text_JessieJamesStopRightThere::
+	.string "Stop right there!$"
+
+MtMoon_B2F_Text_JessieJamesFossilIsTeamRockets::
+	.string "That fossil is TEAM ROCKET's!\p"
+	.string "Surrender now, or prepare to fight!$"
+
+MtMoon_B2F_Text_JessieJamesDefeat::
+	.string "A brat beat us?$"
+
+MtMoon_B2F_Text_JessieJamesBlastOff::
+	.string "TEAM ROCKET, blast off at the\n"
+	.string "speed of light!$"
 
 MtMoon_B2F_Text_MiguelIntro::
 	.string "Hey, stop!\p"
@@ -216,4 +325,3 @@ MtMoon_B2F_Text_ObtainedHelixFossil::
 
 MtMoon_B2F_Text_ObtainedDomeFossil::
 	.string "Obtained the DOME FOSSIL!$"
-

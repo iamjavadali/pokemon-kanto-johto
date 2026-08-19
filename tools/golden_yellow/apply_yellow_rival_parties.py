@@ -77,6 +77,28 @@ OVERRIDES = {
 
 BLOCK_RE = re.compile(r"(?ms)^=== (TRAINER_[A-Z0-9_]+) ===\n(.*?)(?=^=== |\Z)")
 
+JESSIE_JAMES_MT_MOON = """=== TRAINER_JESSIE_JAMES_MT_MOON ===
+Name: JESSIE&J.
+Class: Rocket Grunt Frlg
+Pic: Jessie And James
+Gender: Male
+Music: Rocket
+Double Battle: No
+AI: Check Bad Move
+
+Ekans
+Level: 14
+IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
+
+Meowth
+Level: 14
+IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
+
+Koffing
+Level: 14
+IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
+"""
+
 
 def replace_block(match: re.Match[str], seen: set[str]) -> str:
     name = match.group(1)
@@ -118,6 +140,11 @@ def main() -> int:
     missing = sorted(set(OVERRIDES) - seen)
     if missing:
         raise SystemExit("Missing expected rival trainer records: " + ", ".join(missing))
+
+    if "=== TRAINER_JESSIE_JAMES_MT_MOON ===" not in output:
+        if not output.endswith("\n"):
+            output += "\n"
+        output += "\n" + JESSIE_JAMES_MT_MOON
 
     sys.stdout.write(output)
     return 0
