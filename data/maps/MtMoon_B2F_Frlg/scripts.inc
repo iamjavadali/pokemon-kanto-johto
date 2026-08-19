@@ -6,6 +6,7 @@ MtMoon_B2F_OnTransition::
 	call_if_unset FLAG_GOT_FOSSIL_FROM_MT_MOON, MtMoon_B2F_EventScript_ShowFossils
 	goto_if_defeated TRAINER_JESSIE_JAMES_MT_MOON, MtMoon_B2F_EventScript_JessieJamesCompletedTransition
 	goto_if_eq VAR_MAP_SCENE_MT_MOON_B2F, 2, MtMoon_B2F_EventScript_ShowJessieJames
+	clearflag FLAG_0x0B9
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
 	setflag FLAG_0x0B7
@@ -17,15 +18,16 @@ MtMoon_B2F_OnTransition::
 	end
 
 MtMoon_B2F_EventScript_ShowJessieJames::
+	setflag FLAG_0x0B9
+	removeobject LOCALID_MIGUEL
 	setflag FLAG_0x0B8
 	removeobject LOCALID_DROPPED_FOSSIL
-	removeobject LOCALID_MIGUEL
 	clearflag FLAG_0x0B5
 	clearflag FLAG_0x0B6
 	clearflag FLAG_0x0B7
-	setobjectxy LOCALID_JESSIE, 5, 11
-	setobjectxy LOCALID_ROCKET_MEOWTH, 6, 11
-	setobjectxy LOCALID_JAMES, 7, 11
+	setobjectxy LOCALID_JESSIE, 4, 13
+	setobjectxy LOCALID_ROCKET_MEOWTH, 5, 13
+	setobjectxy LOCALID_JAMES, 6, 13
 	addobject LOCALID_JESSIE
 	addobject LOCALID_ROCKET_MEOWTH
 	addobject LOCALID_JAMES
@@ -45,6 +47,7 @@ MtMoon_B2F_EventScript_JessieJamesCompletedTransition::
 	removeobject LOCALID_JAMES
 	removeobject LOCALID_ROCKET_MEOWTH
 	removeobject LOCALID_DROPPED_FOSSIL
+	clearflag FLAG_0x0B9
 	setobjectxy LOCALID_MIGUEL, 13, 11
 	end
 
@@ -140,15 +143,16 @@ MtMoon_B2F_EventScript_DontTakeFossilAll::
 	releaseall
 	end
 
-@ Meowth uses the walkable upper corridor (y=6), drops through the fossil
-@ opening, then reverses that same corridor while Miguel follows one tile back.
+@ Spawn Meowth inside the visible upper-left corridor, then use only the
+@ corridor/opening tiles visible in the fossil-room geometry.
 MtMoon_B2F_EventScript_MeowthStealsHelix::
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
-	clearflag FLAG_0x0B7
 	setflag FLAG_0x0B8
-	setobjectxy LOCALID_ROCKET_MEOWTH, 6, 6
+	setobjectxy LOCALID_ROCKET_MEOWTH, 9, 6
+	clearflag FLAG_0x0B7
 	addobject LOCALID_ROCKET_MEOWTH
+	delay 1
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthUpperCorridorToHelix
 	waitmovement LOCALID_ROCKET_MEOWTH
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceUp
@@ -170,7 +174,7 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthFaceDown
 	waitmovement 0
 	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
-	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHelixHeadStart
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHeadStart
 	waitmovement LOCALID_ROCKET_MEOWTH
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHelixCorridor
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseHelix
@@ -180,10 +184,11 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 MtMoon_B2F_EventScript_MeowthStealsDome::
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
-	clearflag FLAG_0x0B7
 	setflag FLAG_0x0B8
-	setobjectxy LOCALID_ROCKET_MEOWTH, 6, 6
+	setobjectxy LOCALID_ROCKET_MEOWTH, 9, 6
+	clearflag FLAG_0x0B7
 	addobject LOCALID_ROCKET_MEOWTH
+	delay 1
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthUpperCorridorToDome
 	waitmovement LOCALID_ROCKET_MEOWTH
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceUp
@@ -205,7 +210,7 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthFaceDown
 	waitmovement 0
 	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
-	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeDomeHeadStart
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHeadStart
 	waitmovement LOCALID_ROCKET_MEOWTH
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeDomeCorridor
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseDome
@@ -213,14 +218,15 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	goto MtMoon_B2F_EventScript_StageJessieJames
 
 MtMoon_B2F_EventScript_StageJessieJames::
-	removeobject LOCALID_ROCKET_MEOWTH
+	setflag FLAG_0x0B9
 	removeobject LOCALID_MIGUEL
+	removeobject LOCALID_ROCKET_MEOWTH
 	clearflag FLAG_0x0B5
 	clearflag FLAG_0x0B6
 	clearflag FLAG_0x0B7
-	setobjectxy LOCALID_JESSIE, 5, 11
-	setobjectxy LOCALID_ROCKET_MEOWTH, 6, 11
-	setobjectxy LOCALID_JAMES, 7, 11
+	setobjectxy LOCALID_JESSIE, 4, 13
+	setobjectxy LOCALID_ROCKET_MEOWTH, 5, 13
+	setobjectxy LOCALID_JAMES, 6, 13
 	addobject LOCALID_JESSIE
 	addobject LOCALID_ROCKET_MEOWTH
 	addobject LOCALID_JAMES
@@ -262,16 +268,10 @@ MtMoon_B2F_Movement_MeowthUpperCorridorToHelix::
 	walk_right
 	walk_right
 	walk_right
-	walk_right
-	walk_right
-	walk_right
 	face_down
 	step_end
 
 MtMoon_B2F_Movement_MeowthUpperCorridorToDome::
-	walk_right
-	walk_right
-	walk_right
 	walk_right
 	walk_right
 	walk_right
@@ -284,7 +284,7 @@ MtMoon_B2F_Movement_MeowthStepOntoFossil::
 	face_down
 	step_end
 
-MtMoon_B2F_Movement_MeowthEscapeHelixHeadStart::
+MtMoon_B2F_Movement_MeowthEscapeHeadStart::
 	walk_up
 	walk_left
 	step_end
@@ -294,20 +294,9 @@ MtMoon_B2F_Movement_MeowthEscapeHelixCorridor::
 	walk_left
 	walk_left
 	walk_left
-	walk_left
-	walk_left
-	walk_left
-	step_end
-
-MtMoon_B2F_Movement_MeowthEscapeDomeHeadStart::
-	walk_up
-	walk_left
 	step_end
 
 MtMoon_B2F_Movement_MeowthEscapeDomeCorridor::
-	walk_left
-	walk_left
-	walk_left
 	walk_left
 	walk_left
 	walk_left
@@ -326,17 +315,11 @@ MtMoon_B2F_Movement_MiguelChaseHelix::
 	walk_left
 	walk_left
 	walk_left
-	walk_left
-	walk_left
-	walk_left
 	step_end
 
 MtMoon_B2F_Movement_MiguelChaseDome::
 	walk_up
 	walk_up
-	walk_left
-	walk_left
-	walk_left
 	walk_left
 	walk_left
 	walk_left
@@ -346,17 +329,14 @@ MtMoon_B2F_EventScript_JessieJamesActor::
 	goto MtMoon_B2F_EventScript_JessieJamesTrigger
 	end
 
-@ Fixed five-character faceoff:
-@ Partner (6,9) + player (7,9), facing south.
-@ Jessie (5,11) + Meowth (6,11) + James (7,11), facing north.
 MtMoon_B2F_EventScript_JessieJamesTrigger::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	setobjectxy LOCALID_PLAYER, 7, 9
-	setobjectxy OBJ_EVENT_ID_FOLLOWER, 6, 9
-	setobjectxy LOCALID_JESSIE, 5, 11
-	setobjectxy LOCALID_ROCKET_MEOWTH, 6, 11
-	setobjectxy LOCALID_JAMES, 7, 11
+	setobjectxy LOCALID_PLAYER, 6, 11
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 5, 11
+	setobjectxy LOCALID_JESSIE, 4, 13
+	setobjectxy LOCALID_ROCKET_MEOWTH, 5, 13
+	setobjectxy LOCALID_JAMES, 6, 13
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerFaceTeamRocket
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerFaceTeamRocket
 	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketFacePlayer
@@ -391,9 +371,10 @@ MtMoon_B2F_EventScript_JessieJamesTrigger::
 	setflag FLAG_0x0B6
 	setflag FLAG_0x0B7
 	clearflag FLAG_0x0B8
-	setobjectxy LOCALID_DROPPED_FOSSIL, 6, 11
+	setobjectxy LOCALID_DROPPED_FOSSIL, 5, 13
 	addobject LOCALID_DROPPED_FOSSIL
-	setobjectxy LOCALID_MIGUEL, 10, 11
+	setobjectxy LOCALID_MIGUEL, 10, 13
+	clearflag FLAG_0x0B9
 	addobject LOCALID_MIGUEL
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelToDroppedFossil
 	waitmovement LOCALID_MIGUEL
@@ -419,7 +400,10 @@ MtMoon_B2F_EventScript_FinishRecoveredFossil::
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFacePlayer
 	waitmovement 0
 	msgbox MtMoon_B2F_Text_MiguelKeepRecoveredFossil
+	removeobject LOCALID_MIGUEL
 	setobjectxy LOCALID_MIGUEL, 13, 11
+	clearflag FLAG_0x0B9
+	addobject LOCALID_MIGUEL
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceRight
 	waitmovement LOCALID_MIGUEL
 	copyobjectxytoperm LOCALID_MIGUEL
@@ -451,6 +435,7 @@ MtMoon_B2F_Movement_RocketFaceUp::
 	step_end
 
 MtMoon_B2F_Movement_MiguelToDroppedFossil::
+	walk_left
 	walk_left
 	walk_left
 	walk_left
