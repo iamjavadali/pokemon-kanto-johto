@@ -105,16 +105,27 @@ jobs:
             -o Acquire::https::Timeout=20
           )
 
-          # GitHub-hosted Ubuntu runners can intermittently stall on the Azure
-          # Ubuntu mirror. Prefer the canonical archive when that mirror is used.
+          # GitHub-hosted Ubuntu 24.04 runners can route Ubuntu packages through
+          # /etc/apt/apt-mirrors.txt, which currently selects an Azure mirror.
+          # Replace that indirection with the canonical Ubuntu archive. Keep the
+          # literal Azure replacement as a fallback for older runner layouts.
           if [[ -f /etc/apt/sources.list.d/ubuntu.sources ]]; then
             sudo sed -i \
-              's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' \
+              -e 's|mirror+file:/etc/apt/apt-mirrors.txt|https://archive.ubuntu.com/ubuntu|g' \
+              -e 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' \
               /etc/apt/sources.list.d/ubuntu.sources
+
+            echo "== Active Ubuntu APT sources =="
+            grep -E '^(Types|URIs|Suites|Components):' /etc/apt/sources.list.d/ubuntu.sources \
+              || cat /etc/apt/sources.list.d/ubuntu.sources
           elif [[ -f /etc/apt/sources.list ]]; then
             sudo sed -i \
               's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' \
               /etc/apt/sources.list
+
+            echo "== Active Ubuntu APT sources =="
+            grep -E 'archive\.ubuntu\.com|azure\.archive\.ubuntu\.com' /etc/apt/sources.list \
+              || cat /etc/apt/sources.list
           fi
 
           sudo apt-get "${APT_OPTS[@]}" update
