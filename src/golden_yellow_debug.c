@@ -60,6 +60,12 @@ static const struct GoldenYellowDebugPartnerProfile sPartnerRoute22 =
     .moves = { MOVE_THUNDER_SHOCK, MOVE_GROWL, MOVE_TAIL_WHIP, MOVE_THUNDER_WAVE },
 };
 
+static const struct GoldenYellowDebugPartnerProfile sPartnerMtMoon =
+{
+    .level = 15,
+    .moves = { MOVE_THUNDER_SHOCK, MOVE_QUICK_ATTACK, MOVE_DOUBLE_TEAM, MOVE_THUNDER_WAVE },
+};
+
 static const struct GoldenYellowDebugPartnerProfile sPartnerCerulean =
 {
     .level = 20,
@@ -99,6 +105,12 @@ static const struct GoldenYellowDebugPartnerProfile sPartnerChampion =
 static const struct GoldenYellowDebugMon sPartyRoute22[] =
 {
     { SPECIES_NIDORAN_M, 8 },
+};
+
+static const struct GoldenYellowDebugMon sPartyMtMoon[] =
+{
+    { SPECIES_BUTTERFREE, 14 },
+    { SPECIES_NIDORINO, 14 },
 };
 
 static const struct GoldenYellowDebugMon sPartyCerulean[] =
@@ -372,16 +384,20 @@ static void GoldenYellowDebug_ApplyThroughMtMoonFossil(enum GoldenYellowDebugRiv
     FlagSet(FLAG_GOT_HELIX_FOSSIL);
     FlagSet(FLAG_HIDE_DOME_FOSSIL);
     FlagSet(FLAG_HIDE_HELIX_FOSSIL);
-    VarSet(VAR_MAP_SCENE_MT_MOON_B2F, 1);
+    VarSet(VAR_MAP_SCENE_MT_MOON_B2F, 2);
+    FlagClear(FLAG_0x0B5);
+    FlagClear(FLAG_0x0B6);
+    FlagClear(FLAG_0x0B7);
     AddBagItem(ITEM_HELIX_FOSSIL, 1);
 }
 
 static void GoldenYellowDebug_ApplyThroughMtMoon(enum GoldenYellowDebugRivalPath rivalPath)
 {
-    // Jessie/James are not yet rebuilt in the FRLG map script. Until that scene
-    // owns a project flag, the fossil boundary is the last persistent state
-    // shared by both the source Yellow sequence and the current build.
     GoldenYellowDebug_ApplyThroughMtMoonFossil(rivalPath);
+    VarSet(VAR_MAP_SCENE_MT_MOON_B2F, 3);
+    FlagSet(FLAG_0x0B5);
+    FlagSet(FLAG_0x0B6);
+    FlagSet(FLAG_0x0B7);
 }
 
 static void GoldenYellowDebug_ApplyThroughMisty(enum GoldenYellowDebugRivalPath rivalPath)
@@ -455,7 +471,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         [GY_DEBUG_CP_CHAMPION_RIVAL] = { MAP_POKEMON_LEAGUE_CHAMPIONS_ROOM, 6, 19 },
         [GY_DEBUG_CP_BEFORE_BROCK] = { MAP_PEWTER_CITY_GYM, 6, 13 },
         [GY_DEBUG_CP_MT_MOON_FOSSIL] = { MAP_MT_MOON_B2F, 14, 12 },
-        [GY_DEBUG_CP_MT_MOON_JESSIE_JAMES] = { MAP_MT_MOON_B2F, 6, 11 },
+        [GY_DEBUG_CP_MT_MOON_JESSIE_JAMES] = { MAP_MT_MOON_B2F, 9, 10 },
         [GY_DEBUG_CP_BEFORE_MISTY] = { MAP_CERULEAN_CITY_GYM, 8, 17 },
         [GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET] = { MAP_ROUTE24, 10, 16 },
         [GY_DEBUG_CP_BEFORE_BILL] = { MAP_ROUTE25_SEA_COTTAGE, 7, 8 },
@@ -610,23 +626,27 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         FlagClear(FLAG_HIDE_DOME_FOSSIL);
         FlagClear(FLAG_HIDE_HELIX_FOSSIL);
         VarSet(VAR_MAP_SCENE_MT_MOON_B2F, 0);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerRoute22);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerMtMoon, sPartyMtMoon, ARRAY_COUNT(sPartyMtMoon));
         break;
     case GY_DEBUG_CP_MT_MOON_JESSIE_JAMES:
         GoldenYellowDebug_ApplyThroughMtMoonFossil(rivalPath);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerMtMoon, sPartyMtMoon, ARRAY_COUNT(sPartyMtMoon));
         break;
     case GY_DEBUG_CP_BEFORE_MISTY:
         GoldenYellowDebug_ApplyThroughMtMoon(rivalPath);
         GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET:
         GoldenYellowDebug_ApplyThroughMisty(rivalPath);
         GoldenYellowDebug_CompleteCeruleanRival();
         VarSet(VAR_MAP_SCENE_ROUTE24, 0);
         FlagClear(FLAG_HIDE_NUGGET_BRIDGE_ROCKET);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_BEFORE_BILL:
         GoldenYellowDebug_ApplyThroughNuggetBridge(rivalPath);
@@ -635,30 +655,36 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         FlagClear(FLAG_GOT_SS_TICKET_DUP);
         FlagClear(FLAG_HIDE_BILL_CLEFAIRY);
         FlagSet(FLAG_HIDE_BILL_HUMAN_SEA_COTTAGE);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_BULBASAUR_GIFT:
         GoldenYellowDebug_ApplyThroughBill(rivalPath);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_CHARMANDER_GIFT:
         GoldenYellowDebug_ApplyThroughBill(rivalPath);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerCerulean);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_SS_ANNE_CAPTAIN:
         GoldenYellowDebug_ApplyThroughSSAnneRival(rivalPath);
         FlagClear(FLAG_GOT_HM01);
         FlagClear(FLAG_HIDE_SS_ANNE);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerSSAnne);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerSSAnne, sPartySSAnne, ARRAY_COUNT(sPartySSAnne));
         break;
     case GY_DEBUG_CP_BEFORE_LT_SURGE:
         GoldenYellowDebug_ApplyThroughCaptain(rivalPath);
         GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER | GY_BADGE_CASCADE);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerSSAnne);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerSSAnne, sPartySSAnne, ARRAY_COUNT(sPartySSAnne));
         break;
     case GY_DEBUG_CP_SQUIRTLE_GIFT:
         GoldenYellowDebug_ApplyThroughSurge(rivalPath);
-        GoldenYellowDebug_SetPartnerOnly(&sPartnerSSAnne);
+        ZeroPlayerPartyMons();
+        GoldenYellowDebug_SetTestParty(&sPartnerSSAnne, sPartySSAnne, ARRAY_COUNT(sPartySSAnne));
         break;
     case GY_DEBUG_CP_BEFORE_TEACHY_TV:
         GoldenYellowDebug_ApplyOakLabComplete();
