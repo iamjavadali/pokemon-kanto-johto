@@ -79,10 +79,10 @@ BLOCK_RE = re.compile(r"(?ms)^=== (TRAINER_[A-Z0-9_]+) ===\n(.*?)(?=^=== |\Z)")
 
 JESSIE_JAMES_MT_MOON = """=== TRAINER_JESSIE_JAMES_MT_MOON ===
 Name: JESSIE&J.
-Class: Rocket Grunt Frlg
+Class: Team Rocket Frlg
 Pic: Jessie And James
 Gender: Male
-Music: Rocket
+Music: Aqua
 Double Battle: No
 AI: Check Bad Move
 
