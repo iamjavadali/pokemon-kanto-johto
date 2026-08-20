@@ -168,6 +168,7 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 	setflag FLAG_0x0B8
 	clearflag FLAG_0x0BA
 	addobject LOCALID_THEFT_MEOWTH
+	fadenewbgm MUS_RG_ROCKET_HIDEOUT
 	delay 1
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthUpperCorridorToHelix
 	waitmovement LOCALID_THEFT_MEOWTH
@@ -211,6 +212,7 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	setflag FLAG_0x0B8
 	clearflag FLAG_0x0BA
 	addobject LOCALID_THEFT_MEOWTH
+	fadenewbgm MUS_RG_ROCKET_HIDEOUT
 	delay 1
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthUpperCorridorToDome
 	waitmovement LOCALID_THEFT_MEOWTH
@@ -381,11 +383,13 @@ MtMoon_B2F_Movement_MiguelChaseDome::
 MtMoon_B2F_EventScript_JessieJamesActor::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
 
 MtMoon_B2F_EventScript_JessieJamesTrigger::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	goto MtMoon_B2F_EventScript_JessieJamesFaceoff
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX8Y3::
@@ -393,6 +397,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y3::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y3
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y3
@@ -404,6 +409,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y3::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y3
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y3
@@ -415,6 +421,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y4::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y4
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y4
@@ -426,6 +433,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y4::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y4
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y4
@@ -437,6 +445,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y5::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y5
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y5
@@ -448,6 +457,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y5::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y5
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y5
@@ -459,6 +469,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y6::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y6
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y6
@@ -470,6 +481,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y6::
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
+	fadenewbgm MUS_RG_ENCOUNTER_ROCKET
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y6
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y6
@@ -486,15 +498,18 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketFacePlayer
 	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketFacePlayer
 	waitmovement 0
+	msgbox MtMoon_B2F_Text_JessieJamesStopRightThere
+	msgbox MtMoon_B2F_Text_JessieJamesFossilIsTeamRockets
+	msgbox MtMoon_B2F_Text_JessieJamesNoticePikachu
+	msgbox MtMoon_B2F_Text_JamesPikachuUnusual
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerChallenge
 	waitmovement OBJ_EVENT_ID_FOLLOWER
+	msgbox MtMoon_B2F_Text_MeowthUnderstandsPikachu
 	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
 	waitmoncry
-	msgbox MtMoon_B2F_Text_JessieJamesStopRightThere
-	msgbox MtMoon_B2F_Text_JessieJamesFossilIsTeamRockets
-	playbgm MUS_RG_ENCOUNTER_ROCKET, 0
+	msgbox MtMoon_B2F_Text_JessieJamesWantPikachu
 	setvar VAR_LAST_TALKED, LOCALID_JESSIE
 	trainerbattle_no_intro TRAINER_JESSIE_JAMES_MT_MOON, MtMoon_B2F_Text_JessieJamesDefeat
 	setvar VAR_MAP_SCENE_MT_MOON_B2F, 3
@@ -506,11 +521,16 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketFacePlayer
 	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketFacePlayer
 	waitmovement 0
+	msgbox MtMoon_B2F_Text_JessieJamesLostFossil
+	msgbox MtMoon_B2F_Text_JessieJamesBossWillBeMad
+	msgbox MtMoon_B2F_Text_JessieJamesStillWantPikachu
+	msgbox MtMoon_B2F_Text_MeowthPikachuHasSpark
+	msgbox MtMoon_B2F_Text_JessieJamesNextTime
 	msgbox MtMoon_B2F_Text_JessieJamesBlastOff
 	closemessage
-	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketBlastOff
-	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketBlastOff
-	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketBlastOff
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieBlastOff
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketMeowthBlastOff
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesBlastOff
 	waitmovement 0
 	removeobject LOCALID_ROCKET_MEOWTH
 	removeobject LOCALID_JESSIE
@@ -545,6 +565,7 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceRight
 	waitmovement LOCALID_MIGUEL
 	copyobjectxytoperm LOCALID_MIGUEL
+	fadedefaultbgm
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
@@ -764,10 +785,29 @@ MtMoon_B2F_Movement_RocketFaceUp::
 	face_up
 	step_end
 
-MtMoon_B2F_Movement_RocketBlastOff::
-	jump_in_place_up
-	jump_in_place_up
-	jump_in_place_up
+MtMoon_B2F_Movement_JessieBlastOff::
+	levitate
+	figure_8
+	jump_in_place_left_right
+	figure_8
+	fly_up
+	step_end
+
+MtMoon_B2F_Movement_RocketMeowthBlastOff::
+	delay_4
+	levitate
+	jump_in_place_up_down
+	figure_8
+	fly_up
+	step_end
+
+MtMoon_B2F_Movement_JamesBlastOff::
+	delay_8
+	levitate
+	figure_8
+	jump_in_place_right_left
+	figure_8
+	fly_up
 	step_end
 
 MtMoon_B2F_Movement_PlayerClearMiguelRoute::
@@ -863,11 +903,70 @@ MtMoon_B2F_Text_JessieJamesStopRightThere::
 	.string "Stop right there!$"
 
 MtMoon_B2F_Text_JessieJamesFossilIsTeamRockets::
-	.string "That fossil is TEAM ROCKET's!\p"
-	.string "Surrender now, or prepare to fight!$"
+	.string "That fossil belongs to TEAM\l"
+	.string "ROCKET now!\p"
+	.string "The BOSS wants rare treasure,\l"
+	.string "and we don't return empty-handed!$"
+
+MtMoon_B2F_Text_JessieJamesNoticePikachu::
+	.string "Hold it...\p"
+	.string "Why is that PIKACHU walking\l"
+	.string "loose beside you?$"
+
+MtMoon_B2F_Text_JamesPikachuUnusual::
+	.string "POKéMON are supposed to rest\l"
+	.string "inside their POKé BALLS.\p"
+	.string "That one acts like it owns\l"
+	.string "the whole cave!$"
+
+MtMoon_B2F_Text_MeowthUnderstandsPikachu::
+	.string "Meowth! That spark-plug's got\l"
+	.string "too much pride for a ball.\p"
+	.string "It isn't being carried around...\l"
+	.string "It's choosing who to follow!$"
+
+MtMoon_B2F_Text_JessieJamesWantPikachu::
+	.string "A PIKACHU with that much will?\p"
+	.string "Now that's rarer than an old\l"
+	.string "fossil!\p"
+	.string "If we bring the BOSS a prize\l"
+	.string "like that, he'll be thrilled!\p"
+	.string "We'll take the fossil...\l"
+	.string "and that PIKACHU!$"
 
 MtMoon_B2F_Text_JessieJamesDefeat::
 	.string "A brat beat us?$"
+
+MtMoon_B2F_Text_JessieJamesLostFossil::
+	.string "The fossil!\p"
+	.string "We dropped the fossil!$"
+
+MtMoon_B2F_Text_JessieJamesBossWillBeMad::
+	.string "The BOSS sent us after rare\l"
+	.string "treasure...\p"
+	.string "If we go back with nothing,\l"
+	.string "we're finished!$"
+
+MtMoon_B2F_Text_JessieJamesStillWantPikachu::
+	.string "Then we won't go back with\l"
+	.string "nothing!\p"
+	.string "That PIKACHU fought like it\l"
+	.string "wanted to protect you.\p"
+	.string "A POKéMON with that kind of\l"
+	.string "spirit is worth chasing!$"
+
+MtMoon_B2F_Text_MeowthPikachuHasSpark::
+	.string "Meowth! That ain't ordinary\l"
+	.string "trainer loyalty.\p"
+	.string "That PIKACHU's got brains,\l"
+	.string "backbone, and a mean spark!$"
+
+MtMoon_B2F_Text_JessieJamesNextTime::
+	.string "This isn't over, little twerp!\p"
+	.string "Next time, that stubborn\l"
+	.string "PIKACHU is coming with us!\p"
+	.string "The BOSS will forget all about\l"
+	.string "this fossil fiasco!$"
 
 MtMoon_B2F_Text_JessieJamesBlastOff::
 	.string "TEAM ROCKET, blast off at the\n"
