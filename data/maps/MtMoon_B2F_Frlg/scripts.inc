@@ -790,7 +790,9 @@ MtMoon_B2F_Movement_JessieBlastOff::
 	figure_8
 	jump_in_place_left_right
 	figure_8
-	fly_up
+	jump_2_up
+	jump_2_up
+	set_invisible
 	step_end
 
 MtMoon_B2F_Movement_RocketMeowthBlastOff::
@@ -798,7 +800,9 @@ MtMoon_B2F_Movement_RocketMeowthBlastOff::
 	levitate
 	jump_in_place_up_down
 	figure_8
-	fly_up
+	jump_2_up
+	jump_2_up
+	set_invisible
 	step_end
 
 MtMoon_B2F_Movement_JamesBlastOff::
@@ -807,7 +811,9 @@ MtMoon_B2F_Movement_JamesBlastOff::
 	figure_8
 	jump_in_place_right_left
 	figure_8
-	fly_up
+	jump_2_up
+	jump_2_up
+	set_invisible
 	step_end
 
 MtMoon_B2F_Movement_PlayerClearMiguelRoute::
