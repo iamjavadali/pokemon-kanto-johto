@@ -192,9 +192,17 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHeadStart
 	waitmovement LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_MIGUEL, Common_Movement_ExclamationMark
+	waitmovement LOCALID_MIGUEL
+	delay 56
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHelixCorridor
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseHelix
-	waitmovement 0
+	waitmovement LOCALID_THEFT_MEOWTH
+	setflag FLAG_0x0BA
+	removeobject LOCALID_THEFT_MEOWTH
+	waitmovement LOCALID_MIGUEL
+	setflag FLAG_0x0B9
+	removeobject LOCALID_MIGUEL
 	goto MtMoon_B2F_EventScript_StageJessieJames
 
 MtMoon_B2F_EventScript_MeowthStealsDome::
@@ -227,9 +235,17 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHeadStart
 	waitmovement LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_MIGUEL, Common_Movement_ExclamationMark
+	waitmovement LOCALID_MIGUEL
+	delay 56
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeDomeCorridor
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseDome
-	waitmovement 0
+	waitmovement LOCALID_THEFT_MEOWTH
+	setflag FLAG_0x0BA
+	removeobject LOCALID_THEFT_MEOWTH
+	waitmovement LOCALID_MIGUEL
+	setflag FLAG_0x0B9
+	removeobject LOCALID_MIGUEL
 	goto MtMoon_B2F_EventScript_StageJessieJames
 
 MtMoon_B2F_EventScript_StageJessieJames::
@@ -376,7 +392,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y3::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y3
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y3
@@ -387,7 +403,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y3::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y3
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y3
@@ -398,7 +414,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y4::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y4
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y4
@@ -409,7 +425,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y4::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y4
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y4
@@ -420,7 +436,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y5::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y5
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y5
@@ -431,7 +447,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y5::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y5
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y5
@@ -442,7 +458,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y6::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX8Y6
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX8Y6
@@ -453,7 +469,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y6::
 	lockall
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
-	delay 8
+	delay 56
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerApproachRocketX7Y6
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerApproachRocketX7Y6
@@ -504,6 +520,10 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	setflag FLAG_0x0B7
 	clearflag FLAG_0x0B8
 	addobject LOCALID_DROPPED_FOSSIL
+	delay 32
+	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerClearMiguelRoute
+	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerClearMiguelRoute
+	waitmovement 0
 	clearflag FLAG_0x0B9
 	addobject LOCALID_MIGUEL
 	setobjectxy LOCALID_MIGUEL, 5, 10
@@ -750,14 +770,26 @@ MtMoon_B2F_Movement_RocketBlastOff::
 	jump_in_place_up
 	step_end
 
+MtMoon_B2F_Movement_PlayerClearMiguelRoute::
+	walk_left
+	walk_down
+	face_down
+	step_end
+
+MtMoon_B2F_Movement_PartnerClearMiguelRoute::
+	walk_left
+	walk_down
+	face_down
+	step_end
+
 MtMoon_B2F_Movement_MiguelFromStairsToDroppedFossil::
+	walk_up
 	walk_left
-	walk_left
-	face_up
+	face_left
 	step_end
 
 MtMoon_B2F_Movement_MiguelFaceDroppedFossil::
-	face_up
+	face_left
 	step_end
 
 MtMoon_B2F_Movement_MiguelToDroppedFossil::
@@ -775,14 +807,12 @@ MtMoon_B2F_Movement_MiguelReturnFromDroppedFossil::
 	step_end
 
 MtMoon_B2F_Movement_MiguelExitViaMeowthLane::
+	walk_up
+	walk_up
+	walk_up
+	walk_up
 	walk_right
 	walk_right
-	walk_right
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_up
 	walk_right
 	walk_right
 	walk_right
