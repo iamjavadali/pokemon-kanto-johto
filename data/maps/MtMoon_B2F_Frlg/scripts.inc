@@ -817,31 +817,31 @@ MtMoon_B2F_Movement_RocketSpeak::
 	step_end
 
 MtMoon_B2F_Movement_JessieBlastOff::
-	spin_up
-	spin_up
-	spin_up
-	spin_up
-	spin_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
 	set_invisible
 	step_end
 
 MtMoon_B2F_Movement_RocketMeowthBlastOff::
 	delay_4
-	spin_up
-	spin_up
-	spin_up
-	spin_up
-	spin_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
 	set_invisible
 	step_end
 
 MtMoon_B2F_Movement_JamesBlastOff::
 	delay_8
-	spin_up
-	spin_up
-	spin_up
-	spin_up
-	spin_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
 	set_invisible
 	step_end
 
