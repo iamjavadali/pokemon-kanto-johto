@@ -5,10 +5,26 @@
 #include "constants/event_object_movement.h"
 
 extern const struct OamData gObjectEventBaseOam_16x32;
-extern const struct SubspriteTable sOamTables_16x32[];
 
 #define GOLDEN_YELLOW_ROCKET_FRAME_SIZE 256
 #define GOLDEN_YELLOW_ROCKET_FRAME_WORDS (GOLDEN_YELLOW_ROCKET_FRAME_SIZE / sizeof(u32))
+
+static const struct Subsprite sOamTable_JessieJames16x32[] =
+{
+    {
+        .x = -8,
+        .y = -16,
+        .shape = SPRITE_SHAPE(16x32),
+        .size = SPRITE_SIZE(16x32),
+        .tileOffset = 0,
+        .priority = 2,
+    },
+};
+
+static const struct SubspriteTable sOamTables_JessieJames16x32[] =
+{
+    {ARRAY_COUNT(sOamTable_JessieJames16x32), sOamTable_JessieJames16x32},
+};
 
 static const u32 sObjectEventPic_Jessie[] =
     INCGFX_U32("graphics/object_events/pics/people/jessie.png", ".4bpp", "-mwidth 2 -mheight 4");
@@ -114,7 +130,7 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_Jessie =
     .compressed = FALSE,
     .tracks = TRACKS_FOOT,
     .oam = &gObjectEventBaseOam_16x32,
-    .subspriteTables = sOamTables_16x32,
+    .subspriteTables = sOamTables_JessieJames16x32,
     .anims = sAnimTable_JessieJames,
     .images = sPicTable_Jessie,
 };
@@ -133,7 +149,7 @@ const struct ObjectEventGraphicsInfo gObjectEventGraphicsInfo_James =
     .compressed = FALSE,
     .tracks = TRACKS_FOOT,
     .oam = &gObjectEventBaseOam_16x32,
-    .subspriteTables = sOamTables_16x32,
+    .subspriteTables = sOamTables_JessieJames16x32,
     .anims = sAnimTable_JessieJames,
     .images = sPicTable_James,
 };
