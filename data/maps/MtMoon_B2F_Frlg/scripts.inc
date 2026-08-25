@@ -169,6 +169,11 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceUp
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthFaceDown
 	waitmovement 0
+	playse SE_PIN
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_ExclamationMark
+	waitmovement LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_Delay48
+	waitmovement LOCALID_THEFT_MEOWTH
 	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
 	waitmoncry
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthStepOntoFossil
@@ -213,6 +218,11 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceUp
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthFaceDown
 	waitmovement 0
+	playse SE_PIN
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_ExclamationMark
+	waitmovement LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_Delay48
+	waitmovement LOCALID_THEFT_MEOWTH
 	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
 	waitmoncry
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthStepOntoFossil
@@ -384,6 +394,7 @@ MtMoon_B2F_EventScript_JessieJamesTrigger::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX8Y3::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -396,6 +407,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y3::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX7Y3::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -408,6 +420,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y3::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX8Y4::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -420,6 +433,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y4::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX7Y4::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -432,6 +446,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y4::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX8Y5::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -444,6 +459,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y5::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX7Y5::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -456,6 +472,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX7Y5::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX8Y6::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -468,6 +485,7 @@ MtMoon_B2F_EventScript_JessieJamesTriggerX8Y6::
 
 MtMoon_B2F_EventScript_JessieJamesTriggerX7Y6::
 	lockall
+	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement LOCALID_PLAYER
 	delay 56
@@ -535,8 +553,10 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketFacePlayer
 	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketFacePlayer
 	waitmovement 0
+	playse SE_FALL
 	clearflag FLAG_0x0B8
 	addobject LOCALID_DROPPED_FOSSIL
+	waitse
 	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketSpeak
 	waitmovement LOCALID_JESSIE
 	msgbox MtMoon_B2F_Text_JessieDroppedFossil
