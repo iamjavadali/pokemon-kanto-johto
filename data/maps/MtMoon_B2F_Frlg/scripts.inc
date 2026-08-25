@@ -364,6 +364,7 @@ MtMoon_B2F_Movement_MiguelChaseHelix::
 	walk_fast_left
 	walk_fast_left
 	walk_fast_left
+	walk_fast_left
 	step_end
 
 MtMoon_B2F_Movement_MiguelChaseDome::
