@@ -4,6 +4,9 @@
 #include "constants/event_objects.h"
 #include "constants/event_object_movement.h"
 
+extern const struct OamData gObjectEventBaseOam_16x32;
+extern const struct SubspriteTable sOamTables_16x32[];
+
 #define GOLDEN_YELLOW_ROCKET_FRAME_SIZE 256
 #define GOLDEN_YELLOW_ROCKET_FRAME_WORDS (GOLDEN_YELLOW_ROCKET_FRAME_SIZE / sizeof(u32))
 
