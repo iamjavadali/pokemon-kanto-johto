@@ -203,6 +203,9 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 	waitmovement LOCALID_MIGUEL
 	applymovement LOCALID_MIGUEL, Common_Movement_Delay48
 	waitmovement LOCALID_MIGUEL
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelTurnBackToPlayer
+	waitmovement LOCALID_MIGUEL
+	msgbox MtMoon_B2F_Text_MiguelComeHelpMe
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseHelixExit
 	waitmovement LOCALID_MIGUEL
 	setflag FLAG_0x0B9
@@ -256,6 +259,9 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	waitmovement LOCALID_MIGUEL
 	applymovement LOCALID_MIGUEL, Common_Movement_Delay48
 	waitmovement LOCALID_MIGUEL
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelTurnBackToPlayer
+	waitmovement LOCALID_MIGUEL
+	msgbox MtMoon_B2F_Text_MiguelComeHelpMe
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseDomeExit
 	waitmovement LOCALID_MIGUEL
 	setflag FLAG_0x0B9
@@ -820,7 +826,6 @@ MtMoon_B2F_Movement_PartnerApproachRocketX7Y6::
 
 MtMoon_B2F_EventScript_DroppedFossil::
 	lockall
-	msgbox MtMoon_B2F_Text_DroppedFossil, MSGBOX_SIGN
 	goto_if_set FLAG_GOT_DOME_FOSSIL, MtMoon_B2F_EventScript_PickupRecoveredHelixFossil
 	giveitem_msg MtMoon_B2F_Text_ObtainedDomeFossil, ITEM_DOME_FOSSIL, 1, MUS_RG_OBTAIN_KEY_ITEM
 	setflag FLAG_GOT_DOME_FOSSIL
@@ -977,6 +982,10 @@ MtMoon_B2F_Movement_MiguelFaceRight::
 	face_right
 	step_end
 
+MtMoon_B2F_Movement_MiguelTurnBackToPlayer::
+	face_right
+	step_end
+
 MtMoon_B2F_EventScript_Grunt1::
 	trainerbattle_single TRAINER_TEAM_ROCKET_GRUNT, MtMoon_B2F_Text_Grunt1Intro, MtMoon_B2F_Text_Grunt1Defeat
 	msgbox MtMoon_B2F_Text_Grunt1PostBattle, MSGBOX_AUTOCLOSE
@@ -1088,6 +1097,10 @@ MtMoon_B2F_Text_MeowthStoleFossil::
 MtMoon_B2F_Text_MiguelAfterTheFossil::
 	.string "Hey! My fossil!\n"
 	.string "Come back here!$"
+
+MtMoon_B2F_Text_MiguelComeHelpMe::
+	.string "Hey! Help me get\n"
+	.string "that fossil back!$"
 
 MtMoon_B2F_Text_MiguelYouRecoveredIt::
 	.string "You got it back!\n"
