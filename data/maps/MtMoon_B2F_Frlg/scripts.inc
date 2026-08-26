@@ -600,11 +600,6 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerFaceMiguel
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceDroppedFossil
 	waitmovement 0
-	playse SE_PIN
-	applymovement LOCALID_MIGUEL, Common_Movement_ExclamationMark
-	waitmovement LOCALID_MIGUEL
-	applymovement LOCALID_MIGUEL, Common_Movement_Delay48
-	waitmovement LOCALID_MIGUEL
 	msgbox MtMoon_B2F_Text_MiguelYouRecoveredIt
 	msgbox MtMoon_B2F_Text_MiguelKeepRecoveredFossil
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelExitViaMeowthLane
