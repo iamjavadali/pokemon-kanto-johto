@@ -218,6 +218,7 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	setflag FLAG_0x0B8
 	clearflag FLAG_0x0BA
 	addobject LOCALID_THEFT_MEOWTH
+	setobjectxy LOCALID_THEFT_MEOWTH, 8, 5
 	fadenewbgm MUS_RG_ROCKET_HIDEOUT
 	delay 1
 	playse SE_PIN
@@ -320,9 +321,6 @@ MtMoon_B2F_Movement_MeowthUpperCorridorToHelix::
 	step_end
 
 MtMoon_B2F_Movement_MeowthUpperCorridorToDome::
-	walk_right
-	walk_right
-	walk_right
 	walk_right
 	walk_right
 	walk_right
