@@ -164,15 +164,17 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 	addobject LOCALID_THEFT_MEOWTH
 	fadenewbgm MUS_RG_ROCKET_HIDEOUT
 	delay 1
+	playse SE_PIN
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_ExclamationMark
+	waitmovement LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_Delay48
+	waitmovement LOCALID_THEFT_MEOWTH
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthUpperCorridorToHelix
 	waitmovement LOCALID_THEFT_MEOWTH
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceUp
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthFaceDown
 	waitmovement 0
-	playse SE_PIN
-	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_ExclamationMark
-	waitmovement LOCALID_THEFT_MEOWTH
-	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_Delay48
+	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthSnatchWindup
 	waitmovement LOCALID_THEFT_MEOWTH
 	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
 	waitmoncry
@@ -213,15 +215,17 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	addobject LOCALID_THEFT_MEOWTH
 	fadenewbgm MUS_RG_ROCKET_HIDEOUT
 	delay 1
+	playse SE_PIN
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_ExclamationMark
+	waitmovement LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_Delay48
+	waitmovement LOCALID_THEFT_MEOWTH
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthUpperCorridorToDome
 	waitmovement LOCALID_THEFT_MEOWTH
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceUp
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthFaceDown
 	waitmovement 0
-	playse SE_PIN
-	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_ExclamationMark
-	waitmovement LOCALID_THEFT_MEOWTH
-	applymovement LOCALID_THEFT_MEOWTH, Common_Movement_Delay48
+	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthSnatchWindup
 	waitmovement LOCALID_THEFT_MEOWTH
 	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
 	waitmoncry
@@ -314,6 +318,11 @@ MtMoon_B2F_Movement_MeowthUpperCorridorToDome::
 	walk_right
 	walk_right
 	face_down
+	step_end
+
+MtMoon_B2F_Movement_MeowthSnatchWindup::
+	jump_in_place_up
+	jump_in_place_down
 	step_end
 
 MtMoon_B2F_Movement_MeowthStepOntoFossil::
@@ -587,6 +596,7 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	setflag FLAG_0x0B5
 	setflag FLAG_0x0B6
 	setflag FLAG_0x0B7
+	fadedefaultbgm
 	delay 32
 	applymovement LOCALID_PLAYER, MtMoon_B2F_Movement_PlayerClearMiguelRoute
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerClearMiguelRoute
@@ -600,6 +610,11 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerFaceMiguel
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelFaceDroppedFossil
 	waitmovement 0
+	playse SE_PIN
+	applymovement LOCALID_MIGUEL, Common_Movement_ExclamationMark
+	waitmovement LOCALID_MIGUEL
+	applymovement LOCALID_MIGUEL, Common_Movement_Delay48
+	waitmovement LOCALID_MIGUEL
 	msgbox MtMoon_B2F_Text_MiguelYouRecoveredIt
 	msgbox MtMoon_B2F_Text_MiguelKeepRecoveredFossil
 	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelExitViaMeowthLane
