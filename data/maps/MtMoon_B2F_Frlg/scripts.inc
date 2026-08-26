@@ -193,15 +193,17 @@ MtMoon_B2F_EventScript_MeowthStealsHelix::
 	waitmovement 0
 	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeHelixFull
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseHelixToExitCue
+	waitmovement LOCALID_THEFT_MEOWTH
+	setflag FLAG_0x0BA
+	removeobject LOCALID_THEFT_MEOWTH
+	waitmovement LOCALID_MIGUEL
 	playse SE_PIN
 	applymovement LOCALID_MIGUEL, Common_Movement_ExclamationMark
 	waitmovement LOCALID_MIGUEL
 	applymovement LOCALID_MIGUEL, Common_Movement_Delay48
 	waitmovement LOCALID_MIGUEL
-	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseHelix
-	waitmovement LOCALID_THEFT_MEOWTH
-	setflag FLAG_0x0BA
-	removeobject LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseHelixExit
 	waitmovement LOCALID_MIGUEL
 	setflag FLAG_0x0B9
 	removeobject LOCALID_MIGUEL
@@ -244,15 +246,17 @@ MtMoon_B2F_EventScript_MeowthStealsDome::
 	waitmovement 0
 	msgbox MtMoon_B2F_Text_MiguelAfterTheFossil
 	applymovement LOCALID_THEFT_MEOWTH, MtMoon_B2F_Movement_MeowthEscapeDomeFull
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseDomeToExitCue
+	waitmovement LOCALID_THEFT_MEOWTH
+	setflag FLAG_0x0BA
+	removeobject LOCALID_THEFT_MEOWTH
+	waitmovement LOCALID_MIGUEL
 	playse SE_PIN
 	applymovement LOCALID_MIGUEL, Common_Movement_ExclamationMark
 	waitmovement LOCALID_MIGUEL
 	applymovement LOCALID_MIGUEL, Common_Movement_Delay48
 	waitmovement LOCALID_MIGUEL
-	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseDome
-	waitmovement LOCALID_THEFT_MEOWTH
-	setflag FLAG_0x0BA
-	removeobject LOCALID_THEFT_MEOWTH
+	applymovement LOCALID_MIGUEL, MtMoon_B2F_Movement_MiguelChaseDomeExit
 	waitmovement LOCALID_MIGUEL
 	setflag FLAG_0x0B9
 	removeobject LOCALID_MIGUEL
@@ -362,11 +366,10 @@ MtMoon_B2F_Movement_MiguelPanic::
 	walk_in_place_faster_down
 	step_end
 
-MtMoon_B2F_Movement_MiguelChaseHelix::
+MtMoon_B2F_Movement_MiguelChaseHelixToExitCue::
 	walk_fast_up
 	walk_fast_up
 	walk_fast_up
-	walk_fast_left
 	walk_fast_left
 	walk_fast_left
 	walk_fast_left
@@ -376,7 +379,11 @@ MtMoon_B2F_Movement_MiguelChaseHelix::
 	walk_fast_left
 	step_end
 
-MtMoon_B2F_Movement_MiguelChaseDome::
+MtMoon_B2F_Movement_MiguelChaseHelixExit::
+	walk_fast_left
+	step_end
+
+MtMoon_B2F_Movement_MiguelChaseDomeToExitCue::
 	walk_fast_up
 	walk_fast_up
 	walk_fast_up
@@ -386,6 +393,9 @@ MtMoon_B2F_Movement_MiguelChaseDome::
 	walk_fast_left
 	walk_fast_left
 	walk_fast_left
+	step_end
+
+MtMoon_B2F_Movement_MiguelChaseDomeExit::
 	walk_fast_left
 	step_end
 
@@ -515,16 +525,16 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketFacePlayer
 	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketFacePlayer
 	waitmovement 0
-	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieLookToTeamThenPlayer
 	waitmovement LOCALID_JESSIE
 	msgbox MtMoon_B2F_Text_JessieStopRightThere
-	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesLookToTeamThenPlayer
 	waitmovement LOCALID_JAMES
 	msgbox MtMoon_B2F_Text_JamesFossilIsOurs
-	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieLookToTeamThenPlayer
 	waitmovement LOCALID_JESSIE
 	msgbox MtMoon_B2F_Text_JessieBossWantsTreasure
-	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesLookToTeamThenPlayer
 	waitmovement LOCALID_JAMES
 	msgbox MtMoon_B2F_Text_JamesNoEmptyHands
 	playse SE_PIN
@@ -540,15 +550,15 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	waitmoncry
 	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerChallenge
 	waitmovement OBJ_EVENT_ID_FOLLOWER
-	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthLookToTeamThenPlayer
 	waitmovement LOCALID_ROCKET_MEOWTH
 	msgbox MtMoon_B2F_Text_MeowthUnderstandsPikachu
 	playmoncry SPECIES_MEOWTH, CRY_MODE_NORMAL
 	waitmoncry
-	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieLookToTeamThenPlayer
 	waitmovement LOCALID_JESSIE
 	msgbox MtMoon_B2F_Text_JessieRealPrize
-	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesLookToTeamThenPlayer
 	waitmovement LOCALID_JAMES
 	msgbox MtMoon_B2F_Text_JamesTakeBoth
 	setvar VAR_LAST_TALKED, LOCALID_JESSIE
@@ -566,22 +576,22 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	clearflag FLAG_0x0B8
 	addobject LOCALID_DROPPED_FOSSIL
 	waitse
-	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieLookToTeamThenPlayer
 	waitmovement LOCALID_JESSIE
 	msgbox MtMoon_B2F_Text_JessieDroppedFossil
-	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesLookToTeamThenPlayer
 	waitmovement LOCALID_JAMES
 	msgbox MtMoon_B2F_Text_JamesBossWantedTreasure
-	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieLookToTeamThenPlayer
 	waitmovement LOCALID_JESSIE
 	msgbox MtMoon_B2F_Text_JessieCantReturn
-	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthLookToTeamThenPlayer
 	waitmovement LOCALID_ROCKET_MEOWTH
 	msgbox MtMoon_B2F_Text_MeowthPikachuPrize
-	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesLookToTeamThenPlayer
 	waitmovement LOCALID_JAMES
 	msgbox MtMoon_B2F_Text_JamesPikachuSpirit
-	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_RocketSpeak
+	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieLookToTeamThenPlayer
 	waitmovement LOCALID_JESSIE
 	msgbox MtMoon_B2F_Text_JessieNextTime
 	msgbox MtMoon_B2F_Text_JessieJamesBlastOff
@@ -849,6 +859,24 @@ MtMoon_B2F_Movement_RocketFaceUp::
 
 MtMoon_B2F_Movement_RocketSpeak::
 	walk_in_place_faster_up
+	step_end
+
+MtMoon_B2F_Movement_JessieLookToTeamThenPlayer::
+	face_right
+	delay_8
+	face_up
+	step_end
+
+MtMoon_B2F_Movement_JamesLookToTeamThenPlayer::
+	face_left
+	delay_8
+	face_up
+	step_end
+
+MtMoon_B2F_Movement_MeowthLookToTeamThenPlayer::
+	face_right
+	delay_8
+	face_up
 	step_end
 
 MtMoon_B2F_Movement_JessieBlastOff::
