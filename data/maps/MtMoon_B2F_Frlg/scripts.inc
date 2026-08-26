@@ -600,6 +600,8 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	msgbox MtMoon_B2F_Text_JessieNextTime
 	msgbox MtMoon_B2F_Text_JessieJamesBlastOff
 	closemessage
+	playse SE_M_EXPLOSION
+	delay 8
 	applymovement LOCALID_JESSIE, MtMoon_B2F_Movement_JessieBlastOff
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_RocketMeowthBlastOff
 	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesBlastOff
