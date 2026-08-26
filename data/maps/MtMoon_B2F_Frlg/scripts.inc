@@ -885,6 +885,10 @@ MtMoon_B2F_Movement_MeowthLookToTeamThenPlayer::
 	step_end
 
 MtMoon_B2F_Movement_JessieBlastOff::
+	walk_in_place_faster_down
+	jump_in_place_up
+	delay_4
+	walk_fast_up
 	walk_fast_up
 	walk_fast_up
 	walk_fast_up
@@ -895,6 +899,10 @@ MtMoon_B2F_Movement_JessieBlastOff::
 
 MtMoon_B2F_Movement_RocketMeowthBlastOff::
 	delay_4
+	walk_in_place_faster_down
+	jump_in_place_up
+	delay_4
+	walk_fast_up
 	walk_fast_up
 	walk_fast_up
 	walk_fast_up
@@ -905,6 +913,10 @@ MtMoon_B2F_Movement_RocketMeowthBlastOff::
 
 MtMoon_B2F_Movement_JamesBlastOff::
 	delay_8
+	walk_in_place_faster_down
+	jump_in_place_up
+	delay_4
+	walk_fast_up
 	walk_fast_up
 	walk_fast_up
 	walk_fast_up
