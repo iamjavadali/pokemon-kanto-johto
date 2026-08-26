@@ -327,6 +327,7 @@ MtMoon_B2F_Movement_MeowthUpperCorridorToDome::
 	walk_right
 	walk_right
 	walk_right
+	walk_right
 	face_down
 	step_end
 
@@ -393,7 +394,6 @@ MtMoon_B2F_Movement_MiguelChaseDomeToExitCue::
 	walk_fast_up
 	walk_fast_up
 	walk_fast_up
-	walk_fast_left
 	walk_fast_left
 	walk_fast_left
 	walk_fast_left
@@ -867,21 +867,21 @@ MtMoon_B2F_Movement_RocketSpeak::
 	step_end
 
 MtMoon_B2F_Movement_JessieLookToTeamThenPlayer::
-	face_right
+	walk_in_place_faster_right
 	delay_8
-	face_up
+	walk_in_place_faster_up
 	step_end
 
 MtMoon_B2F_Movement_JamesLookToTeamThenPlayer::
-	face_left
+	walk_in_place_faster_left
 	delay_8
-	face_up
+	walk_in_place_faster_up
 	step_end
 
 MtMoon_B2F_Movement_MeowthLookToTeamThenPlayer::
-	face_right
+	walk_in_place_faster_right
 	delay_8
-	face_up
+	walk_in_place_faster_up
 	step_end
 
 MtMoon_B2F_Movement_JessieBlastOff::
