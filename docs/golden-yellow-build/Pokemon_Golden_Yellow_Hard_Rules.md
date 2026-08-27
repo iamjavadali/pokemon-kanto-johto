@@ -5,7 +5,7 @@
 **Target platform:** Game Boy Advance  
 **Relationship to master document:** Companion authority to `Pokemon_Golden_Yellow_Project_Master.md`  
 **Purpose:** Preserve non-negotiable development rules, implementation discipline, source-game translation principles, Git policy, validation policy, and lessons learned during development so they are not lost as the project grows.  
-**Last consolidated:** August 17, 2026
+**Last consolidated:** August 26, 2026
 
 ---
 
@@ -13,11 +13,16 @@
 
 This document exists to preserve the hard rules and implementation principles that must remain stable throughout Pokémon Golden Yellow development.
 
-The project uses three distinct sources of truth:
+The project uses several sources with deliberately different responsibilities:
 
 1. **Project Master Document** — authoritative for game scope, canon, approved systems, architecture, and long-term direction.
-2. **This Hard Rules Document** — authoritative for development discipline, Git policy, implementation constraints, source-translation rules, validation terminology, and hard-earned engineering principles.
-3. **Live GitHub Repository** — authoritative for current implementation state.
+2. **This Hard Rules Document** — authoritative for development discipline, Git policy, implementation constraints, source-translation rules, validation terminology, and durable workflow rules.
+3. **Yellow Unique Specification** — authoritative for Yellow-specific Kanto narrative requirements and locked Yellow integration requirements.
+4. **FireRed Retention Specification** — authoritative for compatible FireRed/Gen III systems and presentation that Golden Yellow must retain or adapt.
+5. **Current Project State** — broad operational snapshot of where development stands and the next active boundary.
+6. **Acceptance Log** — canonical cumulative ledger of gameplay progress explicitly accepted by the user.
+7. **Dedicated Acceptance Records** — detailed historical records for complex accepted milestones when warranted.
+8. **Live GitHub Repository** — authoritative for current implementation state.
 
 These sources serve different purposes and must not be conflated.
 
@@ -834,6 +839,94 @@ Current commit hashes, workflow IDs, and ROM checksums belong in Git/build recor
 Do not silently promote an implementation choice into a project-wide hard rule.
 
 When a new durable principle emerges, it should be explicitly recognized before being added here.
+
+## DOC-006 — Every Explicit Acceptance Requires a Documentation Closeout Review
+
+Whenever the user explicitly accepts project-build progress — for example by reporting **PASS**, **FULL PASS**, **accepted**, or an equivalent final approval — the acceptance must be closed out in documentation before the project moves on as though that milestone were settled.
+
+The entire Golden Yellow project-document set MUST be reviewed at acceptance closeout, but each file must be updated according to its own role. Do **not** mechanically edit every file merely to change a date or repeat the same acceptance.
+
+### Acceptance Log — MUST update every acceptance
+
+`Pokemon_Golden_Yellow_Acceptance_Log.md` MUST be updated for every explicit acceptance.
+
+Record, as applicable:
+
+- acceptance date;
+- accepted milestone/feature scope;
+- source commit;
+- workflow/run and ROM provenance when useful;
+- explicit manual result;
+- important regression invariants;
+- link to a dedicated acceptance record when one exists.
+
+If a historical grouped acceptance does not map honestly to one final commit, state that rather than inventing a false single-SHA baseline.
+
+### Current Project State — MUST review; update only when broad state changes
+
+`Pokemon_Golden_Yellow_Current_Project_State.md` MUST be reviewed after every acceptance, but it should be edited only when the acceptance materially changes the broad operational snapshot, such as:
+
+- an active story area becomes broadly complete;
+- the next active development boundary moves;
+- a major foundation system is established or replaced;
+- a blocker is opened or closed in a way that materially affects development;
+- the campaign advances into a new phase.
+
+Do not copy commit hashes, workflow IDs, ROM checksums, detailed choreography, or fix-by-fix history into Current Project State merely because a feature was accepted. Current Project State must remain broad and durable.
+
+### Dedicated Acceptance Records — create or update only when warranted
+
+A dedicated acceptance record SHOULD be created or updated when an accepted milestone contains enough branching, choreography, graphics work, engine behavior, or regression-sensitive detail that the project would benefit from a deep historical record.
+
+If a dedicated acceptance record is created:
+
+- link it from the Acceptance Log;
+- add it to `docs/SUMMARY.md`;
+- keep it scoped to that milestone;
+- do not append unrelated future acceptances to it.
+
+An existing dedicated acceptance record should be changed only when its own accepted milestone needs clarification, regression notes, or an explicitly approved redesign.
+
+### Project Master — review, but routine acceptance does not update it
+
+`Pokemon_Golden_Yellow_Project_Master.md` MUST be reviewed for relevance at acceptance closeout but MUST NOT be changed merely because implementation progressed.
+
+Update it only when the accepted work also establishes or changes a project-level decision involving scope, canon, architecture, required systems, campaign-stage definitions, validation policy, or another master-level direction.
+
+### Hard Rules — review, but routine acceptance does not update it
+
+`Pokemon_Golden_Yellow_Hard_Rules.md` MUST be reviewed for lessons that should become durable governance, but routine acceptance history does not belong here.
+
+Update Hard Rules only when the accepted work establishes a durable, generalizable engineering/workflow constraint and that rule has been explicitly approved.
+
+### Yellow Unique Specification — review, update only for requirement changes
+
+`Pokemon_Golden_Yellow_Yellow_Unique_Specification.md` MUST be reviewed when an accepted milestone touches Yellow-specific content.
+
+Update it only if the accepted work changes, corrects, or materially clarifies a Yellow-specific narrative requirement or locked Yellow integration rule. Do not convert this specification into an implementation-status tracker.
+
+### FireRed Retention Specification — review, update only for retention-policy changes
+
+`Pokemon_Golden_Yellow_FireRed_Retention_Specification.md` MUST be reviewed when accepted work affects retained FireRed/Gen III functionality.
+
+Update it only if the accepted work changes, corrects, or materially clarifies a retained feature, modernization requirement, or Yellow/FireRed integration policy. Do not mark ordinary implementation progress here.
+
+### `docs/SUMMARY.md` — update when the documentation set changes
+
+`docs/SUMMARY.md` MUST be updated whenever a project documentation file is created, renamed, moved, or deleted.
+
+Ordinary acceptance does not require a SUMMARY edit when no documentation path changes.
+
+### Acceptance closeout result
+
+At the end of the closeout, the project should be able to answer separately:
+
+- **What is required?** — Master / Hard Rules / Yellow Unique / FireRed Retention.
+- **Where are we now?** — Current Project State.
+- **What has the user actually accepted?** — Acceptance Log and any linked detailed records.
+- **What is actually in code?** — live `prototype/v0.1` repository.
+
+No single document should be forced to answer all four questions.
 
 ---
 

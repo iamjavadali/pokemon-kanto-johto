@@ -7,7 +7,7 @@
 **Current scope:** Full Pokémon Yellow Kanto campaign → FireRed Sevii bridge → three-year transition → Pokémon Crystal Johto campaign → later Kanto return → Mt. Silver/endgame  
 **Pokédex target:** #001–#251, fully obtainable in a single ROM/save file  
 **Status:** Active development specification  
-**Last consolidated:** August 17, 2026
+**Last consolidated:** August 26, 2026
 
 ---
 
@@ -1809,17 +1809,21 @@ Examples that should normally **not** trigger a master-document update:
 
 Those facts belong in Git history, PRs, issues, milestone notes, validation reports, build records, or live repository inspection.
 
-Every future planning or implementation pass must therefore use two distinct sources of truth:
+Every future planning or implementation pass must use the project documentation and repository according to their distinct roles:
 
-1. **This master document** for project requirements, rules, architecture, canon, and approved direction.
-2. **The live GitHub repository and current files** for present implementation state.
+1. **Project Master, Hard Rules, Yellow Unique Specification, and FireRed Retention Specification** define approved requirements, governance, canon, and integration policy.
+2. **Current Project State** identifies the broad operational development boundary without duplicating fix-by-fix acceptance evidence.
+3. **Acceptance Log and linked detailed acceptance records** establish what gameplay progress the user has explicitly accepted and what regression baseline must be preserved.
+4. **The live GitHub repository and directly inspected current files** remain authoritative for what is actually implemented now.
 
-If live code and this specification appear to conflict:
+If live code and the approved requirement documents appear to conflict:
 
 - inspect the relevant code and recent decision history;
-- determine whether the code is incomplete, experimental, or reflects an approved project-level change;
+- determine whether the code is incomplete, experimental, regressed, or reflects an approved project-level change;
 - do not silently redefine the project from implementation drift;
-- update this master document only when a new major decision or rule has actually been approved.
+- update this master document only when a new major project-level decision has actually been approved.
+
+Routine gameplay acceptance is closed out under Hard Rule `DOC-006`: acceptance evidence belongs in the Acceptance Log, while Current Project State changes only when the broad operational boundary changes. Routine acceptance does not by itself require a Master Document edit.
 
 The latest approved project-level decision remains authoritative for project direction. The latest verified live repository state remains authoritative for implementation state.
 

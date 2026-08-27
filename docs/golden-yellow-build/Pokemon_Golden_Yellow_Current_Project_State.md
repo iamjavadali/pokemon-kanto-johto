@@ -4,7 +4,6 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot reviewed through:** `83bf4dfc394a0ef3a7803bfbdaa464e6912f2922`  
 **Snapshot date:** August 26, 2026
 
 ---
@@ -28,9 +27,9 @@ The live `prototype/v0.1` repository remains authoritative for implementation st
 
 ---
 
-# 2. Documentation Authority
+# 2. Documentation Roles
 
-Project direction is governed by:
+The Golden Yellow documentation set has these distinct roles:
 
 1. `Pokemon_Golden_Yellow_Project_Master.md` — overall project architecture and campaign direction.
 2. `Pokemon_Golden_Yellow_Hard_Rules.md` — implementation rules and non-negotiable constraints.
@@ -286,6 +285,8 @@ Development can proceed to the Cerulean-era audit from the accepted post-Mt. Moo
 ---
 
 # 13. Maintenance Rule
+
+Acceptance closeout is governed by Hard Rule `DOC-006`.
 
 Update this document when the **broad project boundary changes**, for example:
 

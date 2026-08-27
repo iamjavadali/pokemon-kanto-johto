@@ -236,25 +236,9 @@ The implementation intentionally reuses the authoritative follower identity syst
 
 ---
 
-# 11. Next Acceptance Boundary
+# 11. Maintenance Rule
 
-The next major active development area is the Cerulean era after Mt. Moon.
-
-Expected acceptance units will likely include, as they are implemented and separately tested:
-
-- Cerulean Rival progression;
-- Nugget Bridge / Rocket recruiter integration where changes are required;
-- Damian's Charmander gift;
-- Bill story sequence and required Partner Pikachu reaction;
-- Melanie's Bulbasaur gift using canonical Partner happiness;
-- Misty / Cerulean Gym Yellow identity integration;
-- Cerulean-to-Vermilion progression handoff.
-
-These items are **not accepted merely because checkpoints or inherited FRLG scripts already exist**.
-
----
-
-# 12. Maintenance Rule
+This log is governed by Hard Rule `DOC-006`.
 
 When a new gameplay result is explicitly accepted:
 
@@ -262,6 +246,8 @@ When a new gameplay result is explicitly accepted:
 2. include commit/workflow evidence when available and useful;
 3. record the tested scope and important regression invariants;
 4. create or update a dedicated acceptance record only if the milestone needs detailed historical preservation;
-5. update Current Project State only if the broad development boundary has materially changed.
+5. review Current Project State and update it only if the broad operational boundary materially changed.
 
-This keeps acceptance evidence durable without turning Current Project State into a fix-by-fix history document.
+The Acceptance Log must not carry a mutable "next work" or "next acceptance boundary" section. Current and future development boundaries belong in `Pokemon_Golden_Yellow_Current_Project_State.md`.
+
+This keeps acceptance evidence durable without turning the ledger into a second project-status document.
