@@ -115,7 +115,7 @@ static const struct SpriteTemplate sGyCharmanderMonitorTemplate =
     .callback = SpriteCallbackDummy,
 };
 
-static u8 sGyCharmanderHealTaskId = TASK_NONE;
+static EWRAM_DATA bool8 sGyCharmanderHealActive = FALSE;
 
 #define tState data[0]
 #define tTimer data[1]
@@ -144,7 +144,7 @@ static void Task_GoldenYellowCharmanderSingleHeal(u8 taskId)
                 FieldEffectFreeGraphicsResources(&gSprites[task->tBallSprite]);
             if (task->tMonitorSprite < MAX_SPRITES)
                 FieldEffectFreeGraphicsResources(&gSprites[task->tMonitorSprite]);
-            sGyCharmanderHealTaskId = TASK_NONE;
+            sGyCharmanderHealActive = FALSE;
             DestroyTask(taskId);
             return;
         }
@@ -170,7 +170,7 @@ static void Task_GoldenYellowCharmanderSingleHeal(u8 taskId)
         {
             FieldEffectFreeGraphicsResources(&gSprites[task->tBallSprite]);
             FieldEffectFreeGraphicsResources(&gSprites[task->tMonitorSprite]);
-            sGyCharmanderHealTaskId = TASK_NONE;
+            sGyCharmanderHealActive = FALSE;
             DestroyTask(taskId);
         }
         break;
@@ -195,13 +195,16 @@ void GoldenYellowCharmander_EnsurePartnerVisible(void)
 void GoldenYellowCharmander_StartSingleHeal(void)
 {
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
-    if (sGyCharmanderHealTaskId == TASK_NONE)
-        sGyCharmanderHealTaskId = CreateTask(Task_GoldenYellowCharmanderSingleHeal, 0xFF);
+    if (!sGyCharmanderHealActive)
+    {
+        sGyCharmanderHealActive = TRUE;
+        CreateTask(Task_GoldenYellowCharmanderSingleHeal, 0xFF);
+    }
 }
 
 bool8 GoldenYellowCharmander_WaitSingleHeal(void)
 {
-    return sGyCharmanderHealTaskId == TASK_NONE;
+    return !sGyCharmanderHealActive;
 }
 
 #undef tState
