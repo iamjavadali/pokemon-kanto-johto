@@ -1,6 +1,6 @@
 @ Golden Yellow Cerulean rival wrapper.
 @ Preserve FRLG movement/geometry but route the battle through Yellow's Eevee
-@ state, restore Yellow dialogue, and suppress FireRed's Fame Checker addition.
+@ state, restore Yellow dialogue, and retain FireRed's Fame Checker handoff afterward.
 .include "data/scripts/yellow_rival_dispatch_begin.inc"
 
 .purgem msgbox
@@ -13,16 +13,8 @@
             loadword 0, CeruleanCity_Text_YellowRivalPostBattle
             callstd \type
         .else
-            .ifc \text,CeruleanCity_Text_OhRightLittlePresentAsFavor
-                @ FireRed-only Fame Checker dialogue: intentionally omitted.
-            .else
-                .ifc \text,CeruleanCity_Text_ExplainFameCheckerSmellYa
-                    @ FireRed-only Fame Checker dialogue: intentionally omitted.
-                .else
-                    loadword 0, \text
-                    callstd \type
-                .endif
-            .endif
+            loadword 0, \text
+            callstd \type
         .endif
     .endif
 .endm
@@ -33,38 +25,6 @@
         trainerbattle TRAINER_BATTLE_SINGLE_NO_INTRO_TEXT, LOCALID_NONE, \trainer, NULL, CeruleanCity_Text_YellowRivalDefeat, NULL, LOCALID_NONE, TRAINER_NONE, NULL, NULL, NULL, CeruleanCity_Text_YellowRivalVictory, NULL, FALSE, TRUE, FALSE, FALSE
     .else
         trainerbattle TRAINER_BATTLE_SINGLE_NO_INTRO_TEXT, LOCALID_NONE, \trainer, NULL, \lose_text, NULL, LOCALID_NONE, TRAINER_NONE, NULL, NULL, NULL, NULL, NULL, FALSE, TRUE, FALSE, FALSE
-    .endif
-.endm
-
-.purgem famechecker
-.macro famechecker person:req, index:req, function=SetFlavorTextFlagFromSpecialVars
-    .if (\person == FAMECHECKER_BILL) && (\index == 0)
-        @ FireRed-only rival reward side effect: intentionally omitted.
-    .else
-        setvar VAR_0x8004, \person
-        setvar VAR_0x8005, \index
-        special \function
-    .endif
-.endm
-
-.purgem setflag
-.macro setflag flag:req
-    .if \flag == FLAG_GOT_FAME_CHECKER
-        @ Do not mark the FireRed-only rival reward as obtained.
-    .else
-        .byte SCR_OP_SETFLAG
-        .2byte \flag
-    .endif
-.endm
-
-.purgem giveitem
-.macro giveitem item:req, amount=1
-    .if \item == ITEM_FAME_CHECKER
-        @ Do not give the FireRed-only Fame Checker during Yellow's Cerulean scene.
-    .else
-        setorcopyvar VAR_0x8000, \item
-        setorcopyvar VAR_0x8001, \amount
-        callstd STD_OBTAIN_ITEM
     .endif
 .endm
 
@@ -114,26 +74,6 @@ CeruleanCity_Text_YellowRivalPostBattle::
 .macro msgbox text:req, type=MSGBOX_DEFAULT
     loadword 0, \text
     callstd \type
-.endm
-
-.purgem famechecker
-.macro famechecker person:req, index:req, function=SetFlavorTextFlagFromSpecialVars
-    setvar VAR_0x8004, \person
-    setvar VAR_0x8005, \index
-    special \function
-.endm
-
-.purgem setflag
-.macro setflag flag:req
-    .byte SCR_OP_SETFLAG
-    .2byte \flag
-.endm
-
-.purgem giveitem
-.macro giveitem item:req, amount=1
-    setorcopyvar VAR_0x8000, \item
-    setorcopyvar VAR_0x8001, \amount
-    callstd STD_OBTAIN_ITEM
 .endm
 
 .include "data/scripts/yellow_rival_dispatch_end.inc"
