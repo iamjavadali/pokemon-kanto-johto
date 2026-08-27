@@ -218,12 +218,12 @@ static bool8 NpcTakeStep(struct Sprite *);
 static void CopyObjectGraphicsInfoToSpriteTemplate_WithMovementType(u16 graphicsId, u16 movementType, struct SpriteTemplate *spriteTemplate, const struct SubspriteTable **subspriteTables);
 
 static enum Species GetUnownSpecies(struct Pokemon *mon);
-static struct Pokemon *GetPartnerAwareFollowingMon(void);
+struct Pokemon *GetPartnerAwareFollowingMon(void);
 
 static void StartSlowRunningAnim(struct ObjectEvent *objectEvent, struct Sprite *sprite, enum Direction direction);
 
 
-static struct Pokemon *GetPartnerAwareFollowingMon(void)
+struct Pokemon *GetPartnerAwareFollowingMon(void)
 {
     u32 i;
     struct Pokemon *partner = NULL;
