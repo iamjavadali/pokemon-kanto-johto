@@ -1,0 +1,267 @@
+# Pokémon Golden Yellow — Acceptance Log
+
+**Document type:** Cumulative manual-acceptance ledger  
+**Project:** Pokémon Golden Yellow  
+**Repository:** `iamjavadali/pokemon-kanto-johto`  
+**Canonical working branch:** `prototype/v0.1`  
+**Log established:** August 26, 2026
+
+---
+
+# 1. Purpose
+
+This document is the canonical cumulative record of Pokémon Golden Yellow gameplay milestones that have been explicitly validated and accepted.
+
+Its job is different from `Pokemon_Golden_Yellow_Current_Project_State.md`.
+
+- **Current Project State** describes where development broadly stands now.
+- **Acceptance Log** records what has actually passed user gameplay validation.
+- **Dedicated acceptance records** preserve deep implementation/choreography history for complex milestones when needed.
+
+This log should be updated whenever the user explicitly reports a tested feature or scene as a pass, full pass, accepted, or equivalent final approval.
+
+---
+
+# 2. Acceptance Standard
+
+A milestone is marked **ACCEPTED** only when the relevant implementation has been tested sufficiently for its intended acceptance scope and the user explicitly approves the result.
+
+Build success alone is not acceptance.
+
+Typical evidence may include:
+
+- source commit;
+- successful GitHub Actions workflow run;
+- playable ROM artifact;
+- targeted manual gameplay test;
+- explicit user PASS / FULL PASS / acceptance statement.
+
+Not every acceptance requires a dedicated long-form record.
+
+Create a separate detailed acceptance record only when the milestone contains enough branching, choreography, graphics work, engine behavior, or regression-sensitive implementation detail to justify one.
+
+---
+
+# 3. Regression Rule
+
+An accepted milestone becomes part of the project's regression baseline.
+
+Accepted behavior should not be intentionally changed unless:
+
+1. a regression or hidden defect is discovered;
+2. a later required system exposes a genuine integration conflict; or
+3. the user explicitly approves a redesign.
+
+A later branch HEAD does not invalidate an earlier acceptance merely because additional commits have been added afterward.
+
+---
+
+# 4. Acceptance Index
+
+| Milestone | Status | Detailed record |
+|---|---|---|
+| Stage 1A Yellow opening / Partner foundation | ACCEPTED | Consolidated historical acceptance |
+| Viridian Teachy TV integration | ACCEPTED | This log |
+| Pewter / follower-safe early progression | ACCEPTED | This log |
+| Pewter Jigglypuff Partner reaction | ACCEPTED | This log |
+| Route 3 / Mt. Moon fossil progression | ACCEPTED | `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md` |
+| Jessie & James encounter #1 | ACCEPTED | `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md` |
+| Battle follower send-out identity correction | ACCEPTED | This log |
+
+---
+
+# 5. Historical Acceptance — Stage 1A Yellow Opening / Partner Foundation
+
+**Status:** ACCEPTED  
+**Acceptance type:** Consolidated historical milestone
+
+The accepted Stage 1A baseline established the Yellow opening and core long-term systems required to build the rest of the campaign.
+
+Accepted scope includes, at a broad level:
+
+- Trainer Watch acquisition/setup;
+- Yellow Pallet departure sequence;
+- Professor Oak's dedicated Pikachu capture;
+- Oak/player transition to the Lab;
+- Rival taking Eevee;
+- Oak giving the player the captured Pikachu;
+- first Rival battle;
+- Rival exit;
+- Partner Pikachu emergence after the battle;
+- persistent Partner follower activation;
+- canonical Partner identity foundation;
+- Partner evolution/storage/daycare/trade restrictions;
+- Yellow Rival Eevee branching architecture;
+- campaign-phase foundation;
+- Golden Yellow checkpoint/debug foundation.
+
+This acceptance predates creation of the cumulative Acceptance Log, so the log records it as a consolidated historical baseline rather than attempting to retrofit one artificial final commit onto the entire multi-commit stage.
+
+Future regressions should be evaluated against the accepted behavior, not against an assumed single historical SHA.
+
+---
+
+# 6. Acceptance — Viridian Teachy TV Integration
+
+**Status:** ACCEPTED  
+**Accepted implementation:** Viridian Old Man / Teachy TV flow  
+**Key source commit:** `ead7f4bfa3b6369206870dd9196576637175236f`  
+**Checkpoint persistence correction:** `cd6e54d8c9c4e3d15237d76d9675779550fcb3dc`
+
+Accepted behavior:
+
+- the Viridian Old Man does not repeat a catching demonstration already established by Oak's opening;
+- the forced interaction resolves correctly;
+- the Old Man gives concise advice;
+- Teachy TV is granted;
+- progression continues normally;
+- later reconstructed checkpoints preserve the required Teachy TV state.
+
+Regression invariant:
+
+> Golden Yellow must not restore the redundant mandatory Old Man catching battle unless explicitly redesigned.
+
+---
+
+# 7. Acceptance — Pewter / Follower-Safe Early Progression
+
+**Status:** ACCEPTED
+
+Accepted broad scope:
+
+- Pewter pre-Brock Guide redirect behavior;
+- Partner Pikachu remains visible and follows through the accepted scripted escort;
+- retained Brock/Pewter Gym baseline under the approved trainer-parity policy;
+- post-Brock Running Shoes Aide sequence;
+- Partner-safe scripted movement during the Running Shoes scene;
+- reusable follower-safe scripted movement foundation for scenes that explicitly enable it.
+
+Regression invariant:
+
+> Accepted scripted scenes must not freeze, duplicate, incorrectly recall, or strand the active Pokémon follower.
+
+This grouped acceptance predates the cumulative log and represents the validated Pewter progression baseline rather than one single source commit.
+
+---
+
+# 8. Acceptance — Pewter Pokémon Center Jigglypuff Partner Reaction
+
+**Status:** ACCEPTED  
+**Final accepted source commit:** `dd60b29aea3ecf3b06fb25da71e6a0002bd0d0a6`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `32089983184`  
+**Manual result:** PASS
+
+Accepted narrative result:
+
+- voluntary Jigglypuff interaction triggers the Yellow Partner reaction;
+- only the canonical Partner Pikachu qualifies;
+- Jigglypuff singing completes;
+- Partner Pikachu visibly becomes sleepy;
+- the sleep-emote presentation appears correctly;
+- the player turns toward Partner Pikachu;
+- the sleep-realization dialogue is shown;
+- Partner Pikachu wakes/reacts and normal following resumes;
+- no battle sleep status is applied.
+
+Regression invariants:
+
+- ordinary `SPECIES_PIKACHU` must not satisfy the Partner gate;
+- the Pokémon follower object must be used rather than the NPC/human follower object;
+- the accepted sleep/wake reaction must restore normal follower behavior afterward.
+
+---
+
+# 9. Acceptance — Route 3 / Mt. Moon Fossil Progression and Jessie & James Encounter #1
+
+**Status:** ACCEPTED  
+**Accepted source commit:** `d70eb1d8905e910076579959ab80c1cf25cae321`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33009718354`  
+**Manual result:** FULL PASS  
+**Detailed record:** `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md`
+
+Accepted milestone scope includes:
+
+- Miguel fossil battle and both fossil-selection branches;
+- Rocket Meowth theft of the unchosen fossil;
+- Miguel chase/help sequence;
+- Jessie, James, and Rocket Meowth overworld staging;
+- Jessie/James encounter #1 narrative and battle;
+- Partner Pikachu integration through the scene;
+- post-battle fossil drop;
+- accepted Team Rocket blast-off choreography;
+- Miguel recovery/permission sequence;
+- manual recovered-fossil pickup;
+- dropped-fossil persistence if the player leaves before pickup.
+
+The dedicated Mt. Moon acceptance record is authoritative for the detailed choreography and protected implementation decisions of this milestone.
+
+Regression invariants include:
+
+- Jessie and James remain on the accepted stable 32x32 overworld object graphics path;
+- the accepted scene must not regress to placeholder sprites or previously rejected unsafe blast-off mechanisms;
+- canonical Partner logic must continue to distinguish `SPECIES_PIKACHU_STARTER` from ordinary Pikachu.
+
+---
+
+# 10. Acceptance — Battle Follower Send-Out Identity Correction
+
+**Status:** ACCEPTED  
+**Source commit:** `83bf4dfc394a0ef3a7803bfbdaa464e6912f2922`  
+**Workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33031832032`  
+**Manual result:** PASS
+
+## Scope
+
+The battle-opening follower slide-in decision now compares the active battler against the actual Pokémon resolved by the project's existing Partner-aware follower Pokémon resolver.
+
+The implementation intentionally reuses the authoritative follower identity system rather than adding a species-based shortcut or a second follower-identification mechanism.
+
+## Accepted behavior
+
+- canonical Partner Pikachu lead + visible Partner follower → follower-style slide-in / no Poké Ball throw;
+- another lead Pokémon + visible Partner follower → normal Poké Ball send-out;
+- ordinary Pikachu lead + visible canonical Partner follower → normal Poké Ball send-out;
+- no visible follower → normal Poké Ball send-out;
+- existing excluded battle types retain their prior handling.
+
+## Regression invariants
+
+- battle controller logic must compare actual `struct Pokemon *` identity rather than merely species or first-live party position;
+- ordinary Pikachu must never be treated as canonical Partner Pikachu;
+- the existing special-battle exclusions remain intact;
+- later follower-selection architecture should continue to flow through the same authoritative follower Pokémon resolver where possible.
+
+---
+
+# 11. Next Acceptance Boundary
+
+The next major active development area is the Cerulean era after Mt. Moon.
+
+Expected acceptance units will likely include, as they are implemented and separately tested:
+
+- Cerulean Rival progression;
+- Nugget Bridge / Rocket recruiter integration where changes are required;
+- Damian's Charmander gift;
+- Bill story sequence and required Partner Pikachu reaction;
+- Melanie's Bulbasaur gift using canonical Partner happiness;
+- Misty / Cerulean Gym Yellow identity integration;
+- Cerulean-to-Vermilion progression handoff.
+
+These items are **not accepted merely because checkpoints or inherited FRLG scripts already exist**.
+
+---
+
+# 12. Maintenance Rule
+
+When a new gameplay result is explicitly accepted:
+
+1. append or update the relevant entry in this Acceptance Log;
+2. include commit/workflow evidence when available and useful;
+3. record the tested scope and important regression invariants;
+4. create or update a dedicated acceptance record only if the milestone needs detailed historical preservation;
+5. update Current Project State only if the broad development boundary has materially changed.
+
+This keeps acceptance evidence durable without turning Current Project State into a fix-by-fix history document.

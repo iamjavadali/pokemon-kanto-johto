@@ -27,6 +27,7 @@
     - [Project Master](golden-yellow-build/Pokemon_Golden_Yellow_Project_Master.md)
     - [Hard Rules](golden-yellow-build/Pokemon_Golden_Yellow_Hard_Rules.md)
     - [Current Project State](golden-yellow-build/Pokemon_Golden_Yellow_Current_Project_State.md)
+    - [Acceptance Log](golden-yellow-build/Pokemon_Golden_Yellow_Acceptance_Log.md)
     - [Yellow Unique Specification](golden-yellow-build/Pokemon_Golden_Yellow_Yellow_Unique_Specification.md)
     - [FireRed Retention Specification](golden-yellow-build/Pokemon_Golden_Yellow_FireRed_Retention_Specification.md)
     - [Mt. Moon Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md)

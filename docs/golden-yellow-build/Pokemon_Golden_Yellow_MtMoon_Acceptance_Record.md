@@ -1,6 +1,6 @@
 # Pokémon Golden Yellow — Mt. Moon Acceptance Record
 
-**Document type:** Accepted implementation record  
+**Document type:** Detailed milestone acceptance record  
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Branch:** `prototype/v0.1`  
@@ -15,9 +15,21 @@
 
 ---
 
-# 1. Scope
+# 1. Purpose
 
-This record locks the accepted implementation state for the Route 3 / Mt. Moon fossil progression and the first Yellow-specific Jessie, James, and Meowth encounter.
+This record preserves the detailed accepted implementation state for the Route 3 / Mt. Moon fossil progression and the first Yellow-specific Jessie, James, and Meowth encounter.
+
+It is a **deep milestone record**, not the project's cumulative acceptance ledger.
+
+Project-wide acceptance history is maintained in:
+
+`Pokemon_Golden_Yellow_Acceptance_Log.md`
+
+This document should only be updated when the accepted Mt. Moon milestone itself needs clarification, regression notes, or an explicitly approved redesign.
+
+---
+
+# 2. Accepted Scope
 
 The accepted scene covers:
 
@@ -42,9 +54,9 @@ The accepted scene covers:
 
 ---
 
-# 2. Accepted Gameplay Behavior
+# 3. Accepted Gameplay Behavior
 
-The user manually tested the accepted build and reported that the scene is now a full pass.
+The user manually tested the accepted build and reported that the scene is a full pass.
 
 The final accepted flow is:
 
@@ -66,15 +78,15 @@ The final accepted flow is:
 
 ---
 
-# 3. Protected Decisions From This Pass
+# 4. Protected Decisions From This Pass
 
-The following decisions are now protected unless a regression appears or the user explicitly requests a redesign:
+The following decisions are part of the accepted Mt. Moon regression baseline unless a regression appears or the user explicitly requests a redesign:
 
 - Keep the stable 32x32 overworld object graphics path for Jessie and James.
 - Do not revert Jessie/James to placeholder doll sprites.
 - Do not reintroduce the failed 16x32 OAM/subsprite pipeline for Jessie and James.
 - Do not reintroduce unsafe `spin_up`, `fly_up`, Teleport, or full Fly field-effect behavior for the Mt. Moon blast-off.
-- The accepted blast-off is script-level choreography, not a custom field effect.
+- The accepted blast-off remains script-level choreography, not a custom field effect.
 - Dropped fossil pickup remains manual.
 - The repeated sign-style “TEAM ROCKET dropped the stolen fossil” message remains removed from pickup.
 - Partner Pikachu must remain out and follower-safe through the cutscene.
@@ -82,7 +94,7 @@ The following decisions are now protected unless a regression appears or the use
 
 ---
 
-# 4. Related Implementation Surfaces
+# 5. Related Implementation Surfaces
 
 Primary map/script surface:
 
@@ -98,42 +110,34 @@ Do not modify the graphics/object-event surfaces for future Mt. Moon choreograph
 
 ---
 
-# 5. Status Update for Other Golden Yellow Docs
+# 6. Project-State Relationship
 
-This acceptance record supersedes older statements in the current-state documentation that described Mt. Moon or the Mt. Moon Jessie/James checkpoint as scaffolding only.
+This record establishes that the following broad project areas are complete for the accepted Mt. Moon milestone:
 
-The current project state should now be interpreted as:
+- Route 3 / Mt. Moon fossil progression;
+- Jessie & James encounter #1.
 
-- Stage 1A Yellow opening/foundation: COMPLETE / ACCEPTED
-- Viridian Teachy TV: COMPLETE / ACCEPTED
-- Pewter Guide / Running Shoes follower-safe scenes: COMPLETE / ACCEPTED
-- Pewter Jigglypuff Partner reaction: COMPLETE / ACCEPTED
-- Mt. Moon fossil theft / Jessie & James encounter #1: COMPLETE / ACCEPTED
+`Pokemon_Golden_Yellow_Current_Project_State.md` should only summarize those areas as implemented/accepted and should not duplicate this record's choreography, hashes, or detailed regression notes.
 
-The next major active development area is the Cerulean-era progression after Mt. Moon:
-
-- Route 4 arrival;
-- Cerulean Rival / Nugget Bridge flow;
-- Bill sequence;
-- next required Partner Pikachu reaction.
+`Pokemon_Golden_Yellow_Acceptance_Log.md` carries the cumulative project-wide acceptance entry and links back to this detailed record.
 
 ---
 
-# 6. Pending Yellow Jessie/James Work
+# 7. Remaining Jessie & James Work
 
-The accepted Mt. Moon implementation covers only Jessie/James encounter #1.
+This accepted implementation covers only Jessie/James encounter #1.
 
 The following Yellow Jessie/James encounters remain required later work:
 
-1. Rocket Hideout B4F
-2. Pokémon Tower 7F
-3. Silph Co. 11F
+1. Rocket Hideout B4F;
+2. Pokémon Tower 7F;
+3. Silph Co. 11F.
 
-Their checkpoint existence does not imply implementation or acceptance.
+Checkpoint existence does not imply implementation or acceptance.
 
 ---
 
-# 7. Validation Rule
+# 8. Validation Rule
 
 Build success alone did not make this scene accepted.
 
@@ -141,5 +145,7 @@ This scene is accepted because:
 
 - the build passed;
 - the ROM artifact was pulled and tested;
-- the user manually validated both fossil branches and the final blast-off pass;
+- both fossil branches and the final blast-off path were manually validated;
 - the user explicitly reported: `This is now a full pass.`
+
+The accepted source commit remains the historical milestone reference even as later development commits advance the branch.
