@@ -29,6 +29,7 @@
     - [Current Project State](golden-yellow-build/Pokemon_Golden_Yellow_Current_Project_State.md)
     - [Yellow Unique Specification](golden-yellow-build/Pokemon_Golden_Yellow_Yellow_Unique_Specification.md)
     - [FireRed Retention Specification](golden-yellow-build/Pokemon_Golden_Yellow_FireRed_Retention_Specification.md)
+    - [Mt. Moon Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md)
 - [D1 — Early Kanto Story Checkpoints](development/D1_Early_Kanto_Checkpoints_Plan.md)
 - [Tutorials]()
   - [What are AI Flags?](tutorials/ai_flags.md)
