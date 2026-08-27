@@ -1,5 +1,211 @@
+@ Golden Yellow Route 24 Charmander rescue states, stored in VAR_0x40FC.
+@ 0 = WAITING_WEAK, 1 = TREATMENT_PENDING, 2 = HEALED_RETURNED,
+@ 3 = DAMIAN_PRESENT, 4 = ADOPTED.
+@ FLAG_0x0BB hides the Route 24 Charmander, FLAG_0x0BC hides Damian.
+
 Route24_Frlg_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, Route24_OnTransition
 	.byte 0
+
+Route24_OnTransition::
+	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StateWaitingWeak
+	call_if_eq VAR_0x40FC, 1, Route24_EventScript_StateTreatmentPending
+	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StateHealedReturned
+	call_if_eq VAR_0x40FC, 3, Route24_EventScript_StateDamianPresent
+	call_if_eq VAR_0x40FC, 4, Route24_EventScript_StateAdopted
+	end
+
+Route24_EventScript_StateWaitingWeak::
+	clearflag FLAG_0x0BB
+	setflag FLAG_0x0BC
+	return
+
+Route24_EventScript_StateTreatmentPending::
+	setflag FLAG_0x0BB
+	setflag FLAG_0x0BC
+	return
+
+Route24_EventScript_StateHealedReturned::
+	clearflag FLAG_0x0BB
+	setflag FLAG_0x0BC
+	return
+
+Route24_EventScript_StateDamianPresent::
+	clearflag FLAG_0x0BB
+	clearflag FLAG_0x0BC
+	addobject LOCALID_ROUTE24_DAMIAN
+	setobjectxy LOCALID_ROUTE24_DAMIAN, 6, 5
+	return
+
+Route24_EventScript_StateAdopted::
+	setflag FLAG_0x0BB
+	clearflag FLAG_0x0BC
+	addobject LOCALID_ROUTE24_DAMIAN
+	setobjectxy LOCALID_ROUTE24_DAMIAN, 6, 5
+	return
+
+Route24_EventScript_YellowCharmander::
+	lockall
+	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_CharmanderRescuePrompt
+	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_CharmanderReturnScene
+	goto_if_eq VAR_0x40FC, 3, Route24_EventScript_CharmanderAdoptionPrompt
+	releaseall
+	end
+
+Route24_EventScript_CharmanderDiscovery::
+	lockall
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement LOCALID_PLAYER
+	goto Route24_EventScript_CharmanderRescuePrompt
+	end
+
+Route24_EventScript_CharmanderDiscoveryRight::
+	lockall
+	applymovement LOCALID_PLAYER, Route24_Movement_PlayerShiftLeft
+	waitmovement LOCALID_PLAYER
+	goto Route24_EventScript_CharmanderRescuePrompt
+	end
+
+Route24_EventScript_CharmanderRescuePrompt::
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_WalkInPlaceFasterDown
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox Route24_Text_CharmanderLooksWeak
+	msgbox Route24_Text_TakeCharmanderToCenter, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderRescueDeclined
+	closemessage
+	setvar VAR_0x40FC, 1
+	setflag FLAG_0x0BB
+	removeobject LOCALID_ROUTE24_YELLOW_CHARMANDER
+	warp MAP_CERULEAN_CITY_POKEMON_CENTER_1F, 7, 5
+	waitstate
+	end
+
+Route24_EventScript_CharmanderRescueDeclined::
+	msgbox Route24_Text_CharmanderStillNeedsHelp
+	releaseall
+	end
+
+Route24_EventScript_CharmanderReturn::
+	lockall
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement LOCALID_PLAYER
+	goto Route24_EventScript_CharmanderReturnScene
+	end
+
+Route24_EventScript_CharmanderReturnRight::
+	lockall
+	applymovement LOCALID_PLAYER, Route24_Movement_PlayerShiftLeft
+	waitmovement LOCALID_PLAYER
+	goto Route24_EventScript_CharmanderReturnScene
+	end
+
+Route24_EventScript_CharmanderReturnScene::
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_WalkInPlaceFasterDown
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox Route24_Text_CharmanderLooksHealthy
+	clearflag FLAG_0x0BC
+	addobject LOCALID_ROUTE24_DAMIAN
+	setobjectxy LOCALID_ROUTE24_DAMIAN, 4, 5
+	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnter
+	waitmovement LOCALID_ROUTE24_DAMIAN
+	setvar VAR_0x40FC, 3
+	msgbox Route24_Text_DamianConfession
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderChoosesPlayer
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox Route24_Text_CharmanderChoosesPlayer
+	goto Route24_EventScript_CharmanderAdoptionPrompt
+	end
+
+Route24_EventScript_Damian::
+	lockall
+	faceplayer
+	goto_if_eq VAR_0x40FC, 4, Route24_EventScript_DamianPostAdoption
+	goto Route24_EventScript_CharmanderAdoptionPrompt
+	end
+
+Route24_EventScript_CharmanderAdoptionPrompt::
+	msgbox Route24_Text_TakeCharmanderWithYou, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderAdoptionDeclined
+	setvar VAR_TEMP_1, SPECIES_CHARMANDER
+	givemon SPECIES_CHARMANDER, 10
+	goto_if_eq VAR_RESULT, 0, Route24_EventScript_ReceiveCharmanderParty
+	goto_if_eq VAR_RESULT, 1, Route24_EventScript_ReceiveCharmanderPC
+	goto_if_eq VAR_RESULT, 2, Common_EventScript_NoMoreRoomForPokemon
+	releaseall
+	end
+
+Route24_EventScript_ReceiveCharmanderParty::
+	textcolor NPC_TEXT_COLOR_NEUTRAL
+	playfanfare MUS_LEVEL_UP
+	message Route24_Text_ObtainedCharmander
+	waitmessage
+	waitfanfare
+	bufferspeciesname STR_VAR_1, SPECIES_CHARMANDER
+	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Route24_EventScript_FinishCharmanderAdoption
+	call Common_EventScript_GetGiftMonPartySlot
+	call Common_EventScript_NameReceivedPartyMon
+	goto Route24_EventScript_FinishCharmanderAdoption
+	end
+
+Route24_EventScript_ReceiveCharmanderPC::
+	textcolor NPC_TEXT_COLOR_NEUTRAL
+	playfanfare MUS_LEVEL_UP
+	message Route24_Text_ObtainedCharmander
+	waitmessage
+	waitfanfare
+	bufferspeciesname STR_VAR_1, SPECIES_CHARMANDER
+	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderTransferredToPC
+	call Common_EventScript_NameReceivedBoxMon
+	goto Route24_EventScript_CharmanderTransferredToPC
+	end
+
+Route24_EventScript_CharmanderTransferredToPC::
+	call Common_EventScript_TransferredToPC
+	goto Route24_EventScript_FinishCharmanderAdoption
+	end
+
+Route24_EventScript_FinishCharmanderAdoption::
+	setvar VAR_0x40FC, 4
+	setflag FLAG_0x0BB
+	removeobject LOCALID_ROUTE24_YELLOW_CHARMANDER
+	textcolor NPC_TEXT_COLOR_MALE
+	msgbox Route24_Text_DamianAfterAdoption
+	releaseall
+	end
+
+Route24_EventScript_CharmanderAdoptionDeclined::
+	msgbox Route24_Text_DamianTakeYourTime
+	releaseall
+	end
+
+Route24_EventScript_DamianPostAdoption::
+	msgbox Route24_Text_DamianPostAdoption
+	releaseall
+	end
+
+Route24_Movement_PlayerShiftLeft::
+	walk_left
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_DamianEnter::
+	walk_right
+	walk_right
+	walk_in_place_faster_down
+	step_end
+
+Route24_Movement_CharmanderChoosesPlayer::
+	jump_in_place_down
+	walk_in_place_faster_down
+	step_end
 
 Route24_EventScript_Rocket::
 	lock
@@ -96,6 +302,57 @@ Route24_Movement_WalkDown::
 	walk_down
 	step_end
 
+Route24_Text_CharmanderLooksWeak::
+	.string "CHARMANDER lets out a weak cry.\p"
+	.string "Its flame is low, and it can barely\n"
+	.string "stand.$"
+
+Route24_Text_TakeCharmanderToCenter::
+	.string "CHARMANDER needs help.\p"
+	.string "Take it to the POKéMON CENTER?$"
+
+Route24_Text_CharmanderStillNeedsHelp::
+	.string "CHARMANDER stays where it is.\p"
+	.string "It still looks like it needs help.$"
+
+Route24_Text_CharmanderLooksHealthy::
+	.string "CHARMANDER looks much better!\p"
+	.string "It happily recognizes you.$"
+
+Route24_Text_DamianConfession::
+	.string "DAMIAN: Wait!\p"
+	.string "That CHARMANDER was mine.\p"
+	.string "I left it here because I thought it\n"
+	.string "was too weak.\p"
+	.string "But you came back for it...\p"
+	.string "I was wrong to leave it.$"
+
+Route24_Text_CharmanderChoosesPlayer::
+	.string "CHARMANDER turns toward you.\p"
+	.string "It looks like it wants to stay\n"
+	.string "with you.$"
+
+Route24_Text_TakeCharmanderWithYou::
+	.string "DAMIAN: Will you take care of\n"
+	.string "CHARMANDER?$"
+
+Route24_Text_ObtainedCharmander::
+	.string "{PLAYER} received CHARMANDER!$"
+
+Route24_Text_DamianTakeYourTime::
+	.string "DAMIAN: I understand.\p"
+	.string "CHARMANDER will wait here until\n"
+	.string "you're ready.$"
+
+Route24_Text_DamianAfterAdoption::
+	.string "DAMIAN: Take good care of it.\p"
+	.string "CHARMANDER chose you.$"
+
+Route24_Text_DamianPostAdoption::
+	.string "DAMIAN: CHARMANDER is better off\n"
+	.string "with you.\p"
+	.string "Please take good care of it.$"
+
 Route24_Text_JustEarnedFabulousPrize::
 	.string "Congratulations! You beat our\n"
 	.string "five contest TRAINERS!\p"
@@ -181,7 +438,7 @@ Route24_Text_AliDefeat::
 	.string "How could I lose?$"
 
 Route24_Text_AliPostBattle::
-	.string "I did my best. I have no regrets!$"
+	.string "I did my best. I've no regrets!$"
 
 Route24_Text_CaleIntro::
 	.string "People call this the NUGGET\n"
