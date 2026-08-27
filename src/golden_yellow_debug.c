@@ -19,6 +19,7 @@
 #include "constants/species.h"
 #include "constants/vars.h"
 
+#define VAR_YELLOW_CHARMANDER_RESCUE_STATE 0x40FC
 #define VAR_YELLOW_RIVAL_EEVEE_STATE 0x40FD
 
 #define GY_BADGE_BOULDER (1 << 0)
@@ -224,10 +225,14 @@ static void GoldenYellowDebug_ApplyNewGameBaseline(void)
     VarSet(VAR_MAP_SCENE_PALLET_TOWN_OAK, 0);
     VarSet(VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 0);
     VarSet(VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 0);
+    VarSet(VAR_YELLOW_CHARMANDER_RESCUE_STATE, 0);
     VarSet(VAR_YELLOW_RIVAL_EEVEE_STATE, GY_DEBUG_RIVAL_UNSET);
     FlagSet(FLAG_HIDE_PALLET_WILD_PIKACHU);
     FlagSet(FLAG_HIDE_ROUTE1_YELLOW_OAK);
     FlagSet(FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU);
+    FlagClear(FLAG_0x0BB);
+    FlagSet(FLAG_0x0BC);
+    FlagSet(FLAG_0x0BD);
 }
 
 static void GoldenYellowDebug_ApplyThroughTrainerWatch(void)
@@ -340,6 +345,8 @@ static void GoldenYellowDebug_CompleteCeruleanRival(void)
 {
     VarSet(VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 1);
     FlagSet(FLAG_HIDE_CERULEAN_RIVAL);
+    FlagSet(FLAG_GOT_FAME_CHECKER);
+    AddBagItem(ITEM_FAME_CHECKER, 1);
 }
 
 static void GoldenYellowDebug_CompleteSSAnneRival(void)
@@ -476,7 +483,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         [GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET] = { MAP_ROUTE24, 10, 16 },
         [GY_DEBUG_CP_BEFORE_BILL] = { MAP_ROUTE25_SEA_COTTAGE, 7, 8 },
         [GY_DEBUG_CP_BULBASAUR_GIFT] = { MAP_CERULEAN_CITY, 23, 7 },
-        [GY_DEBUG_CP_CHARMANDER_GIFT] = { MAP_ROUTE24, 5, 20 },
+        [GY_DEBUG_CP_CHARMANDER_GIFT] = { MAP_ROUTE24, 7, 9 },
         [GY_DEBUG_CP_SS_ANNE_CAPTAIN] = { MAP_SSANNE_CAPTAINS_OFFICE, 4, 6 },
         [GY_DEBUG_CP_BEFORE_LT_SURGE] = { MAP_VERMILION_CITY_GYM, 5, 18 },
         [GY_DEBUG_CP_SQUIRTLE_GIFT] = { MAP_VERMILION_CITY, 17, 10 },
@@ -664,7 +671,16 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_CHARMANDER_GIFT:
-        GoldenYellowDebug_ApplyThroughBill(rivalPath);
+        GoldenYellowDebug_ApplyThroughMtMoon(rivalPath);
+        GoldenYellowDebug_CompleteCeruleanRival();
+        VarSet(VAR_MAP_SCENE_ROUTE24, 1);
+        FlagSet(FLAG_HIDE_NUGGET_BRIDGE_ROCKET);
+        AddBagItem(ITEM_NUGGET, 1);
+        GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
+        VarSet(VAR_YELLOW_CHARMANDER_RESCUE_STATE, 0);
+        FlagClear(FLAG_0x0BB);
+        FlagSet(FLAG_0x0BC);
+        FlagSet(FLAG_0x0BD);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
