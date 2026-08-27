@@ -14,20 +14,26 @@ CeruleanCity_EventScript_BlockExits::
 	return
 
 CeruleanCity_EventScript_RivalTriggerLeft::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	setvar VAR_TEMP_1, 0
 	goto CeruleanCity_EventScript_Rival
 	end
 
 CeruleanCity_EventScript_RivalTriggerMid::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	setvar VAR_TEMP_1, 1
 	setobjectxyperm LOCALID_CERULEAN_RIVAL, 23, 0
 	goto CeruleanCity_EventScript_Rival
 	end
 
 CeruleanCity_EventScript_RivalTriggerRight::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	setvar VAR_TEMP_1, 2
 	setobjectxyperm LOCALID_CERULEAN_RIVAL, 24, 0
 	goto CeruleanCity_EventScript_Rival

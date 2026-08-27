@@ -523,7 +523,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_CompletePewterProgression();
         GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
         VarSet(VAR_MAP_SCENE_CERULEAN_CITY_RIVAL, 0);
-        FlagClear(FLAG_HIDE_CERULEAN_RIVAL);
+        FlagSet(FLAG_HIDE_CERULEAN_RIVAL);
         GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
