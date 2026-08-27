@@ -59,35 +59,77 @@ Route24_EventScript_YellowCharmander::
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_CharmanderRescueInteraction
 	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_CharmanderReturnInteraction
-	goto_if_eq VAR_0x40FC, 3, Route24_EventScript_CharmanderAdoptionPrompt
+	goto_if_eq VAR_0x40FC, 3, Route24_EventScript_CharmanderWaitsForPlayer
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
-Route24_EventScript_CharmanderDiscovery::
+@ The Route 24 upper plateau is entered through two walkable lanes.  The
+@ two-row range below Charmander catches either lane before the player can
+@ circle around the scene, while still allowing a visible approach.
+Route24_EventScript_CharmanderRangeLeftFar::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_WalkInPlaceFasterDown
-	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
-	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
-	waitmoncry
-	applymovement LOCALID_PLAYER, Route24_Movement_PlayerApproachCharmander
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerApproachCharmander
+	setvar VAR_TEMP_2, 1
+	call Route24_EventScript_CharmanderNotice
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachLeftFar
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachLeftFar
 	waitmovement 0
-	goto Route24_EventScript_CharmanderPartnerConcern
+	goto Route24_EventScript_CharmanderRangeArrived
 	end
 
-Route24_EventScript_CharmanderDiscoveryRight::
+Route24_EventScript_CharmanderRangeCenterFar::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_WalkInPlaceFasterDown
+	setvar VAR_TEMP_2, 0
+	call Route24_EventScript_CharmanderNotice
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachCenterFar
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachCenterFar
+	waitmovement 0
+	goto Route24_EventScript_CharmanderRangeArrived
+	end
+
+Route24_EventScript_CharmanderRangeLeftNear::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setvar VAR_TEMP_2, 1
+	call Route24_EventScript_CharmanderNotice
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachLeftNear
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachLeftNear
+	waitmovement 0
+	goto Route24_EventScript_CharmanderRangeArrived
+	end
+
+Route24_EventScript_CharmanderRangeCenterNear::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setvar VAR_TEMP_2, 0
+	call Route24_EventScript_CharmanderNotice
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachCenterNear
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachCenterNear
+	waitmovement 0
+	goto Route24_EventScript_CharmanderRangeArrived
+	end
+
+Route24_EventScript_CharmanderNotice::
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
-	applymovement LOCALID_PLAYER, Route24_Movement_PlayerApproachCharmanderRight
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerApproachCharmanderRight
-	waitmovement 0
-	goto Route24_EventScript_CharmanderPartnerConcern
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement LOCALID_PLAYER
+	applymovement LOCALID_PLAYER, Common_Movement_Delay48
+	waitmovement LOCALID_PLAYER
+	return
+
+Route24_EventScript_CharmanderRangeArrived::
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_CharmanderPartnerConcern
+	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_CharmanderReturnScene
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
 	end
 
 Route24_EventScript_CharmanderPartnerConcern::
@@ -99,9 +141,9 @@ Route24_EventScript_CharmanderPartnerConcern::
 	end
 
 Route24_EventScript_CharmanderRescueInteraction::
+	setvar VAR_TEMP_2, 0
+	call Route24_EventScript_CharmanderNotice
 	faceplayer
-	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
-	waitmoncry
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcern
 	waitmovement OBJ_EVENT_ID_FOLLOWER
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
@@ -129,58 +171,90 @@ Route24_EventScript_CharmanderRescueDeclined::
 	releaseall
 	end
 
-Route24_EventScript_CharmanderReturn::
-	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	applymovement LOCALID_PLAYER, Route24_Movement_PlayerApproachCharmander
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerApproachCharmander
-	waitmovement 0
-	goto Route24_EventScript_CharmanderReturnScene
-	end
-
-Route24_EventScript_CharmanderReturnRight::
-	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	applymovement LOCALID_PLAYER, Route24_Movement_PlayerApproachCharmanderRight
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerApproachCharmanderRight
-	waitmovement 0
-	goto Route24_EventScript_CharmanderReturnScene
-	end
-
 Route24_EventScript_CharmanderReturnInteraction::
+	setvar VAR_TEMP_2, 0
+	call Route24_EventScript_CharmanderNotice
 	faceplayer
 	goto Route24_EventScript_CharmanderReturnScene
 	end
 
 Route24_EventScript_CharmanderReturnScene::
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_WalkInPlaceFasterDown
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
-	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
-	waitmoncry
 	msgbox Route24_Text_CharmanderLooksHealthy
-	clearflag FLAG_0x0BC
-	addobject LOCALID_ROUTE24_DAMIAN
-	setobjectxy LOCALID_ROUTE24_DAMIAN, 4, 5
-	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnter
-	waitmovement LOCALID_ROUTE24_DAMIAN
+
+	@ Damian approaches from the south instead of appearing at the plateau
+	@ edge.  The return trigger chooses the opposite open lane from the player.
+	call_if_eq VAR_TEMP_2, 0, Route24_EventScript_DamianEnterLeftLane
+	call_if_eq VAR_TEMP_2, 1, Route24_EventScript_DamianEnterRightLane
 	setvar VAR_0x40FC, 3
-	msgbox Route24_Text_DamianConfession
+
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
-	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement 0
+	msgbox Route24_Text_DamianFoundCharmander
+
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
+	waitmovement 0
+	msgbox Route24_Text_DamianNoticesPlayer
+	msgbox Route24_Text_DamianConfession
+
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement 0
+	msgbox Route24_Text_DamianCallsCharmander
 	delay 24
+
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderChoosesPlayer
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement 0
 	msgbox Route24_Text_CharmanderChoosesPlayer
+	msgbox Route24_Text_DamianUnderstands
+	msgbox Route24_Text_DamianOffer
 	goto Route24_EventScript_CharmanderAdoptionPrompt
 	end
 
+Route24_EventScript_DamianEnterLeftLane::
+	setobjectxyperm LOCALID_ROUTE24_DAMIAN, 6, 9
+	clearflag FLAG_0x0BC
+	addobject LOCALID_ROUTE24_DAMIAN
+	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnterLeftLane
+	waitmovement LOCALID_ROUTE24_DAMIAN
+	return
+
+Route24_EventScript_DamianEnterRightLane::
+	setobjectxyperm LOCALID_ROUTE24_DAMIAN, 8, 9
+	clearflag FLAG_0x0BC
+	addobject LOCALID_ROUTE24_DAMIAN
+	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnterRightLane
+	waitmovement LOCALID_ROUTE24_DAMIAN
+	return
+
 Route24_EventScript_Damian::
 	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	faceplayer
 	goto_if_eq VAR_0x40FC, 4, Route24_EventScript_DamianPostAdoption
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	goto Route24_EventScript_CharmanderAdoptionPrompt
+	end
+
+Route24_EventScript_CharmanderWaitsForPlayer::
+	faceplayer
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox Route24_Text_CharmanderWaitsExpectantly
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
 	end
 
 Route24_EventScript_CharmanderAdoptionPrompt::
@@ -200,7 +274,14 @@ Route24_EventScript_CharmanderNoStorage::
 	goto Common_EventScript_NoMoreRoomForPokemon
 	end
 
+Route24_EventScript_CommitCharmanderAdoption::
+	setvar VAR_0x40FC, 4
+	setflag FLAG_0x0BB
+	removeobject LOCALID_ROUTE24_YELLOW_CHARMANDER
+	return
+
 Route24_EventScript_ReceiveCharmanderParty::
+	call Route24_EventScript_CommitCharmanderAdoption
 	textcolor NPC_TEXT_COLOR_NEUTRAL
 	playfanfare MUS_LEVEL_UP
 	message Route24_Text_ObtainedCharmander
@@ -215,6 +296,7 @@ Route24_EventScript_ReceiveCharmanderParty::
 	end
 
 Route24_EventScript_ReceiveCharmanderPC::
+	call Route24_EventScript_CommitCharmanderAdoption
 	textcolor NPC_TEXT_COLOR_NEUTRAL
 	playfanfare MUS_LEVEL_UP
 	message Route24_Text_ObtainedCharmander
@@ -233,9 +315,9 @@ Route24_EventScript_CharmanderTransferredToPC::
 	end
 
 Route24_EventScript_FinishCharmanderAdoption::
-	setvar VAR_0x40FC, 4
-	setflag FLAG_0x0BB
-	removeobject LOCALID_ROUTE24_YELLOW_CHARMANDER
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	waitmovement 0
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox Route24_Text_DamianAfterAdoption
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
@@ -243,38 +325,43 @@ Route24_EventScript_FinishCharmanderAdoption::
 	end
 
 Route24_EventScript_CharmanderAdoptionDeclined::
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	waitmovement 0
 	msgbox Route24_Text_DamianTakeYourTime
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
 Route24_EventScript_DamianPostAdoption::
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	waitmovement LOCALID_ROUTE24_DAMIAN
 	msgbox Route24_Text_DamianPostAdoption
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
-Route24_Movement_PlayerApproachCharmander::
+Route24_Movement_ApproachCenterFar::
 	walk_up
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_PartnerApproachCharmander::
+Route24_Movement_ApproachLeftFar::
+	walk_right
 	walk_up
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_PlayerApproachCharmanderRight::
-	walk_left
-	walk_up
+Route24_Movement_ApproachCenterNear::
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_PartnerApproachCharmanderRight::
-	walk_left
-	walk_up
+Route24_Movement_ApproachLeftNear::
+	walk_right
 	walk_up
 	walk_in_place_faster_up
 	step_end
@@ -284,10 +371,24 @@ Route24_Movement_PartnerConcern::
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_DamianEnter::
-	walk_right
-	walk_right
-	walk_in_place_faster_down
+Route24_Movement_DamianEnterLeftLane::
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_right
+	step_end
+
+Route24_Movement_DamianEnterRightLane::
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_left
+	walk_left
+	walk_down
+	walk_in_place_faster_right
 	step_end
 
 Route24_Movement_CharmanderLooksAtDamian::
@@ -296,6 +397,7 @@ Route24_Movement_CharmanderLooksAtDamian::
 
 Route24_Movement_CharmanderChoosesPlayer::
 	walk_in_place_faster_down
+	delay_16
 	jump_in_place_down
 	step_end
 
@@ -416,22 +518,48 @@ Route24_Text_CharmanderLooksHealthy::
 	.string "CHARMANDER looks much better!\p"
 	.string "It happily recognizes you.$"
 
+Route24_Text_DamianFoundCharmander::
+	.string "DAMIAN: CHARMANDER!\p"
+	.string "There you are!$"
+
+Route24_Text_DamianNoticesPlayer::
+	.string "DAMIAN: Hey...\p"
+	.string "Were you the one who helped it?$"
+
 Route24_Text_DamianConfession::
-	.string "DAMIAN: Wait!\p"
-	.string "That CHARMANDER was mine.\p"
-	.string "I left it here because I thought it\n"
-	.string "was too weak.\p"
-	.string "But you came back for it...\p"
-	.string "I was wrong to leave it.$"
+	.string "I left CHARMANDER here.\p"
+	.string "I kept losing battles, and I blamed\n"
+	.string "it for being too weak.\p"
+	.string "But leaving it here like that...\n"
+	.string "That wasn't CHARMANDER's fault.$"
+
+Route24_Text_DamianCallsCharmander::
+	.string "DAMIAN: Come on, CHARMANDER.\p"
+	.string "Let's go.$"
 
 Route24_Text_CharmanderChoosesPlayer::
-	.string "CHARMANDER turns toward you.\p"
+	.string "CHARMANDER turns back toward you.\p"
 	.string "It looks like it wants to stay\n"
 	.string "with you.$"
 
+Route24_Text_DamianUnderstands::
+	.string "DAMIAN: ...I get it.\p"
+	.string "After what I did, you trust this\n"
+	.string "TRAINER more than me.$"
+
+Route24_Text_DamianOffer::
+	.string "I'm not good at raising POKéMON.\p"
+	.string "But you took care of CHARMANDER\n"
+	.string "when it needed someone.\p"
+	.string "If you promise you'll care for it,\n"
+	.string "it's yours.$"
+
 Route24_Text_TakeCharmanderWithYou::
-	.string "DAMIAN: Will you take care of\n"
-	.string "CHARMANDER?$"
+	.string "Will you take CHARMANDER?$"
+
+Route24_Text_CharmanderWaitsExpectantly::
+	.string "CHARMANDER looks at you\n"
+	.string "expectantly.$"
 
 Route24_Text_ObtainedCharmander::
 	.string "{PLAYER} received CHARMANDER!$"
