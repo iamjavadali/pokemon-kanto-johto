@@ -54,95 +54,116 @@ Route24_EventScript_StateAdopted::
 	setobjectxy LOCALID_ROUTE24_DAMIAN, 6, 5
 	return
 
+@ Direct interaction never assumes a specific player/follower coordinate.
+@ The three Nugget Bridge approach triggers below own the cinematic staging.
 Route24_EventScript_YellowCharmander::
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_CharmanderRescueInteraction
 	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_CharmanderReturnInteraction
 	goto_if_eq VAR_0x40FC, 3, Route24_EventScript_CharmanderWaitsForPlayer
+	releaseall
+	end
+
+@ The rescue gate is the three walkable tiles at the north end of Nugget Bridge:
+@ (10,9), (11,9), and (12,9). Stepping on one only asks whether Red wants to
+@ approach. NO never moves Red or Pikachu. YES moves Red to (7,6) while the
+@ normal scripted follower system brings Pikachu to (7,7).
+Route24_EventScript_CharmanderApproachLeft::
+	lockall
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setvar VAR_TEMP_2, 0
+	goto Route24_EventScript_CharmanderApproachGate
+	end
+
+Route24_EventScript_CharmanderApproachCenter::
+	lockall
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setvar VAR_TEMP_2, 1
+	goto Route24_EventScript_CharmanderApproachGate
+	end
+
+Route24_EventScript_CharmanderApproachRight::
+	lockall
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setvar VAR_TEMP_2, 2
+	goto Route24_EventScript_CharmanderApproachGate
+	end
+
+Route24_EventScript_CharmanderApproachGate::
+	call Route24_EventScript_CharmanderNotice
+	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_CharmanderApproachPromptWeak
+	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_CharmanderApproachPromptHealthy
+	goto Route24_EventScript_CharmanderApproachDeclined
+	end
+
+Route24_EventScript_CharmanderApproachPromptWeak::
+	msgbox Route24_Text_ApproachCryingCharmander, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderApproachDeclined
+	closemessage
+	goto Route24_EventScript_CharmanderCommitApproach
+	end
+
+Route24_EventScript_CharmanderApproachPromptHealthy::
+	msgbox Route24_Text_ApproachHealthyCharmander, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderApproachDeclined
+	closemessage
+	goto Route24_EventScript_CharmanderCommitApproach
+	end
+
+Route24_EventScript_CharmanderApproachDeclined::
+	closemessage
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
-@ The Route 24 rescue uses a two-column, two-row trigger block. Every entry
-@ normalizes Red directly below Charmander. On the first encounter Pikachu
-@ moves to Charmander's right; after treatment Pikachu stays behind Red so
-@ Damian's approach lane remains clear.
-Route24_EventScript_CharmanderRangeCenterNear::
-	lockall
+Route24_EventScript_CharmanderCommitApproach::
+	@ Only the committed YES path enables copyable scripted movement.
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	call Route24_EventScript_CharmanderNotice
-	applymovement LOCALID_PLAYER, Route24_Movement_ApproachCenterNear
-	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialCenterNear
-	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnCenterNear
-	waitmovement 0
-	goto Route24_EventScript_CharmanderRangeArrived
+	call_if_eq VAR_TEMP_2, 0, Route24_EventScript_ApproachFromLeft
+	call_if_eq VAR_TEMP_2, 1, Route24_EventScript_ApproachFromCenter
+	call_if_eq VAR_TEMP_2, 2, Route24_EventScript_ApproachFromRight
+	waitmovement LOCALID_PLAYER
+	@ Let the follower finish its final copied step into (7,7) before taking
+	@ explicit scene ownership. This avoids competing movement controllers.
+	delay 16
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialEncounter
+	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_StageHealedReturn
+	releaseall
 	end
 
-Route24_EventScript_CharmanderRangeRightNear::
-	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	call Route24_EventScript_CharmanderNotice
-	applymovement LOCALID_PLAYER, Route24_Movement_ApproachRightNear
-	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialRightNear
-	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnRightNear
-	waitmovement 0
-	goto Route24_EventScript_CharmanderRangeArrived
+Route24_EventScript_ApproachFromLeft::
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromLeft
+	return
+
+Route24_EventScript_ApproachFromCenter::
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromCenter
+	return
+
+Route24_EventScript_ApproachFromRight::
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromRight
+	return
+
+Route24_EventScript_StageInitialEncounter::
+	@ Red is at (7,6), Pikachu at (7,7). With Red stationary, move Pikachu
+	@ beside Charmander at (8,5) and face left for the concern beat.
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerStageBesideCharmander
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	goto Route24_EventScript_CharmanderPartnerConcern
 	end
 
-Route24_EventScript_CharmanderRangeCenterFar::
-	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	call Route24_EventScript_CharmanderNotice
-	applymovement LOCALID_PLAYER, Route24_Movement_ApproachCenterFar
-	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialCenterFar
-	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnCenterFar
-	waitmovement 0
-	goto Route24_EventScript_CharmanderRangeArrived
+Route24_EventScript_StageHealedReturn::
+	@ Pikachu remains directly behind Red for the entire Damian scene. Set its
+	@ facing once after copied movement is complete, then never move it again.
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	goto Route24_EventScript_CharmanderReturnScene
 	end
-
-Route24_EventScript_CharmanderRangeRightFar::
-	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	call Route24_EventScript_CharmanderNotice
-	applymovement LOCALID_PLAYER, Route24_Movement_ApproachRightFar
-	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialRightFar
-	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnRightFar
-	waitmovement 0
-	goto Route24_EventScript_CharmanderRangeArrived
-	end
-
-Route24_EventScript_StageInitialCenterNear::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialCenterNear
-	return
-
-Route24_EventScript_StageInitialRightNear::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialRightNear
-	return
-
-Route24_EventScript_StageInitialCenterFar::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialCenterFar
-	return
-
-Route24_EventScript_StageInitialRightFar::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialRightFar
-	return
-
-Route24_EventScript_StageReturnCenterNear::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnCenterNear
-	return
-
-Route24_EventScript_StageReturnRightNear::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnRightNear
-	return
-
-Route24_EventScript_StageReturnCenterFar::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnCenterFar
-	return
-
-Route24_EventScript_StageReturnRightFar::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnRightFar
-	return
 
 Route24_EventScript_CharmanderNotice::
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
@@ -156,15 +177,6 @@ Route24_EventScript_CharmanderNotice::
 	waitmovement LOCALID_PLAYER
 	return
 
-Route24_EventScript_CharmanderRangeArrived::
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
-	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
-	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_CharmanderPartnerConcern
-	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_CharmanderReturnScene
-	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	releaseall
-	end
-
 Route24_EventScript_CharmanderPartnerConcern::
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcern
 	waitmovement OBJ_EVENT_ID_FOLLOWER
@@ -173,24 +185,26 @@ Route24_EventScript_CharmanderPartnerConcern::
 	goto Route24_EventScript_CharmanderRescueText
 	end
 
+@ Talking directly to Charmander after declining is intentionally coordinate-safe:
+@ no Pikachu restaging is attempted from an unknown roaming position.
 Route24_EventScript_CharmanderRescueInteraction::
-	call Route24_EventScript_CharmanderNotice
 	faceplayer
-	@ Direct interaction after declining starts with Pikachu behind Red.
-	@ Restage it beside Charmander before replaying the concern beat.
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRestageFromBehind
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcern
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
-	goto Route24_EventScript_CharmanderRescueText
+	msgbox Route24_Text_CharmanderLooksWeak
+	msgbox Route24_Text_TakeCharmanderToCenter, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderDirectRescueDeclined
+	goto Route24_EventScript_CharmanderRescueAccepted
 	end
 
 Route24_EventScript_CharmanderRescueText::
 	msgbox Route24_Text_CharmanderLooksWeak
 	msgbox Route24_Text_TakeCharmanderToCenter, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderRescueDeclined
+	goto Route24_EventScript_CharmanderRescueAccepted
+	end
+
+Route24_EventScript_CharmanderRescueAccepted::
 	closemessage
 	msgbox Route24_Text_PlayerLiftsCharmander
 	setvar VAR_0x40FC, 1
@@ -203,18 +217,29 @@ Route24_EventScript_CharmanderRescueText::
 
 Route24_EventScript_CharmanderRescueDeclined::
 	msgbox Route24_Text_CharmanderStillNeedsHelp
-	@ Return Pikachu to the canonical follower position behind Red before
-	@ handing control back to the follower engine. This prevents a visible snap.
+	@ Canonical staged decline: return Pikachu from (8,5) to (7,7) before
+	@ normal follower ownership resumes. Red remains at (7,6) and can roam.
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnBehindPlayer
 	waitmovement OBJ_EVENT_ID_FOLLOWER
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
+Route24_EventScript_CharmanderDirectRescueDeclined::
+	msgbox Route24_Text_CharmanderStillNeedsHelp
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
+	end
+
+@ Direct interaction with healed Charmander never launches Damian from an
+@ arbitrary coordinate. The three-tile approach gate owns that choreography.
 Route24_EventScript_CharmanderReturnInteraction::
-	call Route24_EventScript_CharmanderNotice
 	faceplayer
-	goto Route24_EventScript_CharmanderReturnScene
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox Route24_Text_CharmanderLooksHealthy
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
 	end
 
 Route24_EventScript_CharmanderReturnScene::
@@ -223,13 +248,13 @@ Route24_EventScript_CharmanderReturnScene::
 	msgbox Route24_Text_CharmanderLooksHealthy
 
 	@ Damian always approaches from the player's right, then loops around
-	@ Charmander to finish on Charmander's left side.
+	@ Charmander to finish on Charmander's left side. Pikachu stays at (7,7)
+	@ and receives no movement commands during this scene.
 	call Route24_EventScript_DamianEnterRightLane
 	setvar VAR_0x40FC, 3
 
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_WalkInPlaceFasterUp
 	waitmovement 0
 	msgbox Route24_Text_DamianFoundCharmander
 
@@ -277,8 +302,8 @@ Route24_EventScript_DamianEnterRightLane::
 	return
 
 Route24_EventScript_Damian::
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	faceplayer
 	goto_if_eq VAR_0x40FC, 4, Route24_EventScript_DamianPostAdoption
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
@@ -380,87 +405,42 @@ Route24_EventScript_DamianPostAdoption::
 	releaseall
 	end
 
-Route24_Movement_ApproachCenterNear::
-	walk_up
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_ApproachRightNear::
+@ All three gate paths end with Red at (7,6). Pikachu follows these movements
+@ through FLAG_SAFE_FOLLOWER_MOVEMENT and naturally finishes at (7,7).
+Route24_Movement_ApproachFromLeft::
 	walk_left
-	walk_up
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_ApproachCenterFar::
-	walk_up
-	walk_up
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_ApproachRightFar::
+	walk_left
 	walk_left
 	walk_up
 	walk_up
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_PartnerInitialCenterNear::
-	walk_right
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_left
-	step_end
-
-Route24_Movement_PartnerInitialRightNear::
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_left
-	step_end
-
-Route24_Movement_PartnerInitialCenterFar::
-	walk_right
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_left
-	step_end
-
-Route24_Movement_PartnerInitialRightFar::
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_left
-	step_end
-
-Route24_Movement_PartnerReturnCenterNear::
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_PartnerReturnRightNear::
+Route24_Movement_ApproachFromCenter::
 	walk_left
-	walk_up
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_PartnerReturnCenterFar::
-	walk_up
-	walk_up
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_PartnerReturnRightFar::
+	walk_left
+	walk_left
 	walk_left
 	walk_up
 	walk_up
+	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_PartnerRestageFromBehind::
+Route24_Movement_ApproachFromRight::
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_PartnerStageBesideCharmander::
 	walk_right
 	walk_up
 	walk_up
@@ -609,6 +589,14 @@ Route24_Movement_RocketWalkBackToPos::
 Route24_Movement_WalkDown::
 	walk_down
 	step_end
+
+Route24_Text_ApproachCryingCharmander::
+	.string "A CHARMANDER is crying nearby.\p"
+	.string "Approach it?$"
+
+Route24_Text_ApproachHealthyCharmander::
+	.string "CHARMANDER is waiting up ahead.\p"
+	.string "Approach it?$"
 
 Route24_Text_CharmanderLooksWeak::
 	.string "CHARMANDER lets out a weak cry.\p"
