@@ -26,35 +26,53 @@ CeruleanCity_PokemonCenter_1F_OnFrame::
 	.2byte 0
 
 CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	callnative GoldenYellowCharmander_EnsurePartnerVisible, requests_effects=1
 	lockall
-	setobjectxy LOCALID_PLAYER, 7, 5
-	setobjectxy OBJ_EVENT_ID_FOLLOWER, 6, 5
+	setobjectxy LOCALID_PLAYER, 7, 4
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 7, 5
 	setobjectxy LOCALID_CERULEAN_RESCUE_CHARMANDER, 8, 4
-	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp
-	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft
 	waitmovement 0
 	textcolor NPC_TEXT_COLOR_FEMALE
 	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseSeesCharmander
 	closemessage
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceUp
+	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
+	playse SE_BALL
+	waitse
+	removeobject LOCALID_CERULEAN_RESCUE_CHARMANDER
+	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterLeft
+	waitmovement LOCALID_CERULEAN_NURSE
+	callnative GoldenYellowCharmander_StartSingleHeal, requests_effects=1
+	gotonative GoldenYellowCharmander_WaitSingleHeal
 	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterDown
 	waitmovement LOCALID_CERULEAN_NURSE
-	dofieldeffect FLDEFF_POKECENTER_HEAL
-	waitfieldeffect FLDEFF_POKECENTER_HEAL
-	delay 20
+	addobject LOCALID_CERULEAN_RESCUE_CHARMANDER
+	setobjectxy LOCALID_CERULEAN_RESCUE_CHARMANDER, 8, 4
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft
+	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderRecovered
 	textcolor NPC_TEXT_COLOR_NEUTRAL
 	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderFeelsBetter
 	closemessage
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerClearExit
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerClearExit
+	waitmovement 0
+	textcolor NPC_TEXT_COLOR_FEMALE
+	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderBolts
+	closemessage
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOut
 	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
 	setflag FLAG_0x0BD
 	removeobject LOCALID_CERULEAN_RESCUE_CHARMANDER
 	setvar VAR_0x40FC, 2
-	textcolor NPC_TEXT_COLOR_FEMALE
 	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderReturnedRoute24
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
@@ -67,19 +85,34 @@ CeruleanCity_PokemonCenter_1F_EventScript_RescueCharmander::
 	release
 	end
 
-CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp::
-	face_up
+CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight::
+	face_right
 	step_end
 
-CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight::
-	face_right
+CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp::
+	face_up
 	step_end
 
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft::
 	face_left
 	step_end
 
+CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceUp::
+	face_up
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PlayerClearExit::
+	walk_left
+	walk_in_place_faster_right
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PartnerClearExit::
+	walk_left
+	walk_in_place_faster_up
+	step_end
+
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOut::
+	walk_fast_left
 	walk_fast_down
 	walk_fast_down
 	walk_fast_down
@@ -116,7 +149,7 @@ CeruleanCity_PokemonCenter_1F_EventScript_Lass::
 CeruleanCity_PokemonCenter_1F_Text_NurseSeesCharmander::
 	.string "Oh! This CHARMANDER is exhausted.\p"
 	.string "You did the right thing bringing it\n"
-	.string "here. Let me treat it.$"
+	.string "here. Let me take care of it.$"
 
 CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderRecovered::
 	.string "There. CHARMANDER has recovered.\p"
@@ -124,11 +157,16 @@ CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderRecovered::
 
 CeruleanCity_PokemonCenter_1F_Text_CharmanderFeelsBetter::
 	.string "CHARMANDER looks relieved.\p"
-	.string "It seems eager to go somewhere.$"
+	.string "But it keeps looking toward the\n"
+	.string "door...$"
+
+CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderBolts::
+	.string "NURSE JOY: CHARMANDER? Wait!$"
 
 CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderReturnedRoute24::
 	.string "It ran out toward ROUTE 24!\p"
-	.string "You should make sure it's all right.$"
+	.string "Maybe it's still waiting for its\n"
+	.string "TRAINER.$"
 
 CeruleanCity_PokemonCenter_1F_Text_CharmanderBeingTreated::
 	.string "CHARMANDER is being treated.$"
