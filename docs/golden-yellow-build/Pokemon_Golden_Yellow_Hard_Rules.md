@@ -5,7 +5,7 @@
 **Target platform:** Game Boy Advance  
 **Relationship to master document:** Companion authority to `Pokemon_Golden_Yellow_Project_Master.md`  
 **Purpose:** Preserve non-negotiable development rules, implementation discipline, source-game translation principles, Git policy, validation policy, and lessons learned during development so they are not lost as the project grows.  
-**Last consolidated:** August 26, 2026
+**Last consolidated:** August 27, 2026
 
 ---
 
@@ -113,6 +113,17 @@ If the user asks to commit changes without building, do not build.
 If the user asks for diagnosis only, do not implement.
 
 If the user asks for a build/validation pass after commits are complete, perform that as a separate step.
+
+## GIT-011 — Allowed Repository Branch Inventory
+
+The repository MUST normally contain only these two branches:
+
+- `master` — the imported upstream baseline. Project development MUST NOT occur here unless the user explicitly authorizes it.
+- `prototype/v0.1` — the sole canonical Golden Yellow development branch.
+
+Do NOT create or retain `tmp/*`, scratch, builder, validation, continuation, experiment, alternate `prototype/*`, fix, or other development branches unless the user explicitly authorizes a specific exception.
+
+If an unauthorized branch is discovered, branch cleanup MUST occur before new implementation work proceeds. Validation and patch application MUST operate directly on `prototype/v0.1`; temporary workflow files MAY be used only under GIT-007 and MUST be removed during the same pass.
 
 ---
 
