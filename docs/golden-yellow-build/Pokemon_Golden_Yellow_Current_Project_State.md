@@ -4,7 +4,7 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot date:** August 26, 2026
+**Snapshot date:** August 27, 2026
 
 ---
 
@@ -53,11 +53,11 @@ Broad progression currently stands at:
 → **Viridian / Viridian Forest**  
 → **Pewter / Brock**  
 → **Route 3 / Mt. Moon**  
-→ **Cerulean-era progression — NEXT ACTIVE DEVELOPMENT BOUNDARY**
+→ **Cerulean-era progression — ACTIVE DEVELOPMENT BOUNDARY**
 
-The accepted gameplay baseline now extends through the Route 3 / Mt. Moon fossil progression and Jessie & James encounter #1.
+The accepted gameplay baseline now extends into the Cerulean era through the Yellow Cerulean Rival #3 scene, retained Fame Checker handoff, and Partner-safe Rival choreography.
 
-The next development pass begins after Mt. Moon with Route 4 and the Cerulean-era story flow.
+The immediate next implementation boundary is Route 24 Damian / Charmander gift integration.
 
 ---
 
@@ -69,7 +69,7 @@ The next development pass begins after Mt. Moon with Route 4 and the Cerulean-er
 | Viridian / early Route 2 / Viridian Forest | Implemented for current approved scope |
 | Pewter / Brock / post-Brock progression | Implemented and accepted for current approved scope |
 | Route 3 / Mt. Moon | Implemented and accepted |
-| Cerulean / Route 24 / Route 25 / Bill | Next active development area |
+| Cerulean / Route 24 / Route 25 / Bill | Active — Rival/Fame Checker accepted; Damian next |
 | Vermilion / S.S. Anne / Lt. Surge | Pending staged audit and Yellow integration |
 | Lavender / Pokémon Tower | Pending staged audit and Yellow integration |
 | Celadon / Rocket Hideout | Pending staged audit and Yellow integration |
@@ -165,7 +165,10 @@ The currently accepted Yellow story boundary reaches through:
 - required Pewter Jigglypuff Partner reaction;
 - Route 3 / Mt. Moon fossil progression;
 - Jessie & James encounter #1;
-- related follower/battle entrance integration validated after the Mt. Moon milestone.
+- related follower/battle entrance integration validated after the Mt. Moon milestone;
+- Cerulean Rival #3 Yellow integration;
+- retained Fame Checker handoff after the Yellow Rival dialogue;
+- Partner-safe Cerulean Rival approach, battle-return, and Fame Checker choreography.
 
 The details, commits, workflow runs, and manual-validation notes for these milestones are maintained in `Pokemon_Golden_Yellow_Acceptance_Log.md` and any linked dedicated acceptance record.
 
@@ -173,22 +176,25 @@ The details, commits, workflow runs, and manual-validation notes for these miles
 
 # 8. Current Active Development Boundary — Cerulean Era
 
-The next pass should audit and implement the actual post-Mt. Moon progression rather than assuming existing checkpoints equal finished content.
+The Cerulean-era pass is active.
 
-The Cerulean-era scope begins with:
+The Cerulean Rival #3 / Fame Checker integration is accepted. The immediate next implementation boundary is:
 
-1. Route 4 arrival and transition from Mt. Moon.
-2. Cerulean Rival battle and Yellow Rival roster/state integration.
-3. Nugget Bridge and the Rocket recruiter sequence.
-4. Route 24 Damian / Charmander gift.
-5. Route 25 progression.
-6. Bill / Sea Cottage story sequence.
-7. Required Partner Pikachu reaction to transformed/restored Bill.
-8. Melanie / Bulbasaur gift using canonical Partner Pikachu happiness.
-9. Misty / Cerulean Gym Yellow identity audit.
-10. Cerulean exit progression toward Vermilion.
+**Route 24 Damian / Charmander gift**
 
-Before changing code for this stage:
+Remaining Cerulean-era scope includes:
+
+1. Route 4 arrival and transition from Mt. Moon regression coverage.
+2. Nugget Bridge and the Rocket recruiter sequence regression coverage.
+3. Route 24 Damian / Charmander gift.
+4. Route 25 progression.
+5. Bill / Sea Cottage story sequence.
+6. Required Partner Pikachu reaction to transformed/restored Bill.
+7. Melanie / Bulbasaur gift using canonical Partner Pikachu happiness.
+8. Misty / Cerulean Gym Yellow identity validation.
+9. Cerulean exit progression toward Vermilion.
+
+Before changing code for each remaining stage:
 
 - resolve the live branch HEAD;
 - inspect the exact affected live maps/scripts/data;
@@ -205,11 +211,10 @@ The following are examples of required Yellow content that remains ahead of the 
 
 ## Cerulean era
 
-- Cerulean Rival Yellow roster/progression audit;
 - Damian's Charmander gift;
 - Bill Partner Pikachu reaction;
 - Melanie's Bulbasaur gift with canonical Partner happiness requirement;
-- Misty Yellow battle identity audit.
+- Misty Yellow battle identity validation.
 
 ## Vermilion era
 
@@ -278,9 +283,9 @@ The rules are:
 
 **No known blocking regression is open at this snapshot.**
 
-The most recent follower-aware battle entrance correction passed both CI and manual gameplay testing.
+The Cerulean Rival #3 / Fame Checker / Partner choreography milestone has passed manual acceptance.
 
-Development can proceed to the Cerulean-era audit from the accepted post-Mt. Moon baseline.
+Development can proceed to Damian's Route 24 Charmander gift from the accepted Cerulean Rival baseline.
 
 ---
 

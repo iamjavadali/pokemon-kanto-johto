@@ -67,6 +67,7 @@ A later branch HEAD does not invalidate an earlier acceptance merely because add
 | Route 3 / Mt. Moon fossil progression | ACCEPTED | `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md` |
 | Jessie & James encounter #1 | ACCEPTED | `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md` |
 | Battle follower send-out identity correction | ACCEPTED | This log |
+| Cerulean Rival #3 / Fame Checker / Partner choreography | ACCEPTED | This log |
 
 ---
 
@@ -236,7 +237,50 @@ The implementation intentionally reuses the authoritative follower identity syst
 
 ---
 
-# 11. Maintenance Rule
+# 11. Acceptance — Cerulean Rival #3 / Fame Checker / Partner Choreography
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-08-27  
+**Accepted source commit:** `d2ec7b084a0f1951fbcc275bd9ae444a32f57cfd`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33046024544`  
+**Accepted artifact ID:** `9635775412`  
+**Accepted ROM SHA-256:** `96ebc47ce289d512900edd0d1ba171cab7fb349cf4eaa32b9e9a0b8589f4c16e`  
+**Manual result:** ACCEPTANCE PASSED
+
+## Scope
+
+This acceptance closes the Cerulean Rival #3 integration and retained FRLG Fame Checker handoff while preserving Golden Yellow's canonical Partner Pikachu behavior through the full scene.
+
+## Accepted behavior
+
+- the Cerulean Rival uses the already-established Yellow Rival #3 battle/dialogue integration;
+- the Rival is spawned by the existing FRLG left/middle/right coordinate-event choreography rather than being incorrectly pre-spawned by the debug checkpoint;
+- the Rival approaches in the same column as the player for all three trigger lanes;
+- FireRed's Fame Checker handoff is restored after the Yellow post-battle Rival dialogue;
+- Partner Pikachu remains visibly outside its Poké Ball when the encounter begins;
+- Partner Pikachu remains outside through the battle return and Rival post-battle dialogue;
+- Partner Pikachu stays behind the player while the Rival begins his first departure;
+- only when the Rival starts returning north to give the Fame Checker does Partner Pikachu step to a known walkable adjacent trigger-lane tile;
+- left trigger lane stages Partner toward the center lane;
+- middle trigger lane stages Partner onto the left walkable lane;
+- right trigger lane stages Partner toward the center lane;
+- Partner Pikachu is never intentionally staged onto the non-walkable outer bush tiles;
+- the Rival returns, gives the Fame Checker, completes the retained FRLG explanation/exit, and normal following resumes.
+
+## Regression invariants
+
+- the Cerulean Rival checkpoint must keep `FLAG_HIDE_CERULEAN_RIVAL` set so the live trigger script can position/spawn the Rival in the correct column;
+- the scene must preserve `FLAG_SAFE_FOLLOWER_MOVEMENT` for the choreography needed to prevent scripted collisions from recalling Partner Pikachu;
+- Partner Pikachu must not be recalled into its Poké Ball merely to clear the Rival's path;
+- Partner step-aside timing belongs at the Rival's return-for-Fame-Checker beat, not immediately after battle;
+- left/right positional branches must stage Partner only on confirmed walkable tiles;
+- ordinary Pikachu must not substitute for canonical Partner Pikachu behavior;
+- the retained Fame Checker acquisition must remain after the Yellow Rival dialogue unless explicitly redesigned.
+
+---
+
+# 12. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
