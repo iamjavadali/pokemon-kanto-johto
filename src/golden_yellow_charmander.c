@@ -1,5 +1,6 @@
 #include "global.h"
 #include "event_object_movement.h"
+#include "field_effect.h"
 #include "palette.h"
 #include "script.h"
 #include "sound.h"
