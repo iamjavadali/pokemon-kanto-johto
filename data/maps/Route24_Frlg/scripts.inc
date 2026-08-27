@@ -176,6 +176,10 @@ Route24_EventScript_CharmanderPartnerConcern::
 Route24_EventScript_CharmanderRescueInteraction::
 	call Route24_EventScript_CharmanderNotice
 	faceplayer
+	@ Direct interaction after declining starts with Pikachu behind Red.
+	@ Restage it beside Charmander before replaying the concern beat.
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRestageFromBehind
+	waitmovement OBJ_EVENT_ID_FOLLOWER
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcern
 	waitmovement OBJ_EVENT_ID_FOLLOWER
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
@@ -199,6 +203,10 @@ Route24_EventScript_CharmanderRescueText::
 
 Route24_EventScript_CharmanderRescueDeclined::
 	msgbox Route24_Text_CharmanderStillNeedsHelp
+	@ Return Pikachu to the canonical follower position behind Red before
+	@ handing control back to the follower engine. This prevents a visible snap.
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnBehindPlayer
+	waitmovement OBJ_EVENT_ID_FOLLOWER
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
@@ -449,6 +457,20 @@ Route24_Movement_PartnerReturnRightFar::
 	walk_left
 	walk_up
 	walk_up
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_PartnerRestageFromBehind::
+	walk_right
+	walk_up
+	walk_up
+	walk_in_place_faster_left
+	step_end
+
+Route24_Movement_PartnerReturnBehindPlayer::
+	walk_down
+	walk_down
+	walk_left
 	walk_in_place_faster_up
 	step_end
 
