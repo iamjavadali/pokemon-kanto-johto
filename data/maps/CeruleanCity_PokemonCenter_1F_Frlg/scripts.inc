@@ -98,12 +98,13 @@ CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment::
 	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderLooksToDoor
 	closemessage
 
-	@ Red and Pikachu remain in place. Charmander runs straight down beside
-	@ them, pauses for Nurse Joy's reaction, then turns into the door column.
+	@ Charmander runs two tiles south beside Red and Pikachu. Pikachu turns
+	@ south to follow it, Nurse Joy reacts, then Charmander turns into the door
+	@ column without crossing Pikachu's tile.
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart
 	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
 	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
-	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceDown
 	waitmovement 0
 	textcolor NPC_TEXT_COLOR_FEMALE
 	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderBolts
@@ -148,6 +149,10 @@ CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight::
 	face_right
 	step_end
 
+CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceDown::
+	face_down
+	step_end
+
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft::
 	face_left
 	step_end
@@ -162,12 +167,12 @@ CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceDown::
 
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart::
 	walk_fast_down
+	walk_fast_down
 	step_end
 
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOutAround::
 	walk_in_place_faster_left
 	walk_fast_left
-	walk_fast_down
 	walk_fast_down
 	walk_fast_down
 	step_end

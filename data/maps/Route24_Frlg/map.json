@@ -193,15 +193,6 @@
     },
     {
       "type": "trigger",
-      "x": 6,
-      "y": 7,
-      "elevation": 3,
-      "var": "VAR_0x40FC",
-      "var_value": "0",
-      "script": "Route24_EventScript_CharmanderRangeLeftNear"
-    },
-    {
-      "type": "trigger",
       "x": 7,
       "y": 7,
       "elevation": 3,
@@ -211,12 +202,30 @@
     },
     {
       "type": "trigger",
-      "x": 6,
+      "x": 8,
       "y": 7,
       "elevation": 3,
       "var": "VAR_0x40FC",
-      "var_value": "2",
-      "script": "Route24_EventScript_CharmanderRangeLeftNear"
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderRangeRightNear"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderRangeCenterFar"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderRangeRightFar"
     },
     {
       "type": "trigger",
@@ -226,6 +235,33 @@
       "var": "VAR_0x40FC",
       "var_value": "2",
       "script": "Route24_EventScript_CharmanderRangeCenterNear"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 7,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderRangeRightNear"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderRangeCenterFar"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderRangeRightFar"
     }
   ],
   "bg_events": [

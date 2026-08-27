@@ -64,15 +64,28 @@ Route24_EventScript_YellowCharmander::
 	releaseall
 	end
 
-@ The Route 24 upper plateau is entered through two walkable lanes. The
-@ near trigger row catches either lane at the intended Yellow scene line.
-Route24_EventScript_CharmanderRangeLeftFar::
+@ The Route 24 rescue uses a two-column, two-row trigger block. Every entry
+@ normalizes Red directly below Charmander. On the first encounter Pikachu
+@ moves to Charmander's right; after treatment Pikachu stays behind Red so
+@ Damian's approach lane remains clear.
+Route24_EventScript_CharmanderRangeCenterNear::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	setvar VAR_TEMP_2, 1
 	call Route24_EventScript_CharmanderNotice
-	applymovement LOCALID_PLAYER, Route24_Movement_ApproachLeftFar
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachLeftFar
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachCenterNear
+	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialCenterNear
+	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnCenterNear
+	waitmovement 0
+	goto Route24_EventScript_CharmanderRangeArrived
+	end
+
+Route24_EventScript_CharmanderRangeRightNear::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	call Route24_EventScript_CharmanderNotice
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachRightNear
+	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialRightNear
+	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnRightNear
 	waitmovement 0
 	goto Route24_EventScript_CharmanderRangeArrived
 	end
@@ -80,35 +93,56 @@ Route24_EventScript_CharmanderRangeLeftFar::
 Route24_EventScript_CharmanderRangeCenterFar::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	setvar VAR_TEMP_2, 0
 	call Route24_EventScript_CharmanderNotice
 	applymovement LOCALID_PLAYER, Route24_Movement_ApproachCenterFar
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachCenterFar
+	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialCenterFar
+	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnCenterFar
 	waitmovement 0
 	goto Route24_EventScript_CharmanderRangeArrived
 	end
 
-Route24_EventScript_CharmanderRangeLeftNear::
+Route24_EventScript_CharmanderRangeRightFar::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	setvar VAR_TEMP_2, 1
 	call Route24_EventScript_CharmanderNotice
-	applymovement LOCALID_PLAYER, Route24_Movement_ApproachLeftNear
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachLeftNear
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachRightFar
+	call_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialRightFar
+	call_if_eq VAR_0x40FC, 2, Route24_EventScript_StageReturnRightFar
 	waitmovement 0
 	goto Route24_EventScript_CharmanderRangeArrived
 	end
 
-Route24_EventScript_CharmanderRangeCenterNear::
-	lockall
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	setvar VAR_TEMP_2, 0
-	call Route24_EventScript_CharmanderNotice
-	applymovement LOCALID_PLAYER, Route24_Movement_ApproachCenterNear
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_ApproachCenterNear
-	waitmovement 0
-	goto Route24_EventScript_CharmanderRangeArrived
-	end
+Route24_EventScript_StageInitialCenterNear::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialCenterNear
+	return
+
+Route24_EventScript_StageInitialRightNear::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialRightNear
+	return
+
+Route24_EventScript_StageInitialCenterFar::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialCenterFar
+	return
+
+Route24_EventScript_StageInitialRightFar::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialRightFar
+	return
+
+Route24_EventScript_StageReturnCenterNear::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnCenterNear
+	return
+
+Route24_EventScript_StageReturnRightNear::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnRightNear
+	return
+
+Route24_EventScript_StageReturnCenterFar::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnCenterFar
+	return
+
+Route24_EventScript_StageReturnRightFar::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnRightFar
+	return
 
 Route24_EventScript_CharmanderNotice::
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
@@ -140,7 +174,6 @@ Route24_EventScript_CharmanderPartnerConcern::
 	end
 
 Route24_EventScript_CharmanderRescueInteraction::
-	setvar VAR_TEMP_2, 0
 	call Route24_EventScript_CharmanderNotice
 	faceplayer
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcern
@@ -171,7 +204,6 @@ Route24_EventScript_CharmanderRescueDeclined::
 	end
 
 Route24_EventScript_CharmanderReturnInteraction::
-	setvar VAR_TEMP_2, 0
 	call Route24_EventScript_CharmanderNotice
 	faceplayer
 	goto Route24_EventScript_CharmanderReturnScene
@@ -340,33 +372,90 @@ Route24_EventScript_DamianPostAdoption::
 	releaseall
 	end
 
+Route24_Movement_ApproachCenterNear::
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_ApproachRightNear::
+	walk_left
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
 Route24_Movement_ApproachCenterFar::
 	walk_up
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_ApproachLeftFar::
-	walk_right
+Route24_Movement_ApproachRightFar::
+	walk_left
 	walk_up
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_ApproachCenterNear::
+Route24_Movement_PartnerInitialCenterNear::
+	walk_right
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_left
+	step_end
+
+Route24_Movement_PartnerInitialRightNear::
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_left
+	step_end
+
+Route24_Movement_PartnerInitialCenterFar::
+	walk_right
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_left
+	step_end
+
+Route24_Movement_PartnerInitialRightFar::
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_left
+	step_end
+
+Route24_Movement_PartnerReturnCenterNear::
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_ApproachLeftNear::
-	walk_right
+Route24_Movement_PartnerReturnRightNear::
+	walk_left
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_PartnerReturnCenterFar::
+	walk_up
+	walk_up
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_PartnerReturnRightFar::
+	walk_left
+	walk_up
 	walk_up
 	walk_in_place_faster_up
 	step_end
 
 Route24_Movement_PartnerConcern::
-	jump_in_place_up
-	walk_in_place_faster_up
+	walk_in_place_faster_left
+	delay_16
+	walk_in_place_faster_left
 	step_end
 
 Route24_Movement_DamianEnterLeftLane::
