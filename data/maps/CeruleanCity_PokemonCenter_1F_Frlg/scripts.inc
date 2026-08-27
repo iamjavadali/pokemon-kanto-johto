@@ -69,7 +69,7 @@ CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment::
 	callnative GoldenYellowCharmander_StartSingleHeal, requests_effects=1
 	gotonative GoldenYellowCharmander_WaitSingleHeal
 
-	@ Treatment completes.  Nurse returns Charmander and speaks while both Red
+	@ Treatment completes. Nurse returns Charmander and speaks while both Red
 	@ and Charmander are watching her.
 	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterDown
 	waitmovement LOCALID_CERULEAN_NURSE
@@ -98,17 +98,20 @@ CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment::
 	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderLooksToDoor
 	closemessage
 
-	@ Charmander runs two tiles south beside Red and Pikachu. Pikachu turns
-	@ south to follow it, Nurse Joy reacts, then Charmander turns into the door
-	@ column without crossing Pikachu's tile.
+	@ Charmander runs one tile south to (8,5), exactly right of Pikachu.
+	@ Pikachu looks right at Charmander while Nurse Joy tries to stop it. After
+	@ the warning, Pikachu turns south and watches Charmander continue to the
+	@ doorway without Charmander ever crossing Pikachu's tile.
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart
 	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
 	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
-	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceDown
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight
 	waitmovement 0
 	textcolor NPC_TEXT_COLOR_FEMALE
 	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderBolts
 	closemessage
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceDown
+	waitmovement OBJ_EVENT_ID_FOLLOWER
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOutAround
 	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
 	setflag FLAG_0x0BD
@@ -167,10 +170,10 @@ CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceDown::
 
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart::
 	walk_fast_down
-	walk_fast_down
 	step_end
 
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOutAround::
+	walk_fast_down
 	walk_in_place_faster_left
 	walk_fast_left
 	walk_fast_down

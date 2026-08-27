@@ -44,14 +44,14 @@ Route24_EventScript_StateDamianPresent::
 	clearflag FLAG_0x0BB
 	clearflag FLAG_0x0BC
 	addobject LOCALID_ROUTE24_DAMIAN
-	setobjectxy LOCALID_ROUTE24_DAMIAN, 6, 5
+	setobjectxy LOCALID_ROUTE24_DAMIAN, 8, 5
 	return
 
 Route24_EventScript_StateAdopted::
 	setflag FLAG_0x0BB
 	clearflag FLAG_0x0BC
 	addobject LOCALID_ROUTE24_DAMIAN
-	setobjectxy LOCALID_ROUTE24_DAMIAN, 6, 5
+	setobjectxy LOCALID_ROUTE24_DAMIAN, 7, 5
 	return
 
 @ Direct interaction never assumes a specific player/follower coordinate.
@@ -66,10 +66,11 @@ Route24_EventScript_YellowCharmander::
 	end
 
 @ The rescue gate is the three walkable tiles at the north end of Nugget Bridge:
-@ (10,9), (11,9), and (12,9). Stepping on one only asks whether Red wants to
-@ approach. NO never moves Red or Pikachu. YES moves Red to (7,6) while the
-@ normal scripted follower system brings Pikachu to (7,7).
+@ (10,9), (11,9), and (12,9). Stepping on one asks whether Red wants to
+@ approach. NO moves Red one tile south off the trigger row before control
+@ returns. YES moves Red to (7,6) while Pikachu follows to (7,7).
 Route24_EventScript_CharmanderApproachLeft::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	setvar VAR_TEMP_2, 0
@@ -77,6 +78,7 @@ Route24_EventScript_CharmanderApproachLeft::
 	end
 
 Route24_EventScript_CharmanderApproachCenter::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	setvar VAR_TEMP_2, 1
@@ -84,6 +86,7 @@ Route24_EventScript_CharmanderApproachCenter::
 	end
 
 Route24_EventScript_CharmanderApproachRight::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	setvar VAR_TEMP_2, 2
@@ -113,6 +116,12 @@ Route24_EventScript_CharmanderApproachPromptHealthy::
 
 Route24_EventScript_CharmanderApproachDeclined::
 	closemessage
+	@ Step Red off the three adjacent trigger tiles before releasing control.
+	@ Pikachu copies this one safe scripted step instead of snapping afterward.
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Route24_Movement_DeclineStepSouth
+	waitmovement LOCALID_PLAYER
+	delay 16
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
@@ -150,7 +159,7 @@ Route24_EventScript_StageInitialEncounter::
 	@ beside Charmander at (8,5) and face left for the concern beat.
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerStageBesideCharmander
 	waitmovement OBJ_EVENT_ID_FOLLOWER
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	goto Route24_EventScript_CharmanderPartnerConcern
 	end
@@ -160,14 +169,18 @@ Route24_EventScript_StageHealedReturn::
 	@ facing once after copied movement is complete, then never move it again.
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_WalkInPlaceFasterUp
 	waitmovement OBJ_EVENT_ID_FOLLOWER
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	goto Route24_EventScript_CharmanderReturnScene
 	end
 
 Route24_EventScript_CharmanderNotice::
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
-	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	@ At long range use deterministic cardinal facing. Charmander looks south
+	@ toward Nugget Bridge while Red and Pikachu look north toward its cry.
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_WalkInPlaceFasterUp
+	waitmovement 0
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
 	playse SE_PIN
@@ -243,62 +256,70 @@ Route24_EventScript_CharmanderReturnInteraction::
 	end
 
 Route24_EventScript_CharmanderReturnScene::
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	msgbox Route24_Text_CharmanderLooksHealthy
 
-	@ Damian always approaches from the player's right, then loops around
-	@ Charmander to finish on Charmander's left side. Pikachu stays at (7,7)
-	@ and receives no movement commands during this scene.
+	@ Damian now approaches straight up the open right lane to (8,5), directly
+	@ right of Charmander. SAFE_FOLLOWER_MOVEMENT is scoped only around physical
+	@ custom movement so Pikachu stays visible and stationary at (7,7).
 	call Route24_EventScript_DamianEnterRightLane
 	setvar VAR_0x40FC, 3
 
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	@ Damian calls to Charmander: they face each other, while Red watches north.
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
 	waitmovement 0
 	msgbox Route24_Text_DamianFoundCharmander
 
-	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
+	@ Damian turns down toward Red; Red turns right toward Damian. Charmander
+	@ continues watching Damian from the left.
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceDown
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	waitmovement 0
 	msgbox Route24_Text_DamianNoticesPlayer
 	msgbox Route24_Text_DamianConfession
 
-	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_WalkInPlaceFasterRight
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
+	@ Damian asks Charmander to come with him.
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceLeft
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
 	waitmovement 0
 	msgbox Route24_Text_DamianCallsCharmander
 	delay 24
 
+	@ Charmander's custom choice animation is the only moving actor here. Keep
+	@ the follower-safe flag on only while that custom movement is running.
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderChoosesPlayer
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
-	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceLeft
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
 	waitmovement 0
 	msgbox Route24_Text_CharmanderChoosesPlayer
+
+	@ Damian addresses Red for the handoff.
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceDown
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
+	waitmovement 0
 	msgbox Route24_Text_DamianUnderstands
 	msgbox Route24_Text_DamianOffer
 	goto Route24_EventScript_CharmanderAdoptionPrompt
 	end
 
-Route24_EventScript_DamianEnterLeftLane::
-	setobjectxyperm LOCALID_ROUTE24_DAMIAN, 6, 9
-	clearflag FLAG_0x0BC
-	addobject LOCALID_ROUTE24_DAMIAN
-	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnterLeftLane
-	waitmovement LOCALID_ROUTE24_DAMIAN
-	return
-
 Route24_EventScript_DamianEnterRightLane::
 	setobjectxyperm LOCALID_ROUTE24_DAMIAN, 8, 9
 	clearflag FLAG_0x0BC
 	addobject LOCALID_ROUTE24_DAMIAN
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnterRightLane
 	waitmovement LOCALID_ROUTE24_DAMIAN
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
 Route24_EventScript_Damian::
@@ -306,7 +327,7 @@ Route24_EventScript_Damian::
 	lockall
 	faceplayer
 	goto_if_eq VAR_0x40FC, 4, Route24_EventScript_DamianPostAdoption
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	goto Route24_EventScript_CharmanderAdoptionPrompt
 	end
@@ -378,9 +399,14 @@ Route24_EventScript_CharmanderTransferredToPC::
 	end
 
 Route24_EventScript_FinishCharmanderAdoption::
+	@ With Charmander removed, Damian moves left from (8,5) into its old (7,5)
+	@ tile, then faces down toward Red. Red faces up only after SAFE is cleared.
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianStepIntoCharmanderSpot
+	waitmovement LOCALID_ROUTE24_DAMIAN
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
-	waitmovement 0
+	waitmovement LOCALID_PLAYER
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox Route24_Text_DamianAfterAdoption
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
@@ -388,9 +414,9 @@ Route24_EventScript_FinishCharmanderAdoption::
 	end
 
 Route24_EventScript_CharmanderAdoptionDeclined::
-	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceDown
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement 0
 	msgbox Route24_Text_DamianTakeYourTime
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
@@ -440,6 +466,11 @@ Route24_Movement_ApproachFromRight::
 	walk_in_place_faster_up
 	step_end
 
+Route24_Movement_DeclineStepSouth::
+	walk_down
+	walk_in_place_faster_up
+	step_end
+
 Route24_Movement_PartnerStageBesideCharmander::
 	walk_right
 	walk_up
@@ -460,33 +491,17 @@ Route24_Movement_PartnerConcern::
 	walk_in_place_faster_left
 	step_end
 
-Route24_Movement_DamianEnterLeftLane::
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_right
-	step_end
-
 Route24_Movement_DamianEnterRightLane::
 	walk_up
 	walk_up
 	walk_up
 	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_down
-	walk_in_place_faster_right
+	walk_in_place_faster_left
 	step_end
 
 Route24_Movement_DamianStepIntoCharmanderSpot::
-	walk_right
+	walk_left
 	walk_in_place_faster_down
-	step_end
-
-Route24_Movement_CharmanderLooksAtDamian::
-	walk_in_place_faster_left
 	step_end
 
 Route24_Movement_CharmanderChoosesPlayer::
