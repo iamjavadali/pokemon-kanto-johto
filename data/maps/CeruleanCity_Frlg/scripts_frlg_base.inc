@@ -48,6 +48,10 @@ CeruleanCity_EventScript_Rival::
 	call_if_eq VAR_STARTER_MON, 2, CeruleanCity_EventScript_RivalSquirtle
 	call_if_eq VAR_STARTER_MON, 1, CeruleanCity_EventScript_RivalBulbasaur
 	call_if_eq VAR_STARTER_MON, 0, CeruleanCity_EventScript_RivalCharmander
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	call_if_eq VAR_TEMP_1, 0, CeruleanCity_EventScript_PartnerStepAsideLeft
+	call_if_eq VAR_TEMP_1, 1, CeruleanCity_EventScript_PartnerStepAsideLeft
+	call_if_eq VAR_TEMP_1, 2, CeruleanCity_EventScript_PartnerStepAsideRight
 	famechecker FAMECHECKER_BILL, 0
 	msgbox CeruleanCity_Text_RivalPostBattle
 	closemessage
@@ -80,6 +84,16 @@ CeruleanCity_EventScript_RivalCharmander::
 	trainerbattle_no_intro TRAINER_RIVAL_CERULEAN_CHARMANDER, CeruleanCity_Text_RivalDefeat
 	return
 
+CeruleanCity_EventScript_PartnerStepAsideLeft::
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_Movement_PartnerStepAsideLeft
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	return
+
+CeruleanCity_EventScript_PartnerStepAsideRight::
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_Movement_PartnerStepAsideRight
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	return
+
 CeruleanCity_EventScript_RivalStartExit::
 	applymovement LOCALID_PLAYER, CeruleanCity_Movement_PlayerWatchRivalExit
 	applymovement LOCALID_CERULEAN_RIVAL, CeruleanCity_Movement_RivalStartExit
@@ -91,6 +105,18 @@ CeruleanCity_EventScript_RivalStartExitRight::
 	applymovement LOCALID_CERULEAN_RIVAL, CeruleanCity_Movement_RivalStartExitRight
 	waitmovement 0
 	return
+
+CeruleanCity_Movement_PartnerStepAsideLeft::
+	walk_left
+	walk_up
+	face_right
+	step_end
+
+CeruleanCity_Movement_PartnerStepAsideRight::
+	walk_right
+	walk_up
+	face_left
+	step_end
 
 CeruleanCity_Movement_PlayerWatchRivalExit::
 	delay_16
