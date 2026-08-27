@@ -98,8 +98,8 @@ CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment::
 	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderLooksToDoor
 	closemessage
 
-	@ Red and Pikachu remain in place. Charmander runs around them, starts
-	@ toward the exit, then Nurse reacts before it completes the doorway path.
+	@ Red and Pikachu remain in place. Charmander runs straight down beside
+	@ them, pauses for Nurse Joy's reaction, then turns into the door column.
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart
 	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
 	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
@@ -161,15 +161,14 @@ CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceDown::
 	step_end
 
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart::
-	walk_fast_right
 	walk_fast_down
 	step_end
 
 CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOutAround::
+	walk_in_place_faster_left
+	walk_fast_left
 	walk_fast_down
 	walk_fast_down
-	walk_fast_left
-	walk_fast_left
 	walk_fast_down
 	step_end
 

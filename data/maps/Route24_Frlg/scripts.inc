@@ -64,9 +64,8 @@ Route24_EventScript_YellowCharmander::
 	releaseall
 	end
 
-@ The Route 24 upper plateau is entered through two walkable lanes.  The
-@ two-row range below Charmander catches either lane before the player can
-@ circle around the scene, while still allowing a visible approach.
+@ The Route 24 upper plateau is entered through two walkable lanes. The
+@ near trigger row catches either lane at the intended Yellow scene line.
 Route24_EventScript_CharmanderRangeLeftFar::
 	lockall
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
@@ -183,10 +182,9 @@ Route24_EventScript_CharmanderReturnScene::
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	msgbox Route24_Text_CharmanderLooksHealthy
 
-	@ Damian approaches from the south instead of appearing at the plateau
-	@ edge.  The return trigger chooses the opposite open lane from the player.
-	call_if_eq VAR_TEMP_2, 0, Route24_EventScript_DamianEnterLeftLane
-	call_if_eq VAR_TEMP_2, 1, Route24_EventScript_DamianEnterRightLane
+	@ Damian always approaches from the player's right, then loops around
+	@ Charmander to finish on Charmander's left side.
+	call Route24_EventScript_DamianEnterRightLane
 	setvar VAR_0x40FC, 3
 
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Route24_Movement_CharmanderLooksAtDamian
@@ -315,8 +313,8 @@ Route24_EventScript_CharmanderTransferredToPC::
 	end
 
 Route24_EventScript_FinishCharmanderAdoption::
-	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
+	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianStepIntoCharmanderSpot
+	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
 	waitmovement 0
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox Route24_Text_DamianAfterAdoption
@@ -389,6 +387,11 @@ Route24_Movement_DamianEnterRightLane::
 	walk_left
 	walk_down
 	walk_in_place_faster_right
+	step_end
+
+Route24_Movement_DamianStepIntoCharmanderSpot::
+	walk_right
+	walk_in_place_faster_down
 	step_end
 
 Route24_Movement_CharmanderLooksAtDamian::
