@@ -1,22 +1,100 @@
 .equ BILL_IN_TELEPORTER,     FLAG_TEMP_2
 .equ RETURN_AFTER_SS_TICKET, FLAG_TEMP_3
+.equ YELLOW_BILL_ENTRY_PENDING, VAR_TEMP_0
+.equ YELLOW_BILL_PARTNER_PRESENT, VAR_TEMP_1
 
 Route25_SeaCottage_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, Route25_SeaCottage_OnTransition
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, Route25_SeaCottage_OnFrame
 	.byte 0
 
 Route25_SeaCottage_OnTransition::
 	call_if_unset FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_SeaCottage_EventScript_HideClefairyBill
+	call_if_unset FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_SeaCottage_EventScript_ArmYellowEntryReaction
 	call_if_set FLAG_GOT_SS_TICKET, Route25_SeaCottage_EventScript_SetReturnedAfterSSTicket
 	end
+
+Route25_SeaCottage_OnFrame::
+	map_script_2 YELLOW_BILL_ENTRY_PENDING, 1, Route25_SeaCottage_EventScript_YellowEntryReaction
+	.2byte 0
 
 Route25_SeaCottage_EventScript_HideClefairyBill::
 	clearflag FLAG_HIDE_BILL_CLEFAIRY
 	setobjectxyperm LOCALID_BILL_HUMAN, 3, 3
 	return
 
+Route25_SeaCottage_EventScript_ArmYellowEntryReaction::
+	setvar YELLOW_BILL_ENTRY_PENDING, 1
+	return
+
 Route25_SeaCottage_EventScript_SetReturnedAfterSSTicket::
 	setflag RETURN_AFTER_SS_TICKET
+	return
+
+@ Yellow opens Bill's house with Partner Pikachu independently noticing the
+@ transformed Bill. The GBA room retains its FRLG geometry; Partner approaches
+@ from the center doorway, reacts, then settles beside Red so no Bill approach
+@ tile is blocked when control returns.
+Route25_SeaCottage_EventScript_YellowEntryReaction::
+	setvar YELLOW_BILL_ENTRY_PENDING, 0
+	lockall
+	delay 8
+	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowEntryReactionFinish
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	applymovement LOCALID_BILL_CLEFAIRY, Common_Movement_FaceDown
+	waitmovement 0
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerApproachTransformedBill
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	playse SE_PIN
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_QuestionMark
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerConfusedByBill
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerReturnFromBill
+	waitmovement 0
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
+	waitmovement 0
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+
+Route25_SeaCottage_EventScript_YellowEntryReactionFinish::
+	releaseall
+	end
+
+@ Canonical Partner Pikachu is SPECIES_PIKACHU_STARTER. Ordinary Pikachu must
+@ never satisfy Yellow-specific Bill choreography.
+Route25_SeaCottage_EventScript_CheckCanonicalPartner::
+	setvar YELLOW_BILL_PARTNER_PRESENT, 0
+	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, Route25_SeaCottage_EventScript_CheckCanonicalPartnerReturn
+	setvar VAR_0x8004, 0
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, Route25_SeaCottage_EventScript_CanonicalPartnerFound
+	setvar VAR_0x8004, 1
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, Route25_SeaCottage_EventScript_CanonicalPartnerFound
+	setvar VAR_0x8004, 2
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, Route25_SeaCottage_EventScript_CanonicalPartnerFound
+	setvar VAR_0x8004, 3
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, Route25_SeaCottage_EventScript_CanonicalPartnerFound
+	setvar VAR_0x8004, 4
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, Route25_SeaCottage_EventScript_CanonicalPartnerFound
+	setvar VAR_0x8004, 5
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, Route25_SeaCottage_EventScript_CanonicalPartnerFound
+	goto Route25_SeaCottage_EventScript_CheckCanonicalPartnerReturn
+
+Route25_SeaCottage_EventScript_CanonicalPartnerFound::
+	setvar YELLOW_BILL_PARTNER_PRESENT, 1
+
+Route25_SeaCottage_EventScript_CheckCanonicalPartnerReturn::
 	return
 
 Route25_SeaCottage_EventScript_Bill::
@@ -25,10 +103,44 @@ Route25_SeaCottage_EventScript_Bill::
 	goto_if_set RETURN_AFTER_SS_TICKET, Route25_SeaCottage_EventScript_BillGoLookAtPC
 	goto_if_set FLAG_GOT_SS_TICKET, Route25_SeaCottage_EventScript_BillGoToSSAnne
 	goto_if_set FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_SeaCottage_EventScript_BillGiveSSTicket
+	call Route25_SeaCottage_EventScript_YellowFacePartnerTowardBill
 	checkplayergender
 	goto_if_eq VAR_RESULT, MALE, Route25_SeaCottage_EventScript_BillAskForHelpMale
 	goto_if_eq VAR_RESULT, FEMALE, Route25_SeaCottage_EventScript_BillAskForHelpFemale
 	end
+
+@ While transformed Bill is speaking, Partner watches in the same cardinal
+@ direction as Red. Bill's retained faceplayer keeps the speaker facing Red.
+Route25_SeaCottage_EventScript_YellowFacePartnerTowardBill::
+	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowFacePartnerTowardBillReturn
+	call_if_eq VAR_FACING, DIR_SOUTH, Route25_SeaCottage_EventScript_PartnerFaceDown
+	call_if_eq VAR_FACING, DIR_NORTH, Route25_SeaCottage_EventScript_PartnerFaceUp
+	call_if_eq VAR_FACING, DIR_WEST, Route25_SeaCottage_EventScript_PartnerFaceLeft
+	call_if_eq VAR_FACING, DIR_EAST, Route25_SeaCottage_EventScript_PartnerFaceRight
+
+Route25_SeaCottage_EventScript_YellowFacePartnerTowardBillReturn::
+	return
+
+Route25_SeaCottage_EventScript_PartnerFaceDown::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	return
+
+Route25_SeaCottage_EventScript_PartnerFaceUp::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	return
+
+Route25_SeaCottage_EventScript_PartnerFaceLeft::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceLeft
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	return
+
+Route25_SeaCottage_EventScript_PartnerFaceRight::
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceRight
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	return
 
 Route25_SeaCottage_EventScript_BillAskForHelpMale::
 	msgbox Route25_SeaCottage_Text_ImBillHelpMeOutPal, MSGBOX_YESNO
@@ -58,8 +170,30 @@ Route25_SeaCottage_EventScript_BillAskForHelp::
 	closedoor 10, 3
 	waitdooranim
 	setflag BILL_IN_TELEPORTER
+	call Route25_SeaCottage_EventScript_YellowPartnerWatchesBillEnter
 	release
 	end
+
+@ Yellow gives Pikachu a separate reaction after Bill disappears into the
+@ separator. Red and Partner both orient north toward the machinery.
+Route25_SeaCottage_EventScript_YellowPartnerWatchesBillEnter::
+	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowPartnerWatchesBillEnterReturn
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
+	waitmovement 0
+	playse SE_PIN
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_QuestionMark
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerConcernedAtTeleporter
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+
+Route25_SeaCottage_EventScript_YellowPartnerWatchesBillEnterReturn::
+	return
 
 @ Just returns after message, execution continues as if player had said yes
 Route25_SeaCottage_EventScript_DeclineHelpBill::
@@ -150,6 +284,7 @@ Route25_SeaCottage_EventScript_Computer::
 	end
 
 Route25_SeaCottage_EventScript_RunCellSeparator::
+	call Route25_SeaCottage_EventScript_YellowPartnerWatchSeparator
 	fadeoutbgm 0
 	msgbox Route25_SeaCottage_Text_InitiatedTeleportersCellSeparator
 	closemessage
@@ -186,6 +321,7 @@ Route25_SeaCottage_EventScript_RunCellSeparator::
 	fadeinbgm 0
 	addobject LOCALID_BILL_HUMAN
 	clearflag FLAG_HIDE_BILL_HUMAN_SEA_COTTAGE
+	call Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill
 	delay 50
 	playfanfare MUS_LEVEL_UP
 	applymovement LOCALID_BILL_HUMAN, Route25_SeaCottage_Movement_BillExitTeleporter
@@ -199,8 +335,90 @@ Route25_SeaCottage_EventScript_RunCellSeparator::
 	applymovement LOCALID_BILL_HUMAN, Route25_SeaCottage_Movement_BillWalkToMiddleOfRoom
 	waitmovement 0
 	special RemoveCameraObject
+	call Route25_SeaCottage_EventScript_YellowStagePostRestoreConversation
+	call Route25_SeaCottage_EventScript_YellowAutomaticSSTicket
 	releaseall
 	end
+
+@ At the PC, Red already faces north. Partner deliberately settles into an
+@ attentive north-facing pose before the retained FRLG machine sequence starts.
+Route25_SeaCottage_EventScript_YellowPartnerWatchSeparator::
+	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowPartnerWatchSeparatorReturn
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerWatchSeparator
+	waitmovement 0
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+
+Route25_SeaCottage_EventScript_YellowPartnerWatchSeparatorReturn::
+	return
+
+@ Yellow shows an immediate exclamation when restored Bill appears. The GBA
+@ substitute keeps that timing with an overworld emote, cry, and excited hops.
+Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
+	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_BILL_HUMAN, Common_Movement_FaceDown
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
+	waitmovement 0
+	delay 8
+	playse SE_PIN
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_ExclamationMark
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerExcitedBillRestored
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+
+Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn::
+	return
+
+@ FRLG's Bill walk ends at (7,6). Yellow continues directly into the thank-you
+@ scene, so Bill takes one additional safe step to his native (7,5) tile while
+@ Red walks three tiles right from the PC to (7,6). Partner trails Red, then
+@ settles behind-left at (6,7). Bill faces south; Red and Partner face north.
+Route25_SeaCottage_EventScript_YellowStagePostRestoreConversation::
+	applymovement LOCALID_BILL_HUMAN, Route25_SeaCottage_Movement_BillStageForThanks
+	waitmovement LOCALID_BILL_HUMAN
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Route25_SeaCottage_Movement_PlayerApproachRestoredBill
+	waitmovement LOCALID_PLAYER
+	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowStagePostRestoreNoPartner
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerStageForThanks
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+
+Route25_SeaCottage_EventScript_YellowStagePostRestoreNoPartner::
+	applymovement LOCALID_BILL_HUMAN, Common_Movement_FaceDown
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	waitmovement 0
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	return
+
+@ This additive wrapper uses the same retained FRLG dialogue, Fame Checker,
+@ item fanfare, flags, and S.S. Anne text, but returns to the separator script
+@ so its original releaseall remains the owner of scene cleanup.
+Route25_SeaCottage_EventScript_YellowAutomaticSSTicket::
+	famechecker FAMECHECKER_BILL, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
+	checkplayergender
+	call_if_eq VAR_RESULT, MALE, Route25_SeaCottage_EventScript_BillThanksMale
+	call_if_eq VAR_RESULT, FEMALE, Route25_SeaCottage_EventScript_BillThanksFemale
+	checkitemspace ITEM_SS_TICKET
+	goto_if_eq VAR_RESULT, FALSE, Route25_SeaCottage_EventScript_YellowAutomaticSSTicketNoRoom
+	giveitem_msg Route25_SeaCottage_Text_ReceivedSSTicketFromBill, ITEM_SS_TICKET, 1, MUS_RG_OBTAIN_KEY_ITEM
+	setflag FLAG_GOT_SS_TICKET_DUP
+	setflag FLAG_HIDE_NUGGET_BRIDGE_ROCKET
+	setflag FLAG_GOT_SS_TICKET
+	setflag FLAG_SYS_PC_LANETTE
+	msgbox Route25_SeaCottage_Text_SSAnnePartyYouGoInstead
+	return
+
+Route25_SeaCottage_EventScript_YellowAutomaticSSTicketNoRoom::
+	msgbox Route25_SeaCottage_Text_YouveGotTooMuchStuff
+	return
 
 Route25_SeaCottage_EventScript_PlayTeleporterBeepSE::
 	playse SE_BALL
@@ -293,6 +511,71 @@ Route25_SeaCottage_Movement_BillWalkToMiddleOfRoom::
 
 Route25_SeaCottage_Movement_BillExitTeleporter::
 	walk_down
+	step_end
+
+@ Yellow-specific additive Partner and post-restoration movements.
+Route25_SeaCottage_Movement_PartnerApproachTransformedBill::
+	walk_right
+	walk_right
+	walk_right
+	walk_up
+	walk_up
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerConfusedByBill::
+	jump_in_place_up
+	delay_8
+	face_left
+	delay_8
+	face_right
+	delay_8
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerReturnFromBill::
+	walk_left
+	walk_left
+	walk_down
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerConcernedAtTeleporter::
+	jump_in_place_up
+	delay_16
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerWatchSeparator::
+	face_up
+	delay_8
+	walk_in_place_slow_up
+	delay_16
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerExcitedBillRestored::
+	jump_in_place_up
+	delay_4
+	jump_in_place_up
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_BillStageForThanks::
+	walk_up
+	face_down
+	step_end
+
+Route25_SeaCottage_Movement_PlayerApproachRestoredBill::
+	walk_right
+	walk_right
+	walk_right
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerStageForThanks::
+	walk_down
+	face_up
 	step_end
 
 Route25_SeaCottage_Text_ImBillHelpMeOutPal::
@@ -402,4 +685,3 @@ Route25_SeaCottage_Text_BillsFavoriteMonList::
 
 Route25_SeaCottage_Text_SeeWhichMon::
 	.string "Which POKéMON do you want to see?$"
-
