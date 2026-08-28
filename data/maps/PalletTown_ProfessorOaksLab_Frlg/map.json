@@ -134,6 +134,21 @@
       "flag": "FLAG_HIDE_RIVAL_IN_LAB"
     },
     {
+      "local_id": "LOCALID_OAKS_LAB_YELLOW_PIKACHU",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PIKACHU",
+      "x": 6,
+      "y": 8,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU"
+    },
+    {
       "local_id": "LOCALID_POKEDEX_1",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_POKEDEX",

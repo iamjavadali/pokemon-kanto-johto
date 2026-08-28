@@ -149,12 +149,12 @@
 #define FLAG_HIDE_SAFFRON_CITY_POKECENTER_SABRINA_JOURNALS 0x0AE
 
 // Unused?
-#define FLAG_0x0AF               0x0AF
-#define FLAG_0x0B0               0x0B0
-#define FLAG_0x0B1               0x0B1
-#define FLAG_0x0B2               0x0B2
-#define FLAG_0x0B3               0x0B3
-#define FLAG_0x0B4               0x0B4
+#define FLAG_HIDE_PALLET_WILD_PIKACHU                    0x0AF
+#define FLAG_PARTNER_PIKACHU_FOLLOWING     0x0B0 // Set only when Pikachu exits its Ball after the Oak Lab rival battle
+#define FLAG_GOT_TRAINER_WATCH                 0x0B1 // Mom gave the RTC-backed Trainer Watch
+#define FLAG_TRAINER_WATCH_TIME_VALID          0x0B2 // Saved fallback clock state is initialized
+#define FLAG_HIDE_ROUTE1_YELLOW_OAK             0x0B3 // Route 1-only Oak actor for Yellow opening
+#define FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU       0x0B4 // Cinematic Pikachu before persistent following begins
 #define FLAG_0x0B5               0x0B5
 #define FLAG_0x0B6               0x0B6
 #define FLAG_0x0B7               0x0B7

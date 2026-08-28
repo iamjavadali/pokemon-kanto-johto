@@ -14,12 +14,14 @@ PewterCity_EventScript_GymGuide::
 	faceplayer
 	msgbox PewterCity_Text_BrocksLookingForChallengersFollowMe
 	closemessage
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	playbgm MUS_FOLLOW_ME, 0
 	call_if_eq VAR_FACING, DIR_EAST, PewterCity_EventScript_WalkToGymEast
 	msgbox PewterCity_Text_GoTakeOnBrock
 	closemessage
 	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GymGuideExit
 	waitmovement 0
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	fadedefaultbgm
 	removeobject LOCALID_PEWTER_GYM_GUIDE
 	clearflag FLAG_HIDE_PEWTER_CITY_GYM_GUIDE
@@ -279,9 +281,14 @@ PewterCity_EventScript_GymGuideTriggerRight::
 	end
 
 PewterCity_EventScript_GymGuideTrigger::
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox PewterCity_Text_BrocksLookingForChallengersFollowMe
 	closemessage
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	playbgm MUS_FOLLOW_ME, 0
 	call_if_eq VAR_TEMP_1, 0, PewterCity_EventScript_WalkToGymTop
 	call_if_eq VAR_TEMP_1, 1, PewterCity_EventScript_WalkToGymMid
@@ -290,6 +297,7 @@ PewterCity_EventScript_GymGuideTrigger::
 	closemessage
 	applymovement LOCALID_PEWTER_GYM_GUIDE, PewterCity_Movement_GymGuideExit
 	waitmovement 0
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	fadedefaultbgm
 	removeobject LOCALID_PEWTER_GYM_GUIDE
 	clearflag FLAG_HIDE_PEWTER_CITY_GYM_GUIDE
@@ -681,6 +689,7 @@ PewterCity_EventScript_RunningShoesAideTriggerBottom::
 	end
 
 PewterCity_EventScript_AideGiveRunningShoes::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	textcolor NPC_TEXT_COLOR_MALE
 	call_if_eq VAR_TEMP_1, 1, PewterCity_EventScript_AideNoticePlayer
 	call_if_eq VAR_TEMP_1, 2, PewterCity_EventScript_AideNoticePlayer
@@ -721,6 +730,7 @@ PewterCity_EventScript_AideGiveRunningShoes::
 	removeobject LOCALID_PEWTER_AIDE
 	setflag FLAG_SYS_B_DASH
 	setvar VAR_MAP_SCENE_PEWTER_CITY, 2
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
 PewterCity_EventScript_AideNoticePlayer::
@@ -973,4 +983,3 @@ PewterCity_Text_RunningShoesLetterFromMom::
 	.string "Remember, I'll always cheer for\n"
 	.string "you! Don't ever give up!\p"
 	.string "From Mom$"
-

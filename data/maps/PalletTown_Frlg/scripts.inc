@@ -7,10 +7,15 @@ PalletTown_Frlg_MapScripts::
 
 PalletTown_OnTransition::
 	setworldmapflag FLAG_WORLD_MAP_PALLET_TOWN
+	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_OAK, 0, PalletTown_EventScript_HideYellowPikachu
 	call_if_set FLAG_PALLET_LADY_NOT_BLOCKING_SIGN, PalletTown_EventScript_TryReadySignLady
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 0, PalletTown_EventScript_SetSignLadyPos
 	call_if_eq VAR_MAP_SCENE_PALLET_TOWN_SIGN_LADY, 1, PalletTown_EventScript_SetSignLadyDone
 	end
+
+PalletTown_EventScript_HideYellowPikachu::
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	return
 
 PalletTown_EventScript_TryReadySignLady::
 	goto_if_unset FLAG_OPENED_START_MENU, Common_EventScript_NopReturn
@@ -36,7 +41,57 @@ PalletTown_EventScript_MoveSignLadyToRouteEntrance::
 
 PalletTown_OnFrame::
 	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 2, PalletTown_EventScript_OakRatingScene
+	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 4, PalletTown_EventScript_YellowOakEscortFromRoute1Left
+	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 5, PalletTown_EventScript_YellowOakEscortFromRoute1Right
+	map_script_2 VAR_MAP_SCENE_PALLET_TOWN_OAK, 6, PalletTown_EventScript_YellowOakWaitAtLabFromRoute1
 	.2byte 0
+
+PalletTown_EventScript_YellowOakEscortFromRoute1Left:
+	lockall
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+	textcolor NPC_TEXT_COLOR_MALE
+	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
+	waitmovement LOCALID_PLAYER
+	setobjectxyperm LOCALID_PALLET_PROF_OAK, 12, 1
+	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
+	addobject LOCALID_PALLET_PROF_OAK
+	call PalletTown_EventScript_OakLeadPlayerToLabFromRoute1Left
+	goto PalletTown_EventScript_YellowOakEnterLabFromRoute1
+
+PalletTown_EventScript_YellowOakEscortFromRoute1Right:
+	lockall
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+	textcolor NPC_TEXT_COLOR_MALE
+	clearflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerClearRoute1Edge
+	waitmovement LOCALID_PLAYER
+	setobjectxyperm LOCALID_PALLET_PROF_OAK, 13, 1
+	setobjectmovementtype LOCALID_PALLET_PROF_OAK, MOVEMENT_TYPE_FACE_DOWN
+	addobject LOCALID_PALLET_PROF_OAK
+	call PalletTown_EventScript_OakLeadPlayerToLabFromRoute1Right
+
+PalletTown_EventScript_YellowOakEnterLabFromRoute1:
+	opendoor 16, 13
+	waitdooranim
+	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakEnterLab
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerEnterLab
+	waitmovement 0
+	closedoor 16, 13
+	waitdooranim
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 1
+	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
+	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
+	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	setflag FLAG_HIDE_BULBASAUR_BALL
+	clearflag FLAG_HIDE_SQUIRTLE_BALL
+	setflag FLAG_HIDE_CHARMANDER_BALL
+	clearflag FLAG_HIDE_RIVAL_IN_LAB
+	setflag FLAG_DONT_TRANSITION_MUSIC
+	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
+	waitstate
+	releaseall
+	end
 
 @ Oak approaches player after exiting their house post Elite Four to check if they should receieve the National Dex
 PalletTown_EventScript_OakRatingScene::
@@ -179,27 +234,44 @@ PalletTown_EventScript_OakTriggerRight::
 	end
 
 PalletTown_EventScript_OakTrigger::
-	famechecker FAMECHECKER_OAK, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
-	textcolor NPC_TEXT_COLOR_MALE
-	delay 30
-	playbgm MUS_RG_OAK, 0
-	message PalletTown_Text_OakDontGoOut
-	waitmessage
-	delay 85
-	closemessage
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterDown
 	waitmovement 0
 	playse SE_PIN
 	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
 	waitmovement 0
-	delay 30
+	delay 16
+	famechecker FAMECHECKER_OAK, FCPICKSTATE_COLORED, UpdatePickStateFromSpecialVar8005
+	textcolor NPC_TEXT_COLOR_MALE
+	delay 20
+	playbgm MUS_RG_OAK, 0
+	message PalletTown_Text_OakDontGoOut
+	waitmessage
+	delay 55
+	closemessage
 	addobject LOCALID_PALLET_PROF_OAK
 	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_OakEnterLeft
 	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_OakEnterRight
 	delay 30
 	msgbox PalletTown_Text_OakGrassUnsafeNeedMon
 	closemessage
-	delay 30
+	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_FaceYellowGrassLeft
+	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_FaceYellowGrassRight
+	clearflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	addobject LOCALID_YELLOW_PIKACHU
+	delay 16
+	playmoncry SPECIES_PIKACHU, CRY_MODE_NORMAL
+	waitmoncry
+	delay 24
+	setflag FLAG_HIDE_PALLET_WILD_PIKACHU
+	removeobject LOCALID_YELLOW_PIKACHU
+	special StartYellowPikachuCaptureBattle
+	waitstate
+	lockall
+	textcolor NPC_TEXT_COLOR_MALE
+	msgbox PalletTown_Text_OakWhew
+	msgbox PalletTown_Text_OakComeWithMeYellow
+	closemessage
+	delay 20
 	call_if_eq VAR_TEMP_1, 0, PalletTown_EventScript_OakLeadPlayerToLabLeft
 	call_if_eq VAR_TEMP_1, 1, PalletTown_EventScript_OakLeadPlayerToLabRight
 	opendoor 16, 13
@@ -213,11 +285,27 @@ PalletTown_EventScript_OakTrigger::
 	clearflag FLAG_HIDE_OAK_IN_HIS_LAB
 	setvar VAR_MAP_SCENE_PALLET_TOWN_OAK, 1
 	setflag FLAG_HIDE_OAK_IN_PALLET_TOWN
+	setflag FLAG_HIDE_BULBASAUR_BALL
+	clearflag FLAG_HIDE_SQUIRTLE_BALL
+	setflag FLAG_HIDE_CHARMANDER_BALL
+	clearflag FLAG_HIDE_RIVAL_IN_LAB
 	setflag FLAG_DONT_TRANSITION_MUSIC
 	warp MAP_PALLET_TOWN_PROFESSOR_OAKS_LAB, 6, 12
 	waitstate
 	releaseall
 	end
+
+PalletTown_EventScript_FaceYellowGrassLeft::
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceRight
+	waitmovement 0
+	return
+
+PalletTown_EventScript_FaceYellowGrassRight::
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement LOCALID_PALLET_PROF_OAK, Common_Movement_FaceRight
+	waitmovement 0
+	return
 
 PalletTown_EventScript_OakEnterLeft::
 	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakEnterLeft
@@ -241,6 +329,18 @@ PalletTown_EventScript_OakLeadPlayerToLabRight::
 	waitmovement 0
 	return
 
+PalletTown_EventScript_OakLeadPlayerToLabFromRoute1Left::
+	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakWalkToLabLeft
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToLabFromRoute1Left
+	waitmovement 0
+	return
+
+PalletTown_EventScript_OakLeadPlayerToLabFromRoute1Right::
+	applymovement LOCALID_PALLET_PROF_OAK, PalletTown_Movement_OakWalkToLabRight
+	applymovement LOCALID_PLAYER, PalletTown_Movement_PlayerWalkToLabFromRoute1Right
+	waitmovement 0
+	return
+
 PalletTown_Movement_OakEnterLeft::
 	walk_up
 	walk_up
@@ -248,6 +348,7 @@ PalletTown_Movement_OakEnterLeft::
 	walk_up
 	walk_up
 	walk_right
+	walk_up
 	walk_up
 	walk_up
 	step_end
@@ -260,6 +361,7 @@ PalletTown_Movement_OakEnterRight::
 	walk_up
 	walk_up
 	walk_right
+	walk_up
 	walk_up
 	walk_up
 	step_end
@@ -285,12 +387,14 @@ PalletTown_Movement_OakEnterRight::
 
 PalletTown_Movement_OakWalkToLabLeft::
 	walk_down
+	walk_down
 	walk_to_lab
 	walk_right
 	walk_in_place_faster_up
 	step_end
 
 PalletTown_Movement_OakWalkToLabRight::
+	walk_down
 	walk_down
 	walk_left
 	walk_to_lab
@@ -306,11 +410,28 @@ PalletTown_Movement_OakEnterLab::
 PalletTown_Movement_PlayerWalkToLabLeft::
 	walk_down
 	walk_down
+	walk_down
 	walk_to_lab
 	step_end
 
 PalletTown_Movement_PlayerWalkToLabRight::
 	walk_down
+	walk_down
+	walk_down
+	walk_left
+	walk_to_lab
+	step_end
+
+PalletTown_Movement_PlayerClearRoute1Edge::
+	walk_down
+	step_end
+
+PalletTown_Movement_PlayerWalkToLabFromRoute1Left::
+	walk_down
+	walk_to_lab
+	step_end
+
+PalletTown_Movement_PlayerWalkToLabFromRoute1Right::
 	walk_down
 	walk_left
 	walk_to_lab
@@ -453,12 +574,18 @@ PalletTown_Text_OakDontGoOut::
 	.string "Don't go out!$"
 
 PalletTown_Text_OakGrassUnsafeNeedMon::
-	.string "OAK: It's unsafe!\n"
-	.string "Wild POKéMON live in tall grass!\p"
-	.string "You need your own POKéMON for\n"
-	.string "your protection.\p"
-	.string "I know!\n"
-	.string "Here, come with me!$"
+	.string "OAK: That was close!\n"
+	.string "Wild POKéMON live in tall grass!$"
+
+PalletTown_Text_OakWhew::
+	.string "OAK: Whew...$"
+
+PalletTown_Text_OakComeWithMeYellow:
+	.string "OAK: A POKéMON can appear anytime\n"
+	.string "in tall grass.\p"
+	.string "You need your own POKéMON for your\n"
+	.string "protection.\p"
+	.string "I know! Here, come with me!$"
 
 PalletTown_Text_RaisingMonsToo::
 	.string "I'm raising POKéMON, too.\p"
@@ -544,5 +671,3 @@ PalletTown_Text_LookCopiedTrainerTipsSign::
 PalletTown_Text_PressStartToOpenMenuCopy::
 	.string "TRAINER TIPS!\p"
 	.string "Press START to open the MENU!$"
-
-

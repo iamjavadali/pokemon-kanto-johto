@@ -2948,7 +2948,7 @@ const struct SpeciesInfo gSpeciesInfoGen1[] =
         .baseDefense   = PIKACHU_DEFENSE,
         .baseSpeed     = 90,
         .baseSpAttack  = 50,
-        .baseSpDefense = P_UPDATED_STATS >= GEN_6 || P_UPDATED_STATS == GEN_1 ? 50 : 40,
+        .baseSpDefense = PIKACHU_SP_DEF,
         .types = MON_TYPES(TYPE_ELECTRIC),
         .catchRate = 190,
         .expYield = PIKACHU_EXP_YIELD,

@@ -121,7 +121,7 @@ ViridianCity_EventScript_TutorialCompleted::
 	end
 
 ViridianCity_EventScript_TutorialStart::
-	call ViridianCity_EventScript_DoTutorialBattle
+	call ViridianCity_EventScript_TeachyTVGift
 	release
 	end
 
@@ -200,36 +200,38 @@ ViridianCity_Movement_WalkDown::
 ViridianCity_EventScript_TutorialTriggerLeft::
 	lockall
 	textcolor NPC_TEXT_COLOR_MALE
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
 	applymovement LOCALID_TUTORIAL_MAN, Common_Movement_WalkInPlaceFasterLeft
 	waitmovement 0
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
 	waitmovement 0
-	call ViridianCity_EventScript_DoTutorialBattle
-	release
+	call ViridianCity_EventScript_TeachyTVGift
+	releaseall
 	end
 
 ViridianCity_EventScript_TutorialTriggerRight::
 	lockall
 	textcolor NPC_TEXT_COLOR_MALE
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
 	applymovement LOCALID_TUTORIAL_MAN, Common_Movement_WalkInPlaceFasterRight
 	waitmovement 0
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
 	waitmovement 0
-	call ViridianCity_EventScript_DoTutorialBattle
-	release
+	call ViridianCity_EventScript_TeachyTVGift
+	releaseall
 	end
 
-ViridianCity_EventScript_DoTutorialBattle::
-	msgbox ViridianCity_Text_ShowYouHowToCatchMons
-	closemessage
-	special StartOldManTutorialBattle
-	waitstate
-	lock
-	faceplayer
-	msgbox ViridianCity_Text_ThatWasEducationalTakeThis
+ViridianCity_EventScript_TeachyTVGift::
+	msgbox ViridianCity_Text_TeachyTVIntro
 	setvar VAR_MAP_SCENE_VIRIDIAN_CITY_OLD_MAN, 2
 	giveitem ITEM_TEACHY_TV
-	msgbox ViridianCity_Text_WatchThatToLearnBasics
+	msgbox ViridianCity_Text_TeachyTVExplanation
 	return
 
 ViridianCity_Text_CanCarryMonsAnywhere::
@@ -303,6 +305,28 @@ ViridianCity_Text_WatchThatToLearnBasics::
 	.string "It will teach you about the basics\n"
 	.string "of being a POKéMON TRAINER.$"
 
+ViridianCity_Text_TeachyTVIntro::
+	.string "Ahh, I've had my coffee now,\n"
+	.string "and I feel great!\p"
+	.string "Hm? What's that red box you have?\p"
+	.string "Ah, so you're working on your\n"
+	.string "POKéDEX.\p"
+	.string "Whenever you catch a POKéMON,\n"
+	.string "the POKéDEX records its data.\p"
+	.string "You look like you know the basics\n"
+	.string "already, so I won't hold you up.\p"
+	.string "Here! Take this with you.$"
+
+ViridianCity_Text_TeachyTVExplanation::
+	.string "That's the TEACHY TV!\p"
+	.string "If there's something you don't\n"
+	.string "understand, give it a watch.\p"
+	.string "My grandson is on the show.\n"
+	.string "He'll teach you the basics of being\l"
+	.string "a POKéMON TRAINER.\p"
+	.string "Now, off you go!\n"
+	.string "VIRIDIAN FOREST is just ahead!$"
+
 ViridianCity_Text_WeakenMonsFirstToCatch::
 	.string "Well, now, I've had my coffee, and\n"
 	.string "that's what I need to get going!\p"
@@ -356,4 +380,3 @@ ViridianCity_Text_GymSign::
 
 ViridianCity_Text_GymDoorsAreLocked::
 	.string "VIRIDIAN GYM's doors are locked…$"
-

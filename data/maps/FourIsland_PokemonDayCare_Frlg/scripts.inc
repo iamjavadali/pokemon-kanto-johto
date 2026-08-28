@@ -24,6 +24,7 @@ FourIsland_PokemonDayCare_GiveMonToRaise::
 	specialvar VAR_RESULT, CountPartyAliveNonEggMons_IgnoreVar0x8004Slot
 	goto_if_eq VAR_RESULT, 0, FourIsland_PokemonDayCare_OnlyOneAliveMonInParty
 	specialvar VAR_0x8005, GetSelectedMonNicknameAndSpecies
+	goto_if_eq VAR_0x8005, SPECIES_PIKACHU_STARTER, FourIsland_PokemonDayCare_PartnerPikachuStays
 	waitse
 	playmoncry VAR_0x8005, CRY_MODE_NORMAL
 	msgbox DayCare_Text_WellRaiseYourMon
@@ -185,3 +186,11 @@ FourIsland_PokemonDayCare_EventScript_UnusedRetrieveMon::
 	msgbox DayCare_Text_ComeAgain
 	release
 	end
+
+FourIsland_PokemonDayCare_PartnerPikachuStays::
+	msgbox FourIsland_PokemonDayCare_Text_PartnerPikachuStays
+	release
+	end
+
+FourIsland_PokemonDayCare_Text_PartnerPikachuStays::
+	.string "PIKACHU refuses to stay\nbehind.$"

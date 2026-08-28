@@ -151,8 +151,10 @@ void ClearObjectEventMovement(struct ObjectEvent *objectEvent, struct Sprite *sp
 void ObjectEventClearHeldMovement(struct ObjectEvent *objectEvent);
 void ObjectEventClearHeldMovementIfActive(struct ObjectEvent *objectEvent);
 struct Pokemon *GetFirstLiveMon(void);
+struct Pokemon *GetPartnerAwareFollowingMon(void);
 enum Species GetOverworldWeatherSpecies(enum Species species);
 void UpdateFollowingPokemon(void);
+void PlaceFollowingPokemonAtScriptedObject(void);
 void RemoveFollowingPokemon(void);
 struct ObjectEvent *GetFollowerObject(void);
 enum Direction GetDirectionToFace(s16, s16, s16, s16);

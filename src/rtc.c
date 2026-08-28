@@ -1,4 +1,6 @@
 #include "global.h"
+#include "event_data.h"
+#include "clock.h"
 #include "battle_pike.h"
 #include "battle_pyramid.h"
 #include "datetime.h"
@@ -7,6 +9,7 @@
 #include "strings.h"
 #include "text.h"
 #include "fake_rtc.h"
+#include "constants/flags.h"
 #include "overworld.h"
 
 // iwram bss
@@ -142,11 +145,31 @@ u16 RtcGetErrorStatus(void)
 void RtcGetInfo(struct SiiRtcInfo *rtc)
 {
     if (OW_USE_FAKE_RTC)
+    {
         FakeRtc_GetRawInfo(rtc);
-    else if (sErrorStatus & RTC_ERR_FLAG_MASK)
-        *rtc = sRtcDummy;
+    }
+    else if (sErrorStatus != 0)
+    {
+        // No physical/emulated RTC. Prefer the last valid Trainer Watch
+        // snapshot; otherwise retain vanilla's safe dummy time until Mom
+        // asks the player to configure the Watch manually.
+        if (FlagGet(FLAG_TRAINER_WATCH_TIME_VALID))
+            *rtc = gSaveBlock3Ptr->fakeRTC;
+        else
+            *rtc = sRtcDummy;
+    }
     else
+    {
         RtcGetRawInfo(rtc);
+
+        // Once the Watch has been received, every successful RTC read also
+        // refreshes the persisted fallback snapshot.
+        if (FlagGet(FLAG_GOT_TRAINER_WATCH))
+        {
+            gSaveBlock3Ptr->fakeRTC = *rtc;
+            FlagSet(FLAG_TRAINER_WATCH_TIME_VALID);
+        }
+    }
 }
 
 void RtcGetDateTime(struct SiiRtcInfo *rtc)
@@ -318,6 +341,102 @@ void RtcCalcLocalTime(void)
 {
     RtcGetInfo(&sRtc);
     RtcCalcTimeDifference(&sRtc, &gLocalTime, &gSaveBlock2Ptr->localTimeOffset);
+}
+
+static u8 TrainerWatchBinaryToBcd(u8 value)
+{
+    return ((value / 10) << 4) | (value % 10);
+}
+
+static u32 TrainerWatchDaysFromEpoch(u16 year, u8 month, u8 day)
+{
+    u32 days = 0;
+    u16 y;
+    u8 m;
+
+    for (y = 2000; y < year; y++)
+        days += IsLeapYear(y) ? 366 : 365;
+
+    for (m = MONTH_JAN; m < month; m++)
+        days += sNumDaysInMonths[m - 1] + (m == MONTH_FEB && IsLeapYear(year));
+
+    return days + day - 1;
+}
+
+static void TrainerWatchStoreDateTime(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second)
+{
+    struct SiiRtcInfo *watch = &gSaveBlock3Ptr->fakeRTC;
+    u32 daysFromEpoch = TrainerWatchDaysFromEpoch(year, month, day);
+
+    memset(watch, 0, sizeof(*watch));
+    watch->status = SIIRTCINFO_24HOUR;
+    watch->year = TrainerWatchBinaryToBcd(year - 2000);
+    watch->month = TrainerWatchBinaryToBcd(month);
+    watch->day = TrainerWatchBinaryToBcd(day);
+    watch->dayOfWeek = (WEEKDAY_SAT + daysFromEpoch) % WEEKDAY_COUNT;
+    watch->hour = TrainerWatchBinaryToBcd(hour);
+    watch->minute = TrainerWatchBinaryToBcd(minute);
+    watch->second = TrainerWatchBinaryToBcd(second);
+}
+
+u16 TrainerWatchCheckClock(void)
+{
+    memset(&gSaveBlock2Ptr->localTimeOffset, 0, sizeof(gSaveBlock2Ptr->localTimeOffset));
+
+    if (!OW_USE_FAKE_RTC && sErrorStatus == 0)
+    {
+        RtcGetRawInfo(&sRtc);
+        gSaveBlock3Ptr->fakeRTC = sRtc;
+        FlagSet(FLAG_TRAINER_WATCH_TIME_VALID);
+        InitTimeBasedEvents();
+        return 1;
+    }
+
+    if (FlagGet(FLAG_TRAINER_WATCH_TIME_VALID))
+    {
+        InitTimeBasedEvents();
+        return 2;
+    }
+
+    return 0;
+}
+
+void TrainerWatchSetManualDateTime(u16 year, u8 month, u8 day, u8 hour, u8 minute)
+{
+    memset(&gSaveBlock2Ptr->localTimeOffset, 0, sizeof(gSaveBlock2Ptr->localTimeOffset));
+    TrainerWatchStoreDateTime(year, month, day, hour, minute, 0);
+    FlagSet(FLAG_TRAINER_WATCH_TIME_VALID);
+    InitTimeBasedEvents();
+}
+
+void TrainerWatchTickFallback(void)
+{
+    struct DateTime dateTime;
+    struct SiiRtcInfo *watch;
+    u8 year;
+
+    if (OW_USE_FAKE_RTC || sErrorStatus == 0 || !FlagGet(FLAG_TRAINER_WATCH_TIME_VALID))
+        return;
+
+    watch = &gSaveBlock3Ptr->fakeRTC;
+    year = ConvertBcdToBinary(watch->year);
+
+    dateTime.year = 2000 + year;
+    dateTime.month = ConvertBcdToBinary(watch->month);
+    dateTime.day = ConvertBcdToBinary(watch->day);
+    dateTime.dayOfWeek = watch->dayOfWeek;
+    dateTime.hour = ConvertBcdToBinary(watch->hour);
+    dateTime.minute = ConvertBcdToBinary(watch->minute);
+    dateTime.second = ConvertBcdToBinary(watch->second);
+
+    DateTime_AddSeconds(&dateTime, 1);
+    TrainerWatchStoreDateTime(
+        dateTime.year,
+        dateTime.month,
+        dateTime.day,
+        dateTime.hour,
+        dateTime.minute,
+        dateTime.second);
 }
 
 bool8 IsBetweenHours(s32 hours, s32 begin, s32 end)

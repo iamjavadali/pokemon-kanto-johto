@@ -1,10 +1,127 @@
 PalletTown_PlayersHouse_1F_Frlg_MapScripts::
 	.byte 0
 
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchLeft::
+	lockall
+	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	call PalletTown_PlayersHouse_1F_EventScript_MomAlert
+	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromLeft
+	waitmovement 0
+	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
+
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchRight::
+	lockall
+	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	call PalletTown_PlayersHouse_1F_EventScript_MomAlert
+	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromRight
+	waitmovement 0
+	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
+
+PalletTown_PlayersHouse_1F_EventScript_EnsureTrainerWatchSide::
+	lockall
+	goto_if_set FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone
+	call PalletTown_PlayersHouse_1F_EventScript_MomAlert
+	applymovement LOCALID_PLAYER, PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromSide
+	waitmovement 0
+	goto PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch
+
+PalletTown_PlayersHouse_1F_EventScript_MomAlert:
+	playse SE_PIN
+	applymovement LOCALID_PLAYER, Common_Movement_ExclamationMark
+	waitmovement 0
+	delay 16
+	msgbox PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving
+	closemessage
+	return
+
+PalletTown_PlayersHouse_1F_EventScript_AutoTrainerWatch::
+	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FacePlayer
+	waitmovement 0
+	call PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
+	applymovement LOCALID_PLAYERS_HOUSE_1F_MOM, Common_Movement_FaceOriginalDirection
+	waitmovement 0
+	releaseall
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_MarkTrainerWatchSceneDone::
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
+	releaseall
+	end
+
+PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromLeft:
+	walk_up
+	walk_up
+	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
+PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromRight:
+	walk_up
+	walk_up
+	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
+PalletTown_PlayersHouse_1F_Movement_PlayerToMomFromSide:
+	walk_up
+	walk_up
+	walk_up
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_right
+	walk_in_place_faster_up
+	step_end
+
 PalletTown_PlayersHouse_1F_EventScript_Mom::
 	lock
 	faceplayer
 	goto_if_set FLAG_BEAT_RIVAL_IN_OAKS_LAB, PalletTown_PlayersHouse_1F_EventScript_MomHeal
+	goto_if_unset FLAG_GOT_TRAINER_WATCH, PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch
+	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_SetupTrainerWatch::
+	call PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch
+	setvar VAR_MAP_SCENE_PALLET_TOWN_PLAYERS_HOUSE_1F, 1
+	goto PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney
+	end
+
+PalletTown_PlayersHouse_1F_EventScript_GiveTrainerWatch::
+	msgbox PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro
+	closemessage
+	playfanfare MUS_RG_OBTAIN_KEY_ITEM
+	message PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch
+	waitmessage
+	waitfanfare
+	setflag FLAG_GOT_TRAINER_WATCH
+	specialvar VAR_RESULT, TrainerWatchCheckClock
+	goto_if_eq VAR_RESULT, 1, PalletTown_PlayersHouse_1F_EventScript_TrainerWatchRtcReady
+	goto_if_eq VAR_RESULT, 2, PalletTown_PlayersHouse_1F_EventScript_TrainerWatchSavedReady
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchNeedsManualSetup
+	closemessage
+	special StartTrainerWatchManualSetup
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady
+	return
+
+PalletTown_PlayersHouse_1F_EventScript_TrainerWatchRtcReady::
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced
+	return
+
+PalletTown_PlayersHouse_1F_EventScript_TrainerWatchSavedReady::
+	msgbox PalletTown_PlayersHouse_1F_Text_TrainerWatchSavedTimeReady
+	return
+
+PalletTown_PlayersHouse_1F_EventScript_MomBeforeJourney::
 	checkplayergender
 	call_if_eq VAR_RESULT, MALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouMale
 	call_if_eq VAR_RESULT, FEMALE, PalletTown_PlayersHouse_1F_EventScript_MomOakLookingForYouFemale
@@ -90,3 +207,38 @@ PalletTown_PlayersHouse_1F_Text_MovieOnTVGirlOnBrickRoad::
 
 PalletTown_PlayersHouse_1F_Text_OopsWrongSide::
 	.string "Oops, wrong side…$"
+
+PalletTown_PlayersHouse_1F_Text_MomStopBeforeLeaving::
+	.string "MOM: Wait, {PLAYER}!\n"
+	.string "Before you go, there's one\l"
+	.string "thing you need.$"
+
+PalletTown_PlayersHouse_1F_Text_MomTrainerWatchIntro::
+	.string "MOM: Before you leave, I have\n"
+	.string "something for you.\p"
+	.string "It's a TRAINER WATCH. It keeps\n"
+	.string "the date and time on your journey.$"
+
+PalletTown_PlayersHouse_1F_Text_ReceivedTrainerWatch::
+	.string "{PLAYER} received the TRAINER WATCH!$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchAutoSynced::
+	.string "MOM: Perfect! Your TRAINER WATCH\n"
+	.string "synchronized automatically.\p"
+	.string "The world will follow the current\n"
+	.string "date and time.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchSavedTimeReady::
+	.string "MOM: Your TRAINER WATCH found its\n"
+	.string "last saved time. You're all set.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchNeedsManualSetup::
+	.string "MOM: It couldn't synchronize with\n"
+	.string "a real-time clock.\p"
+	.string "Set the date and time once, and the\n"
+	.string "TRAINER WATCH will keep them for you.$"
+
+PalletTown_PlayersHouse_1F_Text_TrainerWatchManualReady::
+	.string "MOM: All set! If a real-time clock\n"
+	.string "becomes available later, the WATCH\l"
+	.string "will synchronize automatically.$"

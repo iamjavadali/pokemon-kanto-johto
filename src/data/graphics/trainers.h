@@ -469,6 +469,9 @@ const u16 gTrainerPalette_LadyFrlg[] = INCGFX_U16("graphics/trainers/palettes/la
 const u32 gTrainerFrontPic_PainterFrlg[] = INCGFX_U32("graphics/trainers/front_pics/painter_frlg.png", ".4bpp.smol");
 const u16 gTrainerPalette_PainterFrlg[] = INCGFX_U16("graphics/trainers/palettes/painter_frlg.pal", ".gbapal");
 
+const u32 gTrainerFrontPic_JessieAndJames[] = INCGFX_U32("graphics/trainers/front_pics/jessie_and_james_frlg.png", ".4bpp.smol");
+const u16 gTrainerPalette_JessieAndJames[] = INCGFX_U16("graphics/trainers/palettes/jessie_and_james_frlg.pal", ".gbapal");
+
 static const u8 gTrainerBackPic_None[] = INCGFX_U8("graphics/trainers/back_pics/none.png", ".4bpp");
 const u8 gTrainerBackPic_Brendan[] = INCGFX_U8("graphics/trainers/back_pics/brendan.png", ".4bpp");
 const u8 gTrainerBackPic_May[] = INCGFX_U8("graphics/trainers/back_pics/may.png", ".4bpp");
@@ -480,11 +483,14 @@ const u8 gTrainerBackPic_Wally[] = INCGFX_U8("graphics/trainers/back_pics/wally.
 const u8 gTrainerBackPic_Steven[] = INCGFX_U8("graphics/trainers/back_pics/steven.png", ".4bpp");
 const u8 gTrainerBackPic_Pokedude[] = INCGFX_U8("graphics/trainers/back_pics/pokedude.png", ".4bpp");
 const u8 gTrainerBackPic_OldMan[] = INCGFX_U8("graphics/trainers/back_pics/old_man.png", ".4bpp");
+// Temporary Yellow-opening asset adapted from the supplied Oak sprite sheet.
+const u8 gTrainerBackPic_ProfessorOakYellow[] = INCGFX_U8("graphics/trainers/back_pics/professor_oak_yellow.png", ".4bpp");
 
 const u16 gTrainerBackPicPalette_Red[] = INCGFX_U16("graphics/trainers/back_pics/red.png", ".gbapal");
 const u16 gTrainerBackPicPalette_Leaf[] = INCGFX_U16("graphics/trainers/back_pics/leaf.png", ".gbapal");
 const u16 gTrainerBackPicPalette_Pokedude[] = INCGFX_U16("graphics/trainers/back_pics/pokedude.png", ".gbapal");
 const u16 gTrainerBackPicPalette_OldMan[] = INCGFX_U16("graphics/trainers/back_pics/old_man.png", ".gbapal");
+const u16 gTrainerBackPicPalette_ProfessorOakYellow[] = INCGFX_U16("graphics/trainers/back_pics/professor_oak_yellow.png", ".gbapal");
 
 
 static const union AnimCmd sAnimCmd_Hoenn[] =
@@ -1181,6 +1187,7 @@ const struct TrainerPicInfo gTrainerPicInfo[TRAINER_PIC_COUNT] =
     [TRAINER_PIC_PROFESSOR_OAK_FRLG] =
     {
         .frontPic = TRAINER_FRONT_PIC(gTrainerFrontPic_ProfessorOakFrlg, gTrainerPalette_ProfessorOakFrlg),
+        .backPic = TRAINER_BACK_PIC(4, gTrainerBackPic_ProfessorOakYellow, gTrainerBackPicPalette_ProfessorOakYellow, sBackAnims_OldManPokedude),
     },
     [TRAINER_PIC_ROCKET_GRUNT_F_FRLG] =
     {
@@ -1225,5 +1232,9 @@ const struct TrainerPicInfo gTrainerPicInfo[TRAINER_PIC_COUNT] =
     [TRAINER_PIC_PAINTER_FRLG] =
     {
         .frontPic = TRAINER_FRONT_PIC(gTrainerFrontPic_PainterFrlg, gTrainerPalette_PainterFrlg),
+    },
+    [TRAINER_PIC_JESSIE_AND_JAMES] =
+    {
+        .frontPic = TRAINER_FRONT_PIC(gTrainerFrontPic_JessieAndJames, gTrainerPalette_JessieAndJames),
     },
 };

@@ -22,6 +22,7 @@ Route5_PokemonDayCare_EventScript_TryGiveMon::
 	specialvar VAR_RESULT, CountPartyAliveNonEggMons_IgnoreVar0x8004Slot
 	goto_if_eq VAR_RESULT, 0, Route5_PokemonDayCare_EventScript_OnlyOneAliveMonInParty
 	specialvar VAR_0x8005, GetSelectedMonNicknameAndSpecies
+	goto_if_eq VAR_0x8005, SPECIES_PIKACHU_STARTER, Route5_PokemonDayCare_EventScript_PartnerPikachuStays
 	msgbox Route5_PokemonDayCare_Text_LookAfterMonForAWhile
 	waitse
 	playmoncry VAR_0x8005, CRY_MODE_NORMAL
@@ -105,3 +106,11 @@ Route5_PokemonDayCare_EventScript_CloseMoneyBox::
 	hidemoneybox
 	release
 	end
+
+Route5_PokemonDayCare_EventScript_PartnerPikachuStays::
+	msgbox Route5_PokemonDayCare_Text_PartnerPikachuStays
+	goto Route5_PokemonDayCare_EventScript_CloseMoneyBox
+	end
+
+Route5_PokemonDayCare_Text_PartnerPikachuStays::
+	.string "PIKACHU refuses to stay\nbehind.$"

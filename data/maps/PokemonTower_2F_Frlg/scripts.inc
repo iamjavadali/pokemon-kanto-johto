@@ -1,132 +1,71 @@
-PokemonTower_2F_Frlg_MapScripts::
-	.byte 0
+@ Golden Yellow Pokemon Tower rival wrapper.
+@ The rival still carries Eevee here, while the surrounding roster reflects the
+@ future Jolteon/Flareon/Vaporeon lane. Restore Yellow's rival text exactly.
+.include "data/scripts/yellow_rival_dispatch_begin.inc"
 
-PokemonTower_2F_EventScript_Channeler::
-	msgbox PokemonTower_2F_Text_SilphScopeCouldUnmaskGhosts, MSGBOX_NPC
-	end
+.purgem msgbox
+.macro msgbox text:req, type=MSGBOX_DEFAULT
+    .ifc \text,PokemonTower_2F_Text_RivalIntro
+        loadword 0, PokemonTower_2F_Text_YellowRivalIntro
+        callstd \type
+    .else
+        .ifc \text,PokemonTower_2F_Text_RivalPostBattle
+            loadword 0, PokemonTower_2F_Text_YellowRivalPostBattle
+            callstd \type
+        .else
+            loadword 0, \text
+            callstd \type
+        .endif
+    .endif
+.endm
 
-PokemonTower_2F_EventScript_RivalTriggerRight::
-	lockall
-	setvar VAR_TEMP_1, 0
-	goto PokemonTower_2F_EventScript_Rival
-	end
+.purgem trainerbattle_no_intro
+.macro trainerbattle_no_intro trainer:req, lose_text:req
+    .if (\trainer >= TRAINER_RIVAL_POKEMON_TOWER_SQUIRTLE) && (\trainer <= TRAINER_RIVAL_POKEMON_TOWER_CHARMANDER)
+        trainerbattle TRAINER_BATTLE_SINGLE_NO_INTRO_TEXT, LOCALID_NONE, \trainer, NULL, PokemonTower_2F_Text_YellowRivalDefeat, NULL, LOCALID_NONE, TRAINER_NONE, NULL, NULL, NULL, PokemonTower_2F_Text_YellowRivalVictory, NULL, FALSE, TRUE, FALSE, FALSE
+    .else
+        trainerbattle TRAINER_BATTLE_SINGLE_NO_INTRO_TEXT, LOCALID_NONE, \trainer, NULL, \lose_text, NULL, LOCALID_NONE, TRAINER_NONE, NULL, NULL, NULL, NULL, NULL, FALSE, TRUE, FALSE, FALSE
+    .endif
+.endm
 
-PokemonTower_2F_EventScript_RivalTriggerDown::
-	lockall
-	setvar VAR_TEMP_1, 1
-	goto PokemonTower_2F_EventScript_Rival
-	end
+.include "data/maps/PokemonTower_2F_Frlg/scripts_frlg_base.inc"
 
-PokemonTower_2F_EventScript_Rival::
-	textcolor NPC_TEXT_COLOR_MALE
-	playbgm MUS_RG_ENCOUNTER_RIVAL, 0
-	call_if_eq VAR_TEMP_1, 0, PokemonTower_2F_EventScript_RivalFacePlayerRight
-	call_if_eq VAR_TEMP_1, 1, PokemonTower_2F_EventScript_RivalFacePlayerDown
-	applymovement LOCALID_POKEMON_TOWER_RIVAL, Common_Movement_ExclamationMark
-	waitmovement 0
-	applymovement LOCALID_POKEMON_TOWER_RIVAL, Common_Movement_Delay48
-	waitmovement 0
-	msgbox PokemonTower_2F_Text_RivalIntro
-	setvar VAR_LAST_TALKED, LOCALID_POKEMON_TOWER_RIVAL
-	call_if_eq VAR_STARTER_MON, 2, PokemonTower_2F_EventScript_RivalSquirtle
-	call_if_eq VAR_STARTER_MON, 1, PokemonTower_2F_EventScript_RivalBulbasaur
-	call_if_eq VAR_STARTER_MON, 0, PokemonTower_2F_EventScript_RivalCharmander
-	msgbox PokemonTower_2F_Text_RivalPostBattle
-	closemessage
-	playbgm MUS_RG_RIVAL_EXIT, 0
-	call_if_eq VAR_TEMP_1, 0, PokemonTower_2F_EventScript_RivalExitRight
-	call_if_eq VAR_TEMP_1, 1, PokemonTower_2F_EventScript_RivalExitDown
-	playse SE_EXIT
-	delay 25
-	fadedefaultbgm
-	removeobject LOCALID_POKEMON_TOWER_RIVAL
-	setvar VAR_MAP_SCENE_POKEMON_TOWER_2F, 1
-	releaseall
-	end
+PokemonTower_2F_Text_YellowRivalIntro::
+    .string "{RIVAL}: Hey, {PLAYER}! What brings\n"
+    .string "you here? Your POKéMON don't look\n"
+    .string "dead!\p"
+    .string "I can at least make them faint!\n"
+    .string "Let's go, pal!$"
 
-PokemonTower_2F_EventScript_RivalFacePlayerRight::
-	applymovement LOCALID_POKEMON_TOWER_RIVAL, Common_Movement_WalkInPlaceFasterRight
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterLeft
-	waitmovement 0
-	return
+PokemonTower_2F_Text_YellowRivalDefeat::
+    .string "What?\n"
+    .string "You stinker!\p"
+    .string "I took it easy on you too!$"
 
-PokemonTower_2F_EventScript_RivalFacePlayerDown::
-	applymovement LOCALID_POKEMON_TOWER_RIVAL, Common_Movement_WalkInPlaceFasterDown
-	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
-	waitmovement 0
-	return
+PokemonTower_2F_Text_YellowRivalVictory::
+    .string "{RIVAL}: Well, look at all your\n"
+    .string "wimpy POKéMON!\p"
+    .string "Toughen them up a bit more!$"
 
-PokemonTower_2F_EventScript_RivalSquirtle::
-	trainerbattle_no_intro TRAINER_RIVAL_POKEMON_TOWER_SQUIRTLE, PokemonTower_2F_Text_RivalDefeat
-	return
+PokemonTower_2F_Text_YellowRivalPostBattle::
+    .string "How's your POKéDEX coming, pal?\n"
+    .string "I just caught a CUBONE!\p"
+    .string "I can't find the grown-up MAROWAK\n"
+    .string "yet!\p"
+    .string "I doubt there are any left! Well, I\n"
+    .string "better get going! I've got a lot to\n"
+    .string "accomplish, pal!\p"
+    .string "Smell ya later!$"
 
-PokemonTower_2F_EventScript_RivalBulbasaur::
-	trainerbattle_no_intro TRAINER_RIVAL_POKEMON_TOWER_BULBASAUR, PokemonTower_2F_Text_RivalDefeat
-	return
+.purgem trainerbattle_no_intro
+.macro trainerbattle_no_intro trainer:req, lose_text:req
+    trainerbattle TRAINER_BATTLE_SINGLE_NO_INTRO_TEXT, LOCALID_NONE, \trainer, NULL, \lose_text, NULL, LOCALID_NONE, TRAINER_NONE, NULL, NULL, NULL, NULL, NULL, FALSE, TRUE, FALSE, FALSE
+.endm
 
-PokemonTower_2F_EventScript_RivalCharmander::
-	trainerbattle_no_intro TRAINER_RIVAL_POKEMON_TOWER_CHARMANDER, PokemonTower_2F_Text_RivalDefeat
-	return
+.purgem msgbox
+.macro msgbox text:req, type=MSGBOX_DEFAULT
+    loadword 0, \text
+    callstd \type
+.endm
 
-PokemonTower_2F_EventScript_RivalExitRight::
-	applymovement LOCALID_POKEMON_TOWER_RIVAL, PokemonTower_2F_Movement_RivalExitRight
-	waitmovement 0
-	return
-
-PokemonTower_2F_EventScript_RivalExitDown::
-	applymovement LOCALID_POKEMON_TOWER_RIVAL, PokemonTower_2F_Movement_RivalExitDown
-	waitmovement 0
-	return
-
-PokemonTower_2F_Movement_RivalExitRight::
-	walk_down
-	walk_right
-	walk_right
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_in_place_faster_right
-	step_end
-
-PokemonTower_2F_Movement_RivalExitDown::
-	walk_right
-	walk_right
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_down
-	walk_in_place_faster_right
-	step_end
-
-PokemonTower_2F_Text_RivalIntro::
-	.string "{RIVAL}: Hey, {PLAYER}!\n"
-	.string "What brings you here?\l"
-	.string "Is your POKéMON dead?\p"
-	.string "Hey! It's alive!\p"
-	.string "I can at least make them faint!\n"
-	.string "Let's go!$"
-
-PokemonTower_2F_Text_RivalDefeat::
-	.string "What?\n"
-	.string "You stinker!\p"
-	.string "I took it easy on you, too!$"
-
-PokemonTower_2F_Text_RivalPostBattle::
-	.string "How's your POKéDEX coming?\n"
-	.string "I just caught a CUBONE!\p"
-	.string "I can't find the bigger MAROWAK.\n"
-	.string "Where could they be?\p"
-	.string "I bet there aren't any left!\p"
-	.string "Well, I better get going.\n"
-	.string "I've got a lot to accomplish,\l"
-	.string "unlike you.\p"
-	.string "Smell ya later!$"
-
-PokemonTower_2F_Text_SilphScopeCouldUnmaskGhosts::
-	.string "Even we could not identify the\n"
-	.string "wayward ghosts.\p"
-	.string "A SILPH SCOPE might be able to\n"
-	.string "unmask them.$"
-
+.include "data/scripts/yellow_rival_dispatch_end.inc"

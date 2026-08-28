@@ -218,8 +218,62 @@ static bool8 NpcTakeStep(struct Sprite *);
 static void CopyObjectGraphicsInfoToSpriteTemplate_WithMovementType(u16 graphicsId, u16 movementType, struct SpriteTemplate *spriteTemplate, const struct SubspriteTable **subspriteTables);
 
 static enum Species GetUnownSpecies(struct Pokemon *mon);
+struct Pokemon *GetPartnerAwareFollowingMon(void);
 
 static void StartSlowRunningAnim(struct ObjectEvent *objectEvent, struct Sprite *sprite, enum Direction direction);
+
+
+struct Pokemon *GetPartnerAwareFollowingMon(void)
+{
+    u32 i;
+    struct Pokemon *partner = NULL;
+
+    for (i = 0; i < PARTY_SIZE; i++)
+    {
+        if (GetMonData(&gParties[B_TRAINER_PLAYER][i], MON_DATA_SPECIES) == SPECIES_PIKACHU_STARTER)
+        {
+            partner = &gParties[B_TRAINER_PLAYER][i];
+            break;
+        }
+    }
+
+    // The Partner exists before the Yellow story permits it to follow.
+    // Suppress all automatic follower spawning until the Oak Lab event sets this flag.
+    if (partner != NULL)
+        return FlagGet(FLAG_PARTNER_PIKACHU_FOLLOWING) ? partner : NULL;
+
+    return GetFirstLiveMon();
+}
+
+void PlaceFollowingPokemonAtScriptedObject(void)
+{
+#if OW_FOLLOWERS_ENABLED
+    struct ObjectEvent *follower = GetFollowerObject();
+    struct ObjectEvent *source;
+    u8 sourceId;
+    u8 localId = VarGet(VAR_0x8004);
+
+    if (follower == NULL || !follower->active)
+        return;
+
+    if (TryGetObjectEventIdByLocalIdAndMap(localId,
+                                           gSaveBlock1Ptr->location.mapNum,
+                                           gSaveBlock1Ptr->location.mapGroup,
+                                           &sourceId) != 0)
+        return;
+
+    source = &gObjectEvents[sourceId];
+    if (!source->active)
+        return;
+
+    ObjectEventClearHeldMovementIfActive(follower);
+    follower->singleMovementActive = FALSE;
+    follower->heldMovementActive = FALSE;
+    MoveObjectEventToMapCoords(follower, source->currentCoords.x, source->currentCoords.y);
+    ObjectEventTurn(follower, source->facingDirection);
+    follower->invisible = FALSE;
+#endif
+}
 
 const u8 gReflectionEffectPaletteMap[16] = {
         [PALSLOT_PLAYER]                 = PALSLOT_PLAYER_REFLECTION,
@@ -2345,7 +2399,7 @@ static bool8 GetMonInfo(struct Pokemon *mon, u32 *species, bool32 *shiny, bool32
 // Retrieve graphic information about the following Pokémon, if any
 bool8 GetFollowerInfo(u32 *species, bool32 *shiny, bool32 *female)
 {
-    return GetMonInfo(GetFirstLiveMon(), species, shiny, female);
+    return GetMonInfo(GetPartnerAwareFollowingMon(), species, shiny, female);
 }
 
 // Update following Pokémon if any
@@ -2408,6 +2462,20 @@ void UpdateFollowingPokemon(void)
         objEvent->invisible = TRUE;
     }
     sprite->data[6] = 0; // set animation data
+}
+
+void RevealFollowingPokemonNow(void)
+{
+    struct ObjectEvent *objEvent = GetFollowerObject();
+    struct ObjectEvent *playerObj;
+
+    if (objEvent == NULL)
+        return;
+
+    playerObj = &gObjectEvents[gPlayerAvatar.objectEventId];
+    MoveObjectEventToMapCoords(objEvent, playerObj->previousCoords.x, playerObj->previousCoords.y);
+    objEvent->invisible = FALSE;
+    gSprites[objEvent->spriteId].invisible = FALSE;
 }
 
 // Remove follower object. Idempotent.
@@ -2576,7 +2644,7 @@ void GetFollowerAction(struct ScriptContext *ctx) // Essentially a big switch fo
     u32 condCount = 0;
     u32 emotion;
     struct ObjectEvent *objEvent = GetFollowerObject();
-    struct Pokemon *mon = GetFirstLiveMon();
+    struct Pokemon *mon = GetPartnerAwareFollowingMon();
     u8 emotion_weight[FOLLOWER_EMOTION_LENGTH] =
     {
         [FOLLOWER_EMOTION_HAPPY] = 10,
@@ -5687,7 +5755,7 @@ static bool32 TryStartFollowerTransformEffect(struct ObjectEvent *objectEvent, s
     }
 
     if (OW_FOLLOWERS_COPY_WILD_PKMN
-        && (MonKnowsMove(mon = GetFirstLiveMon(), MOVE_TRANSFORM)
+        && (MonKnowsMove(mon = GetPartnerAwareFollowingMon(), MOVE_TRANSFORM)
          || (ability = GetMonAbility(mon)) == ABILITY_IMPOSTER || ability == ABILITY_ILLUSION)
         && (Random() & 0xFFFF) < 18 && GetLocalWildMon(FALSE))
     {
@@ -6379,7 +6447,7 @@ void IsFollowerFieldMoveUser(struct ScriptContext *ctx)
 
     u16 *var = GetVarPointer(varId);
     u16 userIndex = gFieldEffectArguments[0]; // field move user index
-    struct Pokemon *follower = GetFirstLiveMon();
+    struct Pokemon *follower = GetPartnerAwareFollowingMon();
     struct ObjectEvent *obj = GetFollowerObject();
     if (var == NULL)
         return;
@@ -7769,7 +7837,7 @@ static void ObjectEventSetPokeballGfx(struct ObjectEvent *objEvent)
     enum PokeBall ball = BALL_STRANGE;
     if (objEvent->localId == OBJ_EVENT_ID_FOLLOWER)
     {
-        struct Pokemon *mon = GetFirstLiveMon();
+        struct Pokemon *mon = GetPartnerAwareFollowingMon();
         if (mon)
             ball = GetMonData(mon, MON_DATA_POKEBALL);
     }

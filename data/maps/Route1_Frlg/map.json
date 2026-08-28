@@ -54,13 +54,73 @@
       "trainer_sight_or_berry_tree_id": "0",
       "script": "Route1_EventScript_Boy",
       "flag": "0"
+    },
+    {
+      "local_id": "LOCALID_ROUTE1_YELLOW_OAK",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PROF_OAK",
+      "x": 12,
+      "y": 42,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_UP",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_HIDE_ROUTE1_YELLOW_OAK"
+    },
+    {
+      "local_id": "LOCALID_ROUTE1_YELLOW_PIKACHU",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PIKACHU",
+      "x": 13,
+      "y": 39,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_LEFT",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_HIDE_PALLET_WILD_PIKACHU"
+    },
+    {
+      "local_id": "LOCALID_ROUTE1_YELLOW_PIKACHU_RIGHT",
+      "type": "object",
+      "graphics_id": "OBJ_EVENT_GFX_PIKACHU",
+      "x": 12,
+      "y": 39,
+      "elevation": 3,
+      "movement_type": "MOVEMENT_TYPE_FACE_UP",
+      "movement_range_x": 0,
+      "movement_range_y": 0,
+      "trainer_type": "TRAINER_TYPE_NONE",
+      "trainer_sight_or_berry_tree_id": "0",
+      "script": "0x0",
+      "flag": "FLAG_HIDE_PALLET_WILD_PIKACHU"
     }
   ],
-  "warp_events": [
-
-  ],
+  "warp_events": [],
   "coord_events": [
-
+    {
+      "type": "trigger",
+      "x": 12,
+      "y": 38,
+      "elevation": 3,
+      "var": "VAR_MAP_SCENE_PALLET_TOWN_OAK",
+      "var_value": "0",
+      "script": "Route1_EventScript_YellowOakTriggerLeft"
+    },
+    {
+      "type": "trigger",
+      "x": 13,
+      "y": 38,
+      "elevation": 3,
+      "var": "VAR_MAP_SCENE_PALLET_TOWN_OAK",
+      "var_value": "0",
+      "script": "Route1_EventScript_YellowOakTriggerRight"
+    }
   ],
   "bg_events": [
     {

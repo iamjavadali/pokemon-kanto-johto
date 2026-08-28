@@ -22,6 +22,11 @@ Makefile text eol=lf
 *.cfg text eol=lf
 *.ld text eol=lf
 
+# Golden Yellow wrapper maps keep exact snapshots of pre-existing FRLG scripts in
+# scripts_frlg_base.inc. Preserve their legacy whitespace byte-for-byte; new
+# wrapper/overlay code remains covered by the repository whitespace gate.
+data/maps/*/scripts_frlg_base.inc -whitespace
+
 *.png binary
 *.bin binary
 

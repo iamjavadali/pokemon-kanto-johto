@@ -1,11 +1,194 @@
+@ Golden Yellow Route 24 Charmander rescue: FLAG_0x0BD hides the temporary
+@ treatment-scene Charmander. VAR_0x40FC state 1 is TREATMENT_PENDING.
+
 CeruleanCity_PokemonCenter_1F_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, CeruleanCity_PokemonCenter_1F_OnTransition
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, CeruleanCity_PokemonCenter_1F_OnFrame
 	map_script MAP_SCRIPT_ON_RESUME, CableClub_OnResume
 	.byte 0
 
 CeruleanCity_PokemonCenter_1F_OnTransition::
 	setrespawn HEAL_LOCATION_CERULEAN_CITY
+	call_if_eq VAR_0x40FC, 1, CeruleanCity_PokemonCenter_1F_EventScript_ShowRescueCharmander
+	call_if_ne VAR_0x40FC, 1, CeruleanCity_PokemonCenter_1F_EventScript_HideRescueCharmander
 	end
+
+CeruleanCity_PokemonCenter_1F_EventScript_ShowRescueCharmander::
+	clearflag FLAG_0x0BD
+	return
+
+CeruleanCity_PokemonCenter_1F_EventScript_HideRescueCharmander::
+	setflag FLAG_0x0BD
+	return
+
+CeruleanCity_PokemonCenter_1F_OnFrame::
+	map_script_2 VAR_0x40FC, 1, CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment
+	.2byte 0
+
+CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	callnative GoldenYellowCharmander_EnsurePartnerVisible, requests_effects=1
+	lockall
+	setobjectxy LOCALID_PLAYER, 7, 4
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 7, 5
+	setobjectxy LOCALID_CERULEAN_RESCUE_CHARMANDER, 8, 4
+
+	@ Red and Charmander first acknowledge each other.
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft
+	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	delay 16
+
+	@ Nurse Joy speaks; everyone turns toward her.
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceUp
+	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	textcolor NPC_TEXT_COLOR_FEMALE
+	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseSeesCharmander
+	closemessage
+
+	@ Charmander looks back to Red for reassurance, then returns its attention
+	@ to Nurse Joy before being taken for treatment.
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft
+	waitmovement 0
+	delay 16
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceUp
+	waitmovement 0
+	playse SE_BALL
+	waitse
+	removeobject LOCALID_CERULEAN_RESCUE_CHARMANDER
+
+	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterLeft
+	waitmovement LOCALID_CERULEAN_NURSE
+	callnative GoldenYellowCharmander_StartSingleHeal, requests_effects=1
+	gotonative GoldenYellowCharmander_WaitSingleHeal
+
+	@ Treatment completes. Nurse returns Charmander and speaks while both Red
+	@ and Charmander are watching her.
+	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterDown
+	waitmovement LOCALID_CERULEAN_NURSE
+	addobject LOCALID_CERULEAN_RESCUE_CHARMANDER
+	setobjectxy LOCALID_CERULEAN_RESCUE_CHARMANDER, 8, 4
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceUp
+	waitmovement 0
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderRecovered
+
+	@ Red and Charmander acknowledge each other again.
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft
+	waitmovement 0
+	textcolor NPC_TEXT_COLOR_NEUTRAL
+	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderRelieved
+
+	@ Charmander visibly looks toward the doorway before bolting.
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceDown
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp
+	waitmovement 0
+	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderLooksToDoor
+	closemessage
+
+	@ Charmander runs one tile south to (8,5), exactly right of Pikachu. Red
+	@ turns left as the bolt starts; Pikachu then looks right at Charmander while
+	@ Nurse Joy tries to stop it. After the pause, Red and Pikachu both look
+	@ south and watch Charmander continue to the doorway without crossing
+	@ Pikachu's tile.
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceLeft
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart
+	waitmovement 0
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	textcolor NPC_TEXT_COLOR_FEMALE
+	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderBolts
+	closemessage
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceDown
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceDown
+	waitmovement 0
+	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOutAround
+	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
+	setflag FLAG_0x0BD
+	removeobject LOCALID_CERULEAN_RESCUE_CHARMANDER
+	setvar VAR_0x40FC, 2
+
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp
+	applymovement LOCALID_CERULEAN_NURSE, Common_Movement_WalkInPlaceFasterDown
+	waitmovement 0
+	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderReturnedRoute24
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
+	end
+
+CeruleanCity_PokemonCenter_1F_EventScript_RescueCharmander::
+	lock
+	faceplayer
+	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderBeingTreated
+	release
+	end
+
+CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight::
+	face_right
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceLeft::
+	face_left
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceDown::
+	face_down
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp::
+	face_up
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceUp::
+	face_up
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight::
+	face_right
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceDown::
+	face_down
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceLeft::
+	face_left
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceUp::
+	face_up
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_CharmanderFaceDown::
+	face_down
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart::
+	walk_fast_down
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOutAround::
+	walk_fast_down
+	walk_in_place_faster_left
+	walk_fast_left
+	walk_fast_down
+	walk_fast_down
+	step_end
 
 CeruleanCity_PokemonCenter_1F_EventScript_Nurse::
 	lock
@@ -34,6 +217,33 @@ CeruleanCity_PokemonCenter_1F_EventScript_Lass::
 	msgbox CeruleanCity_PokemonCenter_1F_Text_TryTradingUpstairs, MSGBOX_NPC
 	end
 
+CeruleanCity_PokemonCenter_1F_Text_NurseSeesCharmander::
+	.string "Oh! This CHARMANDER is exhausted.\p"
+	.string "You did the right thing bringing it\n"
+	.string "here. Let me take care of it.$"
+
+CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderRecovered::
+	.string "There. CHARMANDER has recovered.\p"
+	.string "Its flame is strong again.$"
+
+CeruleanCity_PokemonCenter_1F_Text_CharmanderRelieved::
+	.string "CHARMANDER looks relieved.$"
+
+CeruleanCity_PokemonCenter_1F_Text_CharmanderLooksToDoor::
+	.string "But it keeps looking toward the\n"
+	.string "door...$"
+
+CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderBolts::
+	.string "NURSE JOY: CHARMANDER? Wait!$"
+
+CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderReturnedRoute24::
+	.string "It ran out toward ROUTE 24!\p"
+	.string "Maybe it's still waiting for its\n"
+	.string "TRAINER.$"
+
+CeruleanCity_PokemonCenter_1F_Text_CharmanderBeingTreated::
+	.string "CHARMANDER is being treated.$"
+
 CeruleanCity_PokemonCenter_1F_Text_BillDoesWhateverForRareMons::
 	.string "That BILL!\p"
 	.string "I heard that he'll do whatever it\n"
@@ -60,4 +270,3 @@ CeruleanCity_PokemonCenter_1F_Text_TryTradingUpstairs::
 	.string "by trading.\p"
 	.string "The POKéMON you get in trades grow\n"
 	.string "quickly, too.$"
-

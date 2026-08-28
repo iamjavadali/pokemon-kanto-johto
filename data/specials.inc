@@ -175,6 +175,8 @@ gSpecials::
 	def_special CableCar, waitstate=1
 	def_special Overworld_PlaySpecialMapMusic
 	def_special StartWallClock, waitstate=1
+	def_special TrainerWatchCheckClock
+	def_special StartTrainerWatchManualSetup, waitstate=1
 	def_special Special_ViewWallClock, waitstate=1
 	def_special ChooseStarter, waitstate=1
 	def_special StartWallyTutorialBattle, waitstate=1
@@ -577,6 +579,7 @@ gSpecials::
 	def_special DisableMsgBoxWalkaway
 	def_special SetWalkingIntoSignVars
 	def_special StartOldManTutorialBattle
+	def_special StartYellowPikachuCaptureBattle, waitstate=1
 	def_special DaisyMassageServices
 	def_special GetLeadMonFriendship
 	def_special OpenMuseumFossilPic

@@ -25,7 +25,7 @@ static void CreateHealthboxSprite(enum BattlerId battler);
 static void ClearBattleBgCntBaseBlocks(void);
 static void CreateCaughtMonSprite(void);
 
-#define CATCH_TUTORIAL_TRAINER_PIC (IS_FRLG ? TRAINER_PIC_OLD_MAN : TRAINER_PIC_WALLY)
+#define CATCH_TUTORIAL_TRAINER_PIC ((gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU) ? TRAINER_PIC_PROFESSOR_OAK_FRLG : (IS_FRLG ? TRAINER_PIC_OLD_MAN : TRAINER_PIC_WALLY))
 
 void ReshowBattleScreenDummy(void)
 {
@@ -283,6 +283,11 @@ static bool8 LoadBattlerSpriteGfx(enum BattlerId battler)
             else
                 BattleLoadSubstituteOrMonSpriteGfx(battler, FALSE);
         }
+        else if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU && position == B_POSITION_PLAYER_LEFT)
+        {
+            enum TrainerPicID trainerPicId = TRAINER_PIC_PROFESSOR_OAK_FRLG;
+            LoadSpritePaletteWithTag(GetTrainerBackPicPalette(trainerPicId), GetTrainerPicTag(trainerPicId, FALSE));
+        }
         else if (gBattleTypeFlags & BATTLE_TYPE_SAFARI && position == B_POSITION_PLAYER_LEFT)
         {
             enum TrainerPicID trainerPicId = GetPlayerTrainerPic(gSaveBlock2Ptr->playerGender, GAME_VERSION);
@@ -333,6 +338,17 @@ void CreateBattlerSprite(enum BattlerId battler)
             gSprites[gBattlerSpriteIds[battler]].data[2] = species;
 
             StartSpriteAnim(&gSprites[gBattlerSpriteIds[battler]], 0);
+        }
+        else if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU && position == B_POSITION_PLAYER_LEFT)
+        {
+            enum TrainerPicID trainerPicId = TRAINER_PIC_PROFESSOR_OAK_FRLG;
+            SetMultiuseSpriteTemplateToTrainerBack(trainerPicId, position);
+            gBattlerSpriteIds[battler] = CreateSprite(&gMultiuseSpriteTemplate, 0x50,
+                                                (8 - GetTrainerBackPicCoords(trainerPicId)->size) * 4 + 80,
+                                                 GetBattlerSpriteSubpriority(0));
+            gSprites[gBattlerSpriteIds[battler]].oam.paletteNum = IndexOfSpritePaletteTag(GetTrainerPicTag(trainerPicId, FALSE));
+            gSprites[gBattlerSpriteIds[battler]].callback = SpriteCallbackDummy;
+            gSprites[gBattlerSpriteIds[battler]].data[0] = battler;
         }
         else if (gBattleTypeFlags & BATTLE_TYPE_SAFARI && position == B_POSITION_PLAYER_LEFT)
         {
@@ -386,7 +402,9 @@ static void CreateHealthboxSprite(enum BattlerId battler)
         u8 healthboxSpriteId;
 
         enum BattlerPosition position = GetBattlerPosition(battler);
-        if (gBattleTypeFlags & BATTLE_TYPE_SAFARI && position == B_POSITION_PLAYER_LEFT)
+        if (gBattleTypeFlags & BATTLE_TYPE_YELLOW_PIKACHU && position == B_POSITION_PLAYER_LEFT)
+            return;
+        else if (gBattleTypeFlags & BATTLE_TYPE_SAFARI && position == B_POSITION_PLAYER_LEFT)
             healthboxSpriteId = CreateSafariPlayerHealthboxSprites();
         else if (gBattleTypeFlags & BATTLE_TYPE_CATCH_TUTORIAL && position == B_POSITION_PLAYER_LEFT)
             return;

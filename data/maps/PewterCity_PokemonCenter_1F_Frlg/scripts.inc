@@ -27,8 +27,76 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	waitmessage
 	delay 455
 	playbgm MUS_POKE_CENTER, 1
+	closemessage
+	delay 16
+	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
+	setvar VAR_0x8004, 0
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 1
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 2
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 3
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 4
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
+	setvar VAR_0x8004, 5
+	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
+	goto_if_ne VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
+
+PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy::
+	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_WEAK
+	waitmoncry
+	callnative GoldenYellow_ShowFollowerSleepEmote, waitstate=1
+	callnative GoldenYellow_FacePlayerTowardFollower
+	delay 8
+	message PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep
+	waitmessage
+	waitbuttonpress
+	closemessage
+	delay 16
+	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerWake
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	delay 16
+
+PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish::
 	release
 	end
+
+PewterCity_PokemonCenter_1F_Movement_PartnerSleepy:
+	face_down
+	delay_16
+	walk_in_place_slow_down
+	walk_in_place_slow_down
+	delay_16
+	delay_16
+	delay_16
+	face_player
+	delay_16
+	step_end
+
+PewterCity_PokemonCenter_1F_Movement_PartnerWake:
+	face_away_player
+	lock_facing_direction
+	jump_in_place_down
+	unlock_facing_direction
+	face_player
+	delay_8
+	jump_in_place_up
+	jump_in_place_down
+	jump_in_place_left
+	jump_in_place_right
+	face_player
+	step_end
 
 PewterCity_PokemonCenter_1F_EventScript_Youngster::
 	msgbox PewterCity_PokemonCenter_1F_Text_WhenJiggylypuffSingsMonsGetDrowsy, MSGBOX_NPC
@@ -54,6 +122,10 @@ PewterCity_PokemonCenter_1F_Text_TeamRocketMtMoonImOnPhone::
 PewterCity_PokemonCenter_1F_Text_Jigglypuff::
 	.string "JIGGLYPUFF: Puu pupuu!$"
 
+PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep::
+	.string "PIKACHU looks fast asleep…\p"
+	.string "Better wake it up.$"
+
 PewterCity_PokemonCenter_1F_Text_WhenJiggylypuffSingsMonsGetDrowsy::
 	.string "Yawn!\p"
 	.string "When JIGGLYPUFF sings, POKéMON get\n"
@@ -70,4 +142,3 @@ PewterCity_PokemonCenter_1F_Text_TradingPikachuWithKid::
 	.string "there.\p"
 	.string "I had two PIKACHU, so I figured\n"
 	.string "I might as well trade one.$"
-
