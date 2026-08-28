@@ -21,7 +21,7 @@ It does **not** serve as the permanent evidence record for individual gameplay a
 Those details belong in:
 
 - `Pokemon_Golden_Yellow_Acceptance_Log.md` for the cumulative acceptance history;
-- dedicated acceptance records when a milestone is complex enough to require one, such as `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md`.
+- dedicated acceptance records when a milestone is complex enough to require one, such as `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md` and `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md`.
 
 The live `prototype/v0.1` repository remains authoritative for implementation state when this snapshot becomes stale.
 
@@ -55,9 +55,9 @@ Broad progression currently stands at:
 → **Route 3 / Mt. Moon**  
 → **Cerulean-era progression — ACTIVE DEVELOPMENT BOUNDARY**
 
-The accepted gameplay baseline now extends into the Cerulean era through the Yellow Cerulean Rival #3 scene, retained Fame Checker handoff, and Partner-safe Rival choreography.
+The accepted gameplay baseline now extends through the Yellow Cerulean Rival #3 / Fame Checker integration and the Route 24 Charmander rescue / Damian adoption milestone, including Partner-safe choreography across Route 24 and the Cerulean Pokémon Center.
 
-The immediate next implementation boundary is Route 24 Damian / Charmander gift integration.
+The immediate next implementation boundary is Route 25 progression into Bill / Sea Cottage and the required Yellow Partner Pikachu reaction around Bill's transformation/restoration sequence.
 
 ---
 
@@ -69,7 +69,7 @@ The immediate next implementation boundary is Route 24 Damian / Charmander gift 
 | Viridian / early Route 2 / Viridian Forest | Implemented for current approved scope |
 | Pewter / Brock / post-Brock progression | Implemented and accepted for current approved scope |
 | Route 3 / Mt. Moon | Implemented and accepted |
-| Cerulean / Route 24 / Route 25 / Bill | Active — Rival/Fame Checker accepted; Damian next |
+| Cerulean / Route 24 / Route 25 / Bill | Active — Rival/Fame Checker and Charmander rescue accepted; Route 25/Bill next |
 | Vermilion / S.S. Anne / Lt. Surge | Pending staged audit and Yellow integration |
 | Lavender / Pokémon Tower | Pending staged audit and Yellow integration |
 | Celadon / Rocket Hideout | Pending staged audit and Yellow integration |
@@ -104,6 +104,8 @@ The project has a follower-safe scripted movement mechanism for scenes that need
 
 Battle-opening follower integration also uses actual resolved follower Pokémon identity so that only the Pokémon truly represented by the overworld follower receives the follower-style battle entrance.
 
+The accepted Route 24 Charmander milestone additionally demonstrates lane-aware, scene-local Partner staging across multi-actor choreography without replacing the generic follower engine.
+
 ## 5.3 Yellow Rival Eevee State
 
 Persistent Yellow Rival branching exists for:
@@ -133,6 +135,8 @@ Golden Yellow debug checkpoints reconstruct story state for direct event testing
 A checkpoint is testing infrastructure only.
 
 > **Checkpoint existence must never be treated as proof that the corresponding gameplay event is implemented or accepted.**
+
+The accepted Charmander checkpoint reconstructs the pre-event Route 24 state while deliberately placing the tester south of the event trigger rather than starting the scene immediately on warp-in.
 
 ---
 
@@ -168,7 +172,12 @@ The currently accepted Yellow story boundary reaches through:
 - related follower/battle entrance integration validated after the Mt. Moon milestone;
 - Cerulean Rival #3 Yellow integration;
 - retained Fame Checker handoff after the Yellow Rival dialogue;
-- Partner-safe Cerulean Rival approach, battle-return, and Fame Checker choreography.
+- Partner-safe Cerulean Rival approach, battle-return, and Fame Checker choreography;
+- Route 24 abandoned Charmander discovery/rescue;
+- Cerulean Pokémon Center Charmander treatment/escape sequence;
+- healed Charmander return to Route 24;
+- Damian return and approved adoption/gift resolution;
+- Partner-safe Route 24/Damian choreography and associated revisit/decline state handling.
 
 The details, commits, workflow runs, and manual-validation notes for these milestones are maintained in `Pokemon_Golden_Yellow_Acceptance_Log.md` and any linked dedicated acceptance record.
 
@@ -178,21 +187,20 @@ The details, commits, workflow runs, and manual-validation notes for these miles
 
 The Cerulean-era pass is active.
 
-The Cerulean Rival #3 / Fame Checker integration is accepted. The immediate next implementation boundary is:
+The Route 24 Charmander rescue / Damian adoption milestone is accepted. The immediate next implementation boundary is:
 
-**Route 24 Damian / Charmander gift**
+**Route 25 progression → Bill / Sea Cottage → required Partner Pikachu Bill reaction**
 
 Remaining Cerulean-era scope includes:
 
 1. Route 4 arrival and transition from Mt. Moon regression coverage.
 2. Nugget Bridge and the Rocket recruiter sequence regression coverage.
-3. Route 24 Damian / Charmander gift.
-4. Route 25 progression.
-5. Bill / Sea Cottage story sequence.
-6. Required Partner Pikachu reaction to transformed/restored Bill.
-7. Melanie / Bulbasaur gift using canonical Partner Pikachu happiness.
-8. Misty / Cerulean Gym Yellow identity validation.
-9. Cerulean exit progression toward Vermilion.
+3. Route 25 progression.
+4. Bill / Sea Cottage story sequence.
+5. Required Partner Pikachu reaction to transformed/restored Bill.
+6. Melanie / Bulbasaur gift using canonical Partner Pikachu happiness.
+7. Misty / Cerulean Gym Yellow identity validation.
+8. Cerulean exit progression toward Vermilion.
 
 Before changing code for each remaining stage:
 
@@ -211,7 +219,6 @@ The following are examples of required Yellow content that remains ahead of the 
 
 ## Cerulean era
 
-- Damian's Charmander gift;
 - Bill Partner Pikachu reaction;
 - Melanie's Bulbasaur gift with canonical Partner happiness requirement;
 - Misty Yellow battle identity validation.
@@ -283,9 +290,9 @@ The rules are:
 
 **No known blocking regression is open at this snapshot.**
 
-The Cerulean Rival #3 / Fame Checker / Partner choreography milestone has passed manual acceptance.
+The Route 24 Charmander rescue / Damian adoption milestone has passed manual acceptance, and its post-acceptance checkpoint correction has a successful prototype build.
 
-Development can proceed to Damian's Route 24 Charmander gift from the accepted Cerulean Rival baseline.
+Development can proceed from the accepted Route 24 baseline into Route 25 and Bill / Sea Cottage integration.
 
 ---
 

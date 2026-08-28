@@ -68,6 +68,7 @@ A later branch HEAD does not invalidate an earlier acceptance merely because add
 | Jessie & James encounter #1 | ACCEPTED | `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md` |
 | Battle follower send-out identity correction | ACCEPTED | This log |
 | Cerulean Rival #3 / Fame Checker / Partner choreography | ACCEPTED | This log |
+| Route 24 Charmander rescue / Damian adoption | ACCEPTED | `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md` |
 
 ---
 
@@ -280,7 +281,58 @@ This acceptance closes the Cerulean Rival #3 integration and retained FRLG Fame 
 
 ---
 
-# 12. Maintenance Rule
+# 12. Acceptance — Route 24 Charmander Rescue / Damian Adoption
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-08-27  
+**Final manually accepted scene commit:** `1af6360f24b2f638fdd68bfe38bbd869690c4160`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33134429440`  
+**Accepted artifact ID:** `9671564488`  
+**Manual result:** PASS  
+**Post-acceptance checkpoint correction:** `a4aca426e1d6e3cce57cacf171ea264001f014bd`  
+**Checkpoint workflow run:** `33135465513`  
+**Checkpoint artifact ID:** `9671932353`  
+**Detailed record:** `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md`
+
+## Scope
+
+This acceptance closes Golden Yellow's expanded Yellow Route 24 Charmander event: discovery of the abandoned Charmander, Partner Pikachu concern choreography, rescue to the Cerulean Pokémon Center, healed return to Route 24, Damian's return, and final Charmander adoption.
+
+The final checkpoint-only commit does not redefine the gameplay acceptance. The user explicitly accepted the gameplay scene on `1af6360f…`; `a4aca426…` then moved the developer checkpoint one tile south so testing no longer begins directly on the event trigger.
+
+## Accepted behavior
+
+- Charmander is encountered on Route 24 as a persistent Yellow-specific story object rather than being reduced to a generic gift NPC interaction;
+- the approach supports the approved trigger geometry and does not require Charmander to face south during normal idle behavior;
+- Charmander visibly turns toward the active interaction at the appropriate scene beat;
+- Partner Pikachu is deliberately staged as part of the rescue scene rather than being recalled or allowed to collide with scripted actors;
+- the weak-Charmander interaction provides the rescue decision and preserves the event if the player declines;
+- accepting the rescue transitions the event into the Cerulean Pokémon Center treatment sequence;
+- the temporary Pokémon Center Charmander treatment/escape choreography resolves without crossing or displacing Partner Pikachu incorrectly;
+- the healed Charmander returns to Route 24 as a persistent story state;
+- Partner Pikachu stages behind the player for Damian's return rather than drifting into Damian's path;
+- Damian returns, explains the abandonment, and the sequence advances into the approved adoption outcome;
+- final acceptance grants the Yellow Charmander gift at Lv. 10 and records completion so the event does not repeat;
+- relevant decline/revisit paths preserve correct facing and state rather than corrupting the sequence;
+- the developer Charmander checkpoint reconstructs the correct pre-event state and now lands at Route 24 `(7,10)`, south of the accepted trigger boundary.
+
+## Regression invariants
+
+- ordinary Pikachu must never substitute for canonical Partner Pikachu in Yellow-specific Partner choreography;
+- Charmander must not idle facing south merely because the scripted interaction later requires south-facing dialogue;
+- Route 24 approach/follower choreography must remain lane-aware and deterministic enough to avoid follower collisions or recalls;
+- the Pokémon Center rescue/treatment state and Route 24 healed-return state must remain connected by persistent story state;
+- Damian must not appear before the healed-return phase;
+- Partner Pikachu must remain out of Damian's movement path during the return/adoption scene;
+- declining a rescue/adoption prompt must not consume the one-time gift or irreversibly hide the required story objects;
+- the Charmander checkpoint must remain outside the event trigger so selecting the checkpoint does not immediately start the scene before the tester has control.
+
+The dedicated Charmander acceptance record is authoritative for the detailed state flow and protected choreography of this milestone.
+
+---
+
+# 13. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
