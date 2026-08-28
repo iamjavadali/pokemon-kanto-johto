@@ -1,5 +1,46 @@
+.equ YELLOW_BILL_DOOR_SPAWN_CHECK, VAR_TEMP_4
+
 Route25_Frlg_MapScripts::
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, Route25_OnFrame
 	.byte 0
+
+Route25_OnFrame::
+	map_script_2 YELLOW_BILL_DOOR_SPAWN_CHECK, 0, Route25_EventScript_CheckBillDoorSpawn
+	.2byte 0
+
+@ The Before Bill checkpoint intentionally lands on (51,5), directly outside
+@ Sea Cottage. Run one load-time coordinate check so that checkpoint testing
+@ gets the same pre-door Partner handling as a player who naturally walks onto
+@ the approach tile.
+Route25_EventScript_CheckBillDoorSpawn::
+	setvar YELLOW_BILL_DOOR_SPAWN_CHECK, 1
+	special StorePlayerCoordsInVars
+	goto_if_ne VAR_0x8004, 51, Route25_EventScript_CheckBillDoorSpawnReturn
+	goto_if_ne VAR_0x8005, 5, Route25_EventScript_CheckBillDoorSpawnReturn
+	goto Route25_EventScript_PrepareBillDoorPartner
+
+Route25_EventScript_CheckBillDoorSpawnReturn::
+	end
+
+@ Yellow's Partner does not return to its Poké Ball at Bill's doorway. Freeze
+@ only the follower base callback on the final approach tile; Sea Cottage takes
+@ ownership of the visible Partner choreography after the warp.
+Route25_EventScript_PrepareBillDoorPartner::
+	goto_if_set FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_EventScript_CheckBillDoorSpawnReturn
+	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, Route25_EventScript_CheckBillDoorSpawnReturn
+	setobjectmovementtype OBJ_EVENT_ID_FOLLOWER, MOVEMENT_TYPE_NONE
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	end
+
+@ If Red steps away instead of entering Sea Cottage, immediately return Partner
+@ Pikachu to normal following so this narrow doorway guard cannot leak outward.
+Route25_EventScript_RestoreBillDoorPartner::
+	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, Route25_EventScript_RestoreBillDoorPartnerReturn
+	setobjectmovementtype OBJ_EVENT_ID_FOLLOWER, MOVEMENT_TYPE_FOLLOW_PLAYER
+
+Route25_EventScript_RestoreBillDoorPartnerReturn::
+	end
 
 Route25_EventScript_SeaCottageSign::
 	msgbox Route25_Text_SeaCottageSign, MSGBOX_SIGN
