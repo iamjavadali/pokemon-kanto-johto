@@ -214,44 +214,7 @@
       "dest_warp_id": "1"
     }
   ],
-  "coord_events": [
-    {
-      "type": "trigger",
-      "x": 51,
-      "y": 5,
-      "elevation": 3,
-      "var": "VAR_TEMP_5",
-      "var_value": "0",
-      "script": "Route25_EventScript_PrepareBillDoorPartner"
-    },
-    {
-      "type": "trigger",
-      "x": 50,
-      "y": 5,
-      "elevation": 3,
-      "var": "VAR_TEMP_5",
-      "var_value": "0",
-      "script": "Route25_EventScript_RestoreBillDoorPartner"
-    },
-    {
-      "type": "trigger",
-      "x": 52,
-      "y": 5,
-      "elevation": 3,
-      "var": "VAR_TEMP_5",
-      "var_value": "0",
-      "script": "Route25_EventScript_RestoreBillDoorPartner"
-    },
-    {
-      "type": "trigger",
-      "x": 51,
-      "y": 6,
-      "elevation": 3,
-      "var": "VAR_TEMP_5",
-      "var_value": "0",
-      "script": "Route25_EventScript_RestoreBillDoorPartner"
-    }
-  ],
+  "coord_events": [],
   "bg_events": [
     {
       "type": "sign",

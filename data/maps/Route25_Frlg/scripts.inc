@@ -1,44 +1,5 @@
-.equ YELLOW_BILL_DOOR_SPAWN_CHECK, VAR_TEMP_4
-
 Route25_Frlg_MapScripts::
-	map_script MAP_SCRIPT_ON_FRAME_TABLE, Route25_OnFrame
 	.byte 0
-
-Route25_OnFrame::
-	map_script_2 YELLOW_BILL_DOOR_SPAWN_CHECK, 0, Route25_EventScript_CheckBillDoorSpawn
-	.2byte 0
-
-@ The Before Bill checkpoint intentionally lands on (51,5), directly outside
-@ Sea Cottage. Run one load-time coordinate check so that checkpoint testing
-@ gets the same pre-door Partner handling as a player who naturally walks onto
-@ the approach tile.
-Route25_EventScript_CheckBillDoorSpawn::
-	setvar YELLOW_BILL_DOOR_SPAWN_CHECK, 1
-	special StorePlayerCoordsInVars
-	goto_if_ne VAR_0x8004, 51, Route25_EventScript_CheckBillDoorSpawnReturn
-	goto_if_ne VAR_0x8005, 5, Route25_EventScript_CheckBillDoorSpawnReturn
-	goto Route25_EventScript_PrepareBillDoorPartner
-
-Route25_EventScript_CheckBillDoorSpawnReturn::
-	end
-
-@ Yellow's Partner does not return to its Poké Ball at Bill's doorway. The
-@ follower is a reserved runtime object, not a Route 25 object template, so use
-@ the Golden Yellow follower helper instead of setobjectmovementtype.
-Route25_EventScript_PrepareBillDoorPartner::
-	goto_if_set FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_EventScript_CheckBillDoorSpawnReturn
-	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, Route25_EventScript_CheckBillDoorSpawnReturn
-	callnative GoldenYellowPartner_HoldAtBillDoor
-	end
-
-@ If Red steps away instead of entering Sea Cottage, immediately return Partner
-@ Pikachu to normal following so this narrow doorway guard cannot leak outward.
-Route25_EventScript_RestoreBillDoorPartner::
-	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, Route25_EventScript_RestoreBillDoorPartnerReturn
-	callnative GoldenYellowPartner_ResumeFollowing
-
-Route25_EventScript_RestoreBillDoorPartnerReturn::
-	end
 
 Route25_EventScript_SeaCottageSign::
 	msgbox Route25_Text_SeaCottageSign, MSGBOX_SIGN
