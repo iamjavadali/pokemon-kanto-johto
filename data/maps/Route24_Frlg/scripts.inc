@@ -67,8 +67,8 @@ Route24_EventScript_YellowCharmander::
 
 @ The rescue gate is the three walkable tiles at the north end of Nugget Bridge:
 @ (10,9), (11,9), and (12,9). Stepping on one asks whether Red wants to
-@ approach. NO moves Red one tile south off the trigger row before control
-@ returns. YES moves Red to (7,6) while Pikachu follows to (7,7).
+@ approach. NO moves Red one tile south off the trigger row. YES uses explicit
+@ player and Partner Pikachu paths so both actors finish on exact scene tiles.
 Route24_EventScript_CharmanderApproachLeft::
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	lockall
@@ -116,8 +116,10 @@ Route24_EventScript_CharmanderApproachPromptHealthy::
 
 Route24_EventScript_CharmanderApproachDeclined::
 	closemessage
-	@ Step Red off the three adjacent trigger tiles before releasing control.
-	@ Pikachu copies this one safe scripted step instead of snapping afterward.
+	@ Restore Charmander's normal east-facing idle pose, then step Red off the
+	@ adjacent trigger row. Pikachu copies only this short retreat movement.
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, Route24_Movement_DeclineStepSouth
 	waitmovement LOCALID_PLAYER
@@ -127,56 +129,100 @@ Route24_EventScript_CharmanderApproachDeclined::
 	end
 
 Route24_EventScript_CharmanderCommitApproach::
-	@ Only the committed YES path enables copyable scripted movement.
-	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	call_if_eq VAR_TEMP_2, 0, Route24_EventScript_ApproachFromLeft
-	call_if_eq VAR_TEMP_2, 1, Route24_EventScript_ApproachFromCenter
-	call_if_eq VAR_TEMP_2, 2, Route24_EventScript_ApproachFromRight
-	waitmovement LOCALID_PLAYER
-	@ Let the follower finish its final copied step into (7,7) before taking
-	@ explicit scene ownership. This avoids competing movement controllers.
-	delay 16
-	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_StageInitialEncounter
-	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_StageHealedReturn
+	goto_if_eq VAR_0x40FC, 0, Route24_EventScript_CommitInitialApproach
+	goto_if_eq VAR_0x40FC, 2, Route24_EventScript_CommitHealedApproach
 	releaseall
 	end
 
-Route24_EventScript_ApproachFromLeft::
+@ The follower is normalized one tile south of the triggering player tile.
+@ SAFE is enabled only while the two movement scripts are assigned, preventing
+@ the player's custom movement from recalling Pikachu without allowing Pikachu
+@ to copy Red while it is already executing its own deterministic route.
+Route24_EventScript_CommitInitialApproach::
+	call_if_eq VAR_TEMP_2, 0, Route24_EventScript_InitialApproachFromLeft
+	call_if_eq VAR_TEMP_2, 1, Route24_EventScript_InitialApproachFromCenter
+	call_if_eq VAR_TEMP_2, 2, Route24_EventScript_InitialApproachFromRight
+	waitmovement LOCALID_PLAYER
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	goto Route24_EventScript_StageInitialEncounter
+	end
+
+Route24_EventScript_CommitHealedApproach::
+	call_if_eq VAR_TEMP_2, 0, Route24_EventScript_HealedApproachFromLeft
+	call_if_eq VAR_TEMP_2, 1, Route24_EventScript_HealedApproachFromCenter
+	call_if_eq VAR_TEMP_2, 2, Route24_EventScript_HealedApproachFromRight
+	waitmovement LOCALID_PLAYER
+	waitmovement OBJ_EVENT_ID_FOLLOWER
+	goto Route24_EventScript_StageHealedReturn
+	end
+
+Route24_EventScript_InitialApproachFromLeft::
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 10, 10
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromLeft
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialFromLeft
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
-Route24_EventScript_ApproachFromCenter::
+Route24_EventScript_InitialApproachFromCenter::
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 11, 10
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromCenter
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialFromCenter
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
-Route24_EventScript_ApproachFromRight::
+Route24_EventScript_InitialApproachFromRight::
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 12, 10
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerInitialFromRight
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	return
+
+Route24_EventScript_HealedApproachFromLeft::
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 10, 10
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromLeft
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerHealedFromLeft
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	return
+
+Route24_EventScript_HealedApproachFromCenter::
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 11, 10
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromCenter
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerHealedFromCenter
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	return
+
+Route24_EventScript_HealedApproachFromRight::
+	setobjectxy OBJ_EVENT_ID_FOLLOWER, 12, 10
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	applymovement LOCALID_PLAYER, Route24_Movement_ApproachFromRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerHealedFromRight
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
 Route24_EventScript_StageInitialEncounter::
-	@ Red is at (7,6), Pikachu at (7,7). With Red stationary, move Pikachu
-	@ beside Charmander at (8,5) and face left for the concern beat.
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerStageBesideCharmander
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	@ Red is now at (7,6), Pikachu is at (8,5), facing Charmander from its right.
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	goto Route24_EventScript_CharmanderPartnerConcern
 	end
 
 Route24_EventScript_StageHealedReturn::
-	@ Pikachu remains directly behind Red for the entire Damian scene. Set its
-	@ facing once after copied movement is complete, then never move it again.
-	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_WalkInPlaceFasterUp
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	@ Red is at (7,6) and Pikachu is exactly behind Red at (7,7), facing north.
+	@ Pikachu remains stationary there for the entire Damian scene.
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	goto Route24_EventScript_CharmanderReturnScene
 	end
 
 Route24_EventScript_CharmanderNotice::
-	@ At long range use deterministic cardinal facing. Charmander looks south
-	@ toward Nugget Bridge while Red and Pikachu look north toward its cry.
+	@ Charmander idles facing east. The trigger visibly turns it south toward the
+	@ bridge while Red and Pikachu turn north toward its cry. This beat is shared
+	@ by both the weak first encounter and the healed return encounter.
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	applymovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterUp
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_WalkInPlaceFasterUp
@@ -230,16 +276,20 @@ Route24_EventScript_CharmanderRescueAccepted::
 
 Route24_EventScript_CharmanderRescueDeclined::
 	msgbox Route24_Text_CharmanderStillNeedsHelp
-	@ Canonical staged decline: return Pikachu from (8,5) to (7,7) before
-	@ normal follower ownership resumes. Red remains at (7,6) and can roam.
+	@ Canonical staged decline: return Pikachu from (8,5) to (7,7), restore
+	@ Charmander's east-facing idle pose, then hand control back to the follower.
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerReturnBehindPlayer
 	waitmovement OBJ_EVENT_ID_FOLLOWER
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
 Route24_EventScript_CharmanderDirectRescueDeclined::
 	msgbox Route24_Text_CharmanderStillNeedsHelp
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
@@ -251,6 +301,8 @@ Route24_EventScript_CharmanderReturnInteraction::
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox Route24_Text_CharmanderLooksHealthy
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
@@ -260,9 +312,8 @@ Route24_EventScript_CharmanderReturnScene::
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	msgbox Route24_Text_CharmanderLooksHealthy
 
-	@ Damian now approaches straight up the open right lane to (8,5), directly
-	@ right of Charmander. SAFE_FOLLOWER_MOVEMENT is scoped only around physical
-	@ custom movement so Pikachu stays visible and stationary at (7,7).
+	@ Damian approaches straight up the open right lane to (8,5), directly right
+	@ of Charmander. Pikachu remains stationary at (7,7) throughout this scene.
 	call Route24_EventScript_DamianEnterRightLane
 	setvar VAR_0x40FC, 3
 
@@ -337,6 +388,8 @@ Route24_EventScript_CharmanderWaitsForPlayer::
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox Route24_Text_CharmanderWaitsExpectantly
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
@@ -419,6 +472,8 @@ Route24_EventScript_CharmanderAdoptionDeclined::
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement 0
 	msgbox Route24_Text_DamianTakeYourTime
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
@@ -431,8 +486,7 @@ Route24_EventScript_DamianPostAdoption::
 	releaseall
 	end
 
-@ All three gate paths end with Red at (7,6). Pikachu follows these movements
-@ through FLAG_SAFE_FOLLOWER_MOVEMENT and naturally finishes at (7,7).
+@ Player routes from the three trigger tiles all finish Red at (7,6).
 Route24_Movement_ApproachFromLeft::
 	walk_left
 	walk_left
@@ -471,11 +525,77 @@ Route24_Movement_DeclineStepSouth::
 	walk_in_place_faster_up
 	step_end
 
-Route24_Movement_PartnerStageBesideCharmander::
-	walk_right
+@ Initial encounter: Pikachu travels independently through the x=8 lane and
+@ finishes exactly right of Charmander at (8,5), facing left.
+Route24_Movement_PartnerInitialFromLeft::
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
 	walk_up
 	walk_up
 	walk_in_place_faster_left
+	step_end
+
+Route24_Movement_PartnerInitialFromCenter::
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_left
+	step_end
+
+Route24_Movement_PartnerInitialFromRight::
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_up
+	walk_in_place_faster_left
+	step_end
+
+@ Healed return: Pikachu travels through x=8, then steps left into the exact
+@ follower staging tile (7,7) behind Red and faces north before Damian enters.
+Route24_Movement_PartnerHealedFromLeft::
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_left
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_PartnerHealedFromCenter::
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_left
+	walk_in_place_faster_up
+	step_end
+
+Route24_Movement_PartnerHealedFromRight::
+	walk_left
+	walk_left
+	walk_left
+	walk_left
+	walk_up
+	walk_up
+	walk_up
+	walk_left
+	walk_in_place_faster_up
 	step_end
 
 Route24_Movement_PartnerReturnBehindPlayer::
