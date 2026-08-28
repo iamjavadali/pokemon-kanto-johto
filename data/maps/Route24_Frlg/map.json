@@ -193,57 +193,183 @@
     },
     {
       "type": "trigger",
-      "x": 10,
+      "x": 3,
       "y": 9,
       "elevation": 3,
       "var": "VAR_0x40FC",
       "var_value": "0",
-      "script": "Route24_EventScript_CharmanderApproachLeft"
+      "script": "Route24_EventScript_CharmanderNoticeZone"
     },
     {
       "type": "trigger",
-      "x": 11,
+      "x": 4,
       "y": 9,
       "elevation": 3,
       "var": "VAR_0x40FC",
       "var_value": "0",
-      "script": "Route24_EventScript_CharmanderApproachCenter"
+      "script": "Route24_EventScript_CharmanderNoticeZone"
     },
     {
       "type": "trigger",
-      "x": 12,
+      "x": 5,
       "y": 9,
       "elevation": 3,
       "var": "VAR_0x40FC",
       "var_value": "0",
-      "script": "Route24_EventScript_CharmanderApproachRight"
+      "script": "Route24_EventScript_CharmanderNoticeZone"
     },
     {
       "type": "trigger",
-      "x": 10,
+      "x": 6,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 7,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 7,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "0",
+      "script": "Route24_EventScript_CharmanderCloseApproach"
+    },
+    {
+      "type": "trigger",
+      "x": 3,
       "y": 9,
       "elevation": 3,
       "var": "VAR_0x40FC",
       "var_value": "2",
-      "script": "Route24_EventScript_CharmanderApproachLeft"
+      "script": "Route24_EventScript_CharmanderNoticeZone"
     },
     {
       "type": "trigger",
-      "x": 11,
+      "x": 4,
       "y": 9,
       "elevation": 3,
       "var": "VAR_0x40FC",
       "var_value": "2",
-      "script": "Route24_EventScript_CharmanderApproachCenter"
+      "script": "Route24_EventScript_CharmanderNoticeZone"
     },
     {
       "type": "trigger",
-      "x": 12,
+      "x": 5,
       "y": 9,
       "elevation": 3,
       "var": "VAR_0x40FC",
       "var_value": "2",
-      "script": "Route24_EventScript_CharmanderApproachRight"
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 6,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 9,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 7,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderNoticeZone"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 7,
+      "elevation": 3,
+      "var": "VAR_0x40FC",
+      "var_value": "2",
+      "script": "Route24_EventScript_CharmanderCloseApproach"
     }
   ],
   "bg_events": [
