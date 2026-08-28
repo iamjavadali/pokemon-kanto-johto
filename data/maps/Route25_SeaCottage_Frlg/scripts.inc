@@ -36,12 +36,14 @@ Route25_SeaCottage_EventScript_SetReturnedAfterSSTicket::
 @ from the center doorway, reacts, then settles beside Red so no Bill approach
 @ tile is blocked when control returns.
 Route25_SeaCottage_EventScript_YellowEntryReaction::
-	setvar YELLOW_BILL_ENTRY_PENDING, 0
 	lockall
 	delay 8
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
-	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowEntryReactionFinish
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowEntryReactionNoPartner
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	callnative GoldenYellowCharmander_EnsurePartnerVisible
+	delay 1
+	setvar YELLOW_BILL_ENTRY_PENDING, 0
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	applymovement LOCALID_BILL_CLEFAIRY, Common_Movement_FaceDown
 	waitmovement 0
@@ -61,6 +63,10 @@ Route25_SeaCottage_EventScript_YellowEntryReaction::
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
 	waitmovement 0
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	goto Route25_SeaCottage_EventScript_YellowEntryReactionFinish
+
+Route25_SeaCottage_EventScript_YellowEntryReactionNoPartner::
+	setvar YELLOW_BILL_ENTRY_PENDING, 0
 
 Route25_SeaCottage_EventScript_YellowEntryReactionFinish::
 	releaseall
@@ -346,10 +352,11 @@ Route25_SeaCottage_EventScript_YellowPartnerWatchSeparator::
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
 	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowPartnerWatchSeparatorReturn
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	callnative GoldenYellowCharmander_EnsurePartnerVisible
+	delay 1
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerWatchSeparator
 	waitmovement 0
-	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 
 Route25_SeaCottage_EventScript_YellowPartnerWatchSeparatorReturn::
 	return
@@ -371,7 +378,6 @@ Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
 	waitmoncry
 	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerExcitedBillRestored
 	waitmovement OBJ_EVENT_ID_FOLLOWER
-	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 
 Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn::
 	return
@@ -395,7 +401,6 @@ Route25_SeaCottage_EventScript_YellowStagePostRestoreNoPartner::
 	applymovement LOCALID_BILL_HUMAN, Common_Movement_FaceDown
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	waitmovement 0
-	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
 @ This additive wrapper uses the same retained FRLG dialogue, Fame Checker,
