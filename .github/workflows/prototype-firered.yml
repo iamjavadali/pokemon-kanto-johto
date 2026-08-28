@@ -1,12 +1,6 @@
 name: Prototype FireRed Development
 
 on:
-  push:
-    branches:
-      - 'prototype/**'
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
   workflow_dispatch:
 
 concurrency:
