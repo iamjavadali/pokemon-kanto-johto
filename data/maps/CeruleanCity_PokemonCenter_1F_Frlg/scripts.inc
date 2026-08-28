@@ -98,20 +98,22 @@ CeruleanCity_PokemonCenter_1F_EventScript_CharmanderTreatment::
 	msgbox CeruleanCity_PokemonCenter_1F_Text_CharmanderLooksToDoor
 	closemessage
 
-	@ Charmander runs one tile south to (8,5), exactly right of Pikachu.
-	@ Pikachu looks right at Charmander while Nurse Joy tries to stop it. After
-	@ the warning, Pikachu turns south and watches Charmander continue to the
-	@ doorway without Charmander ever crossing Pikachu's tile.
+	@ Charmander runs one tile south to (8,5), exactly right of Pikachu. Red
+	@ turns left as the bolt starts; Pikachu then looks right at Charmander while
+	@ Nurse Joy tries to stop it. After the pause, Red and Pikachu both look
+	@ south and watch Charmander continue to the doorway without crossing
+	@ Pikachu's tile.
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceLeft
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderBoltStart
-	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
-	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight
-	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight
 	waitmovement 0
+	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceRight
+	waitmovement OBJ_EVENT_ID_FOLLOWER
 	textcolor NPC_TEXT_COLOR_FEMALE
 	msgbox CeruleanCity_PokemonCenter_1F_Text_NurseCharmanderBolts
 	closemessage
+	applymovement LOCALID_PLAYER, CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceDown
 	applymovement OBJ_EVENT_ID_FOLLOWER, CeruleanCity_PokemonCenter_1F_Movement_PartnerFaceDown
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	waitmovement 0
 	applymovement LOCALID_CERULEAN_RESCUE_CHARMANDER, CeruleanCity_PokemonCenter_1F_Movement_CharmanderRunsOutAround
 	waitmovement LOCALID_CERULEAN_RESCUE_CHARMANDER
 	setflag FLAG_0x0BD
@@ -138,6 +140,14 @@ CeruleanCity_PokemonCenter_1F_EventScript_RescueCharmander::
 
 CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceRight::
 	face_right
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceLeft::
+	face_left
+	step_end
+
+CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceDown::
+	face_down
 	step_end
 
 CeruleanCity_PokemonCenter_1F_Movement_PlayerFaceUp::
