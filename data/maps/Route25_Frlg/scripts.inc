@@ -22,22 +22,20 @@ Route25_EventScript_CheckBillDoorSpawn::
 Route25_EventScript_CheckBillDoorSpawnReturn::
 	end
 
-@ Yellow's Partner does not return to its Poké Ball at Bill's doorway. Freeze
-@ only the follower base callback on the final approach tile; Sea Cottage takes
-@ ownership of the visible Partner choreography after the warp.
+@ Yellow's Partner does not return to its Poké Ball at Bill's doorway. The
+@ follower is a reserved runtime object, not a Route 25 object template, so use
+@ the Golden Yellow follower helper instead of setobjectmovementtype.
 Route25_EventScript_PrepareBillDoorPartner::
 	goto_if_set FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_EventScript_CheckBillDoorSpawnReturn
 	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, Route25_EventScript_CheckBillDoorSpawnReturn
-	setobjectmovementtype OBJ_EVENT_ID_FOLLOWER, MOVEMENT_TYPE_NONE
-	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	callnative GoldenYellowPartner_HoldAtBillDoor
 	end
 
 @ If Red steps away instead of entering Sea Cottage, immediately return Partner
 @ Pikachu to normal following so this narrow doorway guard cannot leak outward.
 Route25_EventScript_RestoreBillDoorPartner::
 	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, Route25_EventScript_RestoreBillDoorPartnerReturn
-	setobjectmovementtype OBJ_EVENT_ID_FOLLOWER, MOVEMENT_TYPE_FOLLOW_PLAYER
+	callnative GoldenYellowPartner_ResumeFollowing
 
 Route25_EventScript_RestoreBillDoorPartnerReturn::
 	end
