@@ -338,7 +338,7 @@ Route25_SeaCottage_EventScript_RunCellSeparator::
 	addobject LOCALID_BILL_HUMAN
 	clearflag FLAG_HIDE_BILL_HUMAN_SEA_COTTAGE
 	call Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill
-	delay 50
+	delay 32
 	playfanfare MUS_LEVEL_UP
 	applymovement LOCALID_BILL_HUMAN, Route25_SeaCottage_Movement_BillExitTeleporter
 	waitmovement 0
@@ -370,11 +370,12 @@ Route25_SeaCottage_EventScript_YellowPartnerWatchSeparatorReturn::
 	return
 
 @ Yellow has Pikachu immediately react when restored Bill appears. Pikachu
-@ looks left from the separator area toward the restored human Bill.
+@ looks left from the separator area toward the restored human Bill while Bill
+@ briefly acknowledges Partner before stepping out of the machine.
 Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
 	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn
-	applymovement LOCALID_BILL_HUMAN, Common_Movement_FaceDown
+	applymovement LOCALID_BILL_HUMAN, Common_Movement_FaceRight
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_FaceLeft
 	waitmovement 0
 	delay 8
@@ -389,9 +390,9 @@ Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
 Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn::
 	return
 
-@ FRLG's Bill walk ends at (7,6). Yellow continues directly into the thank-you
-@ scene: Bill takes one additional step to (7,5), Red walks three tiles right
-@ from the PC, and Pikachu remains independently staged by the separator.
+@ Bill now walks directly to (7,5) before the Yellow thank-you scene. Red then
+@ walks three tiles right from the PC while Pikachu remains independently
+@ staged by the separator.
 Route25_SeaCottage_EventScript_YellowStagePostRestoreConversation::
 	applymovement LOCALID_BILL_HUMAN, Route25_SeaCottage_Movement_BillStageForThanks
 	waitmovement LOCALID_BILL_HUMAN
@@ -516,7 +517,6 @@ Route25_SeaCottage_Movement_BillWalkToMiddleOfRoom::
 	walk_right
 	walk_right
 	walk_down
-	walk_down
 	step_end
 
 Route25_SeaCottage_Movement_BillExitTeleporter::
@@ -533,24 +533,24 @@ Route25_SeaCottage_Movement_PartnerApproachTransformedBill::
 
 Route25_SeaCottage_Movement_PartnerConfusedByBill::
 	jump_in_place_up
-	delay_8
+	delay_4
 	face_left
-	delay_8
+	delay_4
 	face_right
-	delay_8
+	delay_4
 	face_up
 	step_end
 
 Route25_SeaCottage_Movement_PartnerMoveToSeparator::
-	walk_up
-	walk_up
-	walk_up
+	walk_fast_up
+	walk_fast_up
+	walk_fast_up
 	face_up
 	step_end
 
 Route25_SeaCottage_Movement_PartnerConcernedAtTeleporter::
 	jump_in_place_up
-	delay_16
+	delay_8
 	face_up
 	step_end
 
@@ -570,7 +570,6 @@ Route25_SeaCottage_Movement_PartnerExcitedBillRestored::
 	step_end
 
 Route25_SeaCottage_Movement_BillStageForThanks::
-	walk_up
 	face_down
 	step_end
 

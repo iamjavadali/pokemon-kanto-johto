@@ -27,6 +27,7 @@
 #include "palette.h"
 #include "oras_dowse.h"
 #include "overworld.h"
+#include "pokemon.h"
 #include "scanline_effect.h"
 #include "script.h"
 #include "sound.h"
@@ -37,8 +38,10 @@
 #include "text.h"
 #include "constants/event_object_movement.h"
 #include "constants/event_objects.h"
+#include "constants/flags.h"
 #include "constants/heal_locations.h"
 #include "constants/songs.h"
+#include "constants/species.h"
 #include "constants/rgb.h"
 #include "trainer_hill.h"
 #include "fldeff.h"
@@ -60,6 +63,20 @@ static bool8 WaitStairExitMovementFinished(s16*, s16*, s16*, s16*, s16*);
 static void UpdateStairsMovement(s16, s16, s16*, s16*, s16*);
 static void Task_StairWarp(u8);
 static void ForceStairsMovement(u32, s16*, s16*);
+
+static bool32 IsCanonicalPartnerPikachuFollower(struct ObjectEvent *followerObject)
+{
+    struct Pokemon *followingMon;
+
+    if (followerObject == NULL
+     || followerObject->localId != OBJ_EVENT_ID_FOLLOWER
+     || !FlagGet(FLAG_PARTNER_PIKACHU_FOLLOWING))
+        return FALSE;
+
+    followingMon = GetPartnerAwareFollowingMon();
+    return followingMon != NULL
+        && GetMonData(followingMon, MON_DATA_SPECIES) == SPECIES_PIKACHU_STARTER;
+}
 
 static const u8 sText_PlayerScurriedToCenter[] = _("{PLAYER} scurried to a POKéMON CENTER,\nprotecting the exhausted and fainted\nPOKéMON from further harm…\p");
 static const u8 sText_PlayerScurriedBackHome[] = _("{PLAYER} scurried back home, protecting\nthe exhausted and fainted POKéMON from\nfurther harm…\p");
@@ -742,6 +759,7 @@ void Task_DoDoorWarp(u8 taskId)
     u8 playerObjId = gPlayerAvatar.objectEventId;
     u8 followerObjId = GetFollowerNPCObjectId();
     struct ObjectEvent *followerObject = GetFollowerObject();
+    bool32 partnerPikachuFollower = IsCanonicalPartnerPikachuFollower(followerObject);
 
     switch (task->tState)
     {
@@ -755,9 +773,9 @@ void Task_DoDoorWarp(u8 taskId)
         FreezeObjectEvents();
         PlayerGetDestCoords(x, y);
         PlaySE(GetDoorSoundEffect(*x, *y - 1));
-        if (followerObject)
+        if (followerObject && !partnerPikachuFollower)
         {
-            // Put follower into pokeball
+            // Ordinary Pokémon followers retain the expansion's Poké Ball door transition.
             ClearObjectEventMovement(followerObject, &gSprites[followerObject->spriteId]);
             ObjectEventSetHeldMovement(followerObject, MOVEMENT_ACTION_ENTER_POKEBALL);
         }
@@ -770,6 +788,14 @@ void Task_DoDoorWarp(u8 taskId)
         {
             ObjectEventClearHeldMovementIfActive(&gObjectEvents[playerObjId]);
             ObjectEventSetHeldMovement(&gObjectEvents[playerObjId], MOVEMENT_ACTION_WALK_NORMAL_UP);
+
+            // Yellow's canonical Partner follows Red into animated doors instead of
+            // visibly returning to a Poké Ball. Ordinary followers are unchanged.
+            if (partnerPikachuFollower && !followerObject->invisible)
+            {
+                ObjectEventClearHeldMovementIfActive(followerObject);
+                ObjectEventSetHeldMovement(followerObject, MOVEMENT_ACTION_WALK_NORMAL_UP);
+            }
 
             if (PlayerHasFollowerNPC() && !gObjectEvents[followerObjId].invisible)
             {
@@ -785,6 +811,16 @@ void Task_DoDoorWarp(u8 taskId)
     case DOORWARP_HIDE_PLAYER:
         if (IsPlayerStandingStill())
         {
+            // Partner has now stepped into Red's doorway path. Hide the old-map
+            // runtime object at the map boundary; the destination map's normal
+            // follower update decides whether Partner should appear there.
+            if (partnerPikachuFollower)
+            {
+                ObjectEventClearHeldMovementIfActive(followerObject);
+                followerObject->invisible = TRUE;
+                gSprites[followerObject->spriteId].invisible = TRUE;
+            }
+
             // Don't close door on NPC follower.
             if (!PlayerHasFollowerNPC() || gObjectEvents[followerObjId].invisible)
                 task->tDoorTask = FieldAnimateDoorClose(*x, *y - 1);
