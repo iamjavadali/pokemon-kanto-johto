@@ -59,12 +59,19 @@ Route25_SeaCottage_EventScript_YellowEntryReaction::
 	waitmovement 0
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerApproachTransformedBill
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerStepBackForQuestion
+	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 18
 	playse SE_PIN
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_QuestionMark
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 30
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerConfusedByBill
+	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 24
+	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerReturnAfterQuestion
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_FaceUp
@@ -200,12 +207,19 @@ Route25_SeaCottage_EventScript_YellowPartnerWatchesBillEnter::
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerMoveToSeparator
 	waitmovement 0
+	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerStepBackForQuestion
+	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 18
 	playse SE_PIN
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_QuestionMark
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 30
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerConcernedAtTeleporter
+	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 24
+	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerReturnAfterQuestion
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
 
 Route25_SeaCottage_EventScript_YellowPartnerWatchesBillEnterReturn::
@@ -370,22 +384,29 @@ Route25_SeaCottage_EventScript_YellowPartnerWatchSeparatorReturn::
 	return
 
 @ Yellow has Pikachu immediately react when restored Bill appears. Pikachu
-@ looks left from the separator area toward the restored human Bill while Bill
-@ briefly acknowledges Partner before stepping out of the machine.
+@ creates visible reaction space below the separator so the emote clearly
+@ belongs to Pikachu, then finishes the full reaction before Bill can move.
 Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
 	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn
 	applymovement LOCALID_BILL_HUMAN, Common_Movement_FaceRight
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_FaceLeft
 	waitmovement 0
-	delay 8
+	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerStepBackForRestoredReaction
+	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 24
 	playse SE_PIN
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_ExclamationMark
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 30
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerExcitedBillRestored
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 48
+	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerReturnAfterRestoredReaction
+	waitmovement LOCALID_BILL_PARTNER_PIKACHU
+	delay 16
 
 Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn::
 	return
@@ -531,6 +552,18 @@ Route25_SeaCottage_Movement_PartnerApproachTransformedBill::
 	face_up
 	step_end
 
+@ Temporarily create one clear tile between Pikachu's overhead emote and the
+@ transformed Bill / right teleporter, then restore the established staging.
+Route25_SeaCottage_Movement_PartnerStepBackForQuestion::
+	walk_down
+	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerReturnAfterQuestion::
+	walk_up
+	face_up
+	step_end
+
 Route25_SeaCottage_Movement_PartnerConfusedByBill::
 	jump_in_place_up
 	delay_4
@@ -560,6 +593,16 @@ Route25_SeaCottage_Movement_PartnerWatchSeparator::
 	walk_in_place_slow_up
 	delay_16
 	face_up
+	step_end
+
+Route25_SeaCottage_Movement_PartnerStepBackForRestoredReaction::
+	walk_down
+	face_left
+	step_end
+
+Route25_SeaCottage_Movement_PartnerReturnAfterRestoredReaction::
+	walk_up
+	face_left
 	step_end
 
 Route25_SeaCottage_Movement_PartnerExcitedBillRestored::
