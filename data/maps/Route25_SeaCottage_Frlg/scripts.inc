@@ -66,9 +66,6 @@ Route25_SeaCottage_EventScript_YellowEntryReaction::
 	waitmoncry
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerConfusedByBill
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
-	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
-	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerReturnFromBill
-	waitmovement 0
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_FaceUp
 	waitmovement 0
@@ -132,15 +129,12 @@ Route25_SeaCottage_EventScript_Bill::
 	goto_if_eq VAR_RESULT, FEMALE, Route25_SeaCottage_EventScript_BillAskForHelpFemale
 	end
 
-@ While transformed Bill is speaking, the scripted Partner object watches in
-@ the same cardinal direction as Red without following Red's movement.
+@ While transformed Bill is speaking, the scripted Partner object remains
+@ directly south of him and watches north, independent of Red's facing.
 Route25_SeaCottage_EventScript_YellowFacePartnerTowardBill::
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
 	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowFacePartnerTowardBillReturn
-	call_if_eq VAR_FACING, DIR_SOUTH, Route25_SeaCottage_EventScript_PartnerFaceDown
-	call_if_eq VAR_FACING, DIR_NORTH, Route25_SeaCottage_EventScript_PartnerFaceUp
-	call_if_eq VAR_FACING, DIR_WEST, Route25_SeaCottage_EventScript_PartnerFaceLeft
-	call_if_eq VAR_FACING, DIR_EAST, Route25_SeaCottage_EventScript_PartnerFaceRight
+	call Route25_SeaCottage_EventScript_PartnerFaceUp
 
 Route25_SeaCottage_EventScript_YellowFacePartnerTowardBillReturn::
 	return
@@ -547,15 +541,9 @@ Route25_SeaCottage_Movement_PartnerConfusedByBill::
 	face_up
 	step_end
 
-Route25_SeaCottage_Movement_PartnerReturnFromBill::
-	walk_left
-	walk_left
-	walk_down
-	face_up
-	step_end
-
 Route25_SeaCottage_Movement_PartnerMoveToSeparator::
-	walk_right
+	walk_up
+	walk_up
 	walk_up
 	face_up
 	step_end
