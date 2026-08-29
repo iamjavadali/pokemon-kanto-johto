@@ -4,7 +4,7 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot date:** August 27, 2026
+**Snapshot date:** August 29, 2026
 
 ---
 
@@ -21,7 +21,7 @@ It does **not** serve as the permanent evidence record for individual gameplay a
 Those details belong in:
 
 - `Pokemon_Golden_Yellow_Acceptance_Log.md` for the cumulative acceptance history;
-- dedicated acceptance records when a milestone is complex enough to require one, such as `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md` and `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md`.
+- dedicated acceptance records when a milestone is complex enough to require one, including `Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md`, `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md`, and `Pokemon_Golden_Yellow_Bill_Acceptance_Record.md`.
 
 The live `prototype/v0.1` repository remains authoritative for implementation state when this snapshot becomes stale.
 
@@ -53,11 +53,14 @@ Broad progression currently stands at:
 → **Viridian / Viridian Forest**  
 → **Pewter / Brock**  
 → **Route 3 / Mt. Moon**  
-→ **Cerulean-era progression — ACTIVE DEVELOPMENT BOUNDARY**
+→ **Cerulean / Route 24 / Route 25 / Bill — ACCEPTED THROUGH BILL REACTION**  
+→ **Partner Pikachu graphics/reaction-system reconstruction — ACTIVE ENGINEERING BOUNDARY**
 
-The accepted gameplay baseline now extends through the Yellow Cerulean Rival #3 / Fame Checker integration and the Route 24 Charmander rescue / Damian adoption milestone, including Partner-safe choreography across Route 24 and the Cerulean Pokémon Center.
+The accepted gameplay baseline now extends through the Yellow Cerulean Rival #3 / Fame Checker integration, Route 24 Charmander rescue / Damian adoption milestone, and the required Bill / Sea Cottage Partner Pikachu transformed/restored reaction.
 
-The immediate next implementation boundary is Route 25 progression into Bill / Sea Cottage and the required Yellow Partner Pikachu reaction around Bill's transformation/restoration sequence.
+The Bill milestone also validates the first original-Yellow Pikachu portrait vertical slice on native GBA architecture.
+
+The immediate next engineering boundary is to import Yellow's complete Pikachu portrait/graphics catalog and reconstruct the reusable Yellow Partner reaction/emotion system while preserving the accepted Bill behavior as the regression baseline.
 
 ---
 
@@ -69,7 +72,7 @@ The immediate next implementation boundary is Route 25 progression into Bill / S
 | Viridian / early Route 2 / Viridian Forest | Implemented for current approved scope |
 | Pewter / Brock / post-Brock progression | Implemented and accepted for current approved scope |
 | Route 3 / Mt. Moon | Implemented and accepted |
-| Cerulean / Route 24 / Route 25 / Bill | Active — Rival/Fame Checker and Charmander rescue accepted; Route 25/Bill next |
+| Cerulean / Route 24 / Route 25 / Bill | Active — Rival/Fame Checker, Charmander rescue, and required Bill Partner reaction accepted; Bulbasaur/Misty remain |
 | Vermilion / S.S. Anne / Lt. Surge | Pending staged audit and Yellow integration |
 | Lavender / Pokémon Tower | Pending staged audit and Yellow integration |
 | Celadon / Rocket Hideout | Pending staged audit and Yellow integration |
@@ -96,7 +99,7 @@ Golden Yellow distinguishes:
 
 Partner-aware systems resolve the canonical Partner specifically rather than treating every Pikachu as the Partner.
 
-Current architecture includes persistent Partner following, Partner-specific restrictions, Partner-aware checkpoint reconstruction, and follower identity resolution by actual party Pokémon rather than assumed party slot.
+Current architecture includes persistent Partner following, Partner-specific restrictions, Partner-aware checkpoint reconstruction, follower identity resolution by actual party Pokémon rather than assumed party slot, and Partner-only gating for Yellow narrative reactions.
 
 ## 5.2 Follower / Scripted Movement Foundation
 
@@ -104,7 +107,7 @@ The project has a follower-safe scripted movement mechanism for scenes that need
 
 Battle-opening follower integration also uses actual resolved follower Pokémon identity so that only the Pokémon truly represented by the overworld follower receives the follower-style battle entrance.
 
-The accepted Route 24 Charmander milestone additionally demonstrates lane-aware, scene-local Partner staging across multi-actor choreography without replacing the generic follower engine.
+Accepted Cerulean scenes demonstrate lane-aware, scene-local Partner staging across multi-actor choreography without replacing the generic follower engine.
 
 ## 5.3 Yellow Rival Eevee State
 
@@ -138,6 +141,22 @@ A checkpoint is testing infrastructure only.
 
 The accepted Charmander checkpoint reconstructs the pre-event Route 24 state while deliberately placing the tester south of the event trigger rather than starting the scene immediately on warp-in.
 
+## 5.7 Yellow Pikachu Portrait Vertical Slice
+
+The accepted Bill milestone establishes a proven narrow GBA rendering path for original Pokémon Yellow Partner Pikachu portrait artwork.
+
+The validated slice includes:
+
+- original Yellow 40×40 portrait art carried inside a native 64×64 GBA OBJ;
+- Yellow-derived frame timing translated to GBA timing;
+- script blocking while a portrait is active;
+- A/B or timer dismissal;
+- deterministic portrait resource cleanup;
+- centered portrait presentation;
+- canonical Partner-only gating.
+
+This is **not yet the complete Yellow Pikachu emotion system**. It is the accepted technical foundation that the next pass should generalize into the full reusable system.
+
 ---
 
 # 6. Established Design Decisions
@@ -154,6 +173,7 @@ These are broad project decisions, not individual acceptance records.
 - Gen 1 and Gen 2 Pokémon must ultimately be obtainable in a self-contained single-player save.
 - Trade-dependent evolutions must ultimately have single-player alternatives.
 - Accepted gameplay should not be reopened without a regression or an explicitly approved redesign.
+- Original Yellow Partner Pikachu graphics and reaction semantics may be translated onto native GBA rendering architecture rather than reproducing the Game Boy renderer literally.
 
 For the exact content of accepted milestones, use the Acceptance Log.
 
@@ -177,39 +197,52 @@ The currently accepted Yellow story boundary reaches through:
 - Cerulean Pokémon Center Charmander treatment/escape sequence;
 - healed Charmander return to Route 24;
 - Damian return and approved adoption/gift resolution;
-- Partner-safe Route 24/Damian choreography and associated revisit/decline state handling.
+- Partner-safe Route 24/Damian choreography and associated revisit/decline state handling;
+- Route 25 / Sea Cottage Bill progression for the current approved scope;
+- required Partner Pikachu reaction to transformed Bill;
+- required Partner Pikachu reaction when Bill returns to human form;
+- centered original-Yellow confused/questioning and shocked/surprised portrait presentation for those Bill reactions.
 
-The details, commits, workflow runs, and manual-validation notes for these milestones are maintained in `Pokemon_Golden_Yellow_Acceptance_Log.md` and any linked dedicated acceptance record.
+The details, commits, workflow runs, ROM hashes, and manual-validation notes for these milestones are maintained in `Pokemon_Golden_Yellow_Acceptance_Log.md` and any linked dedicated acceptance record.
 
 ---
 
-# 8. Current Active Development Boundary — Cerulean Era
+# 8. Current Active Development Boundary — Full Yellow Partner Pikachu Reaction System
 
-The Cerulean-era pass is active.
+The Cerulean-era story pass remains active, but the immediate next work is an engine/content foundation pass before proceeding deeper into the story.
 
-The Route 24 Charmander rescue / Damian adoption milestone is accepted. The immediate next implementation boundary is:
+The active engineering boundary is:
 
-**Route 25 progression → Bill / Sea Cottage → required Partner Pikachu Bill reaction**
+**import complete Yellow Pikachu graphics → catalog/map Yellow portrait animations → reconstruct reusable GBA portrait/reaction engine → preserve accepted Bill behavior → integrate remaining required Yellow Partner reactions**
 
-Remaining Cerulean-era scope includes:
+The next pass should build outward from the accepted Bill vertical slice rather than creating another one-off scene implementation.
 
-1. Route 4 arrival and transition from Mt. Moon regression coverage.
-2. Nugget Bridge and the Rocket recruiter sequence regression coverage.
-3. Route 25 progression.
-4. Bill / Sea Cottage story sequence.
-5. Required Partner Pikachu reaction to transformed/restored Bill.
-6. Melanie / Bulbasaur gift using canonical Partner Pikachu happiness.
-7. Misty / Cerulean Gym Yellow identity validation.
-8. Cerulean exit progression toward Vermilion.
+Expected system scope includes:
 
-Before changing code for each remaining stage:
+1. Import the complete usable Yellow Pikachu portrait/graphics catalog with source provenance.
+2. Preserve Yellow's semantic mapping between portrait animation scripts and reaction contexts.
+3. Build a reusable resource registry rather than hard-coding Bill-only assets.
+4. Generalize the native GBA portrait renderer while retaining physical-GBA-safe resource handling.
+5. Reconstruct Yellow's reaction-director behavior where appropriate: portrait, cry, emote, movement, delay, and scene-specific commands.
+6. Recreate the generic Yellow happiness/mood portrait selection behavior without treating ordinary Pikachu as the Partner.
+7. Integrate or migrate the already-required authored reactions so they share the common system where practical.
+8. Keep the accepted Bill transformed/restored choreography and portrait result unchanged during generalization.
+
+After that system foundation is stable, the remaining immediate Cerulean story scope is:
+
+- Melanie / Bulbasaur gift using canonical Partner Pikachu happiness;
+- Misty / Cerulean Gym Yellow identity validation;
+- Cerulean exit progression toward Vermilion;
+- remaining Route 4 / Nugget Bridge / Rocket recruiter regression coverage as needed around the accepted path.
+
+Before changing code in the new system pass:
 
 - resolve the live branch HEAD;
-- inspect the exact affected live maps/scripts/data;
-- compare Yellow canon against retained FRLG behavior;
-- retain compatible FRLG implementation;
-- add only the Yellow-specific overrides and integration required;
-- confirm direct testing checkpoints for the events being developed.
+- inspect the complete current Bill renderer and all existing Partner/follower helpers;
+- use `pret/pokeyellow` as the source authority for portrait assets, emotion definitions, animation scripts, and event mappings;
+- translate behavior to GBA architecture rather than porting Game Boy tile-engine assumptions literally;
+- retain canonical `SPECIES_PIKACHU_STARTER` gating;
+- design the system so later Vermilion Fan Club and Pokémon Tower reactions do not require duplicate renderers.
 
 ---
 
@@ -217,9 +250,16 @@ Before changing code for each remaining stage:
 
 The following are examples of required Yellow content that remains ahead of the current accepted boundary.
 
+## Partner Pikachu system
+
+- complete Yellow Pikachu portrait/graphics import;
+- reusable Yellow reaction/emotion architecture;
+- generic happiness/mood portrait behavior;
+- Partner evolution-refusal presentation when applicable;
+- migration/integration of authored reactions onto the common system where appropriate.
+
 ## Cerulean era
 
-- Bill Partner Pikachu reaction;
 - Melanie's Bulbasaur gift with canonical Partner happiness requirement;
 - Misty Yellow battle identity validation.
 
@@ -284,15 +324,17 @@ The rules are:
 - dedicated acceptance records may preserve detailed choreography or implementation history for complex milestones;
 - Current Project State should not duplicate that detailed evidence.
 
+The accepted Bill behavior must remain a regression target while the portrait/reaction renderer is generalized.
+
 ---
 
 # 12. Current Blockers
 
 **No known blocking regression is open at this snapshot.**
 
-The Route 24 Charmander rescue / Damian adoption milestone has passed manual acceptance, and its post-acceptance checkpoint correction has a successful prototype build.
+The Bill / Sea Cottage Partner Pikachu portrait milestone has passed manual acceptance after the portrait-centering correction and successful prototype build.
 
-Development can proceed from the accepted Route 24 baseline into Route 25 and Bill / Sea Cottage integration.
+Development can proceed from the accepted Bill baseline into the complete Yellow Pikachu graphics/reaction-system reconstruction.
 
 ---
 
