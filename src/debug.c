@@ -6,6 +6,7 @@
 #undef Debug_ShowMainMenu
 
 #include "golden_yellow_debug.h"
+#include "golden_yellow_partner_reaction.h"
 
 struct GoldenYellowDebugMenuSelection
 {
@@ -20,6 +21,20 @@ static void DebugAction_GoldenYellow_ApplyCheckpoint(u8 taskId, const void *para
     Debug_DestroyMenu_Full(taskId);
     GoldenYellowDebug_ApplyCheckpoint(selection->checkpoint, selection->rivalPath);
     ScriptContext_Stop();
+}
+
+static void DebugAction_GoldenYellow_PikachuPortraits(u8 taskId)
+{
+    Debug_DestroyMenu_Full(taskId);
+    LockPlayerFieldControls();
+    FreezeObjectEvents();
+
+    if (!GoldenYellow_DebugStartPikachuPortraitBrowser())
+    {
+        UnlockPlayerFieldControls();
+        UnfreezeObjectEvents();
+        ScriptContext_Enable();
+    }
 }
 
 #define GY_SELECTION(name, cp, path) \
@@ -179,6 +194,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_JessieJames[
 static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_YellowEvents[] =
 {
     { COMPOUND_STRING("Partner & Opening…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_YellowOpening },
+    { COMPOUND_STRING("Pikachu Portraits"), DebugAction_GoldenYellow_PikachuPortraits },
     { COMPOUND_STRING("Gift Pokemon…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Gifts },
     { COMPOUND_STRING("Jessie & James…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_JessieJames },
     { NULL }
