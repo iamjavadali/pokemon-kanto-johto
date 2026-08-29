@@ -69,6 +69,7 @@ A later branch HEAD does not invalidate an earlier acceptance merely because add
 | Battle follower send-out identity correction | ACCEPTED | This log |
 | Cerulean Rival #3 / Fame Checker / Partner choreography | ACCEPTED | This log |
 | Route 24 Charmander rescue / Damian adoption | ACCEPTED | `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md` |
+| Bill / Sea Cottage Partner Pikachu reaction + Yellow portrait slice | ACCEPTED | `Pokemon_Golden_Yellow_Bill_Acceptance_Record.md` |
 
 ---
 
@@ -332,7 +333,56 @@ The dedicated Charmander acceptance record is authoritative for the detailed sta
 
 ---
 
-# 13. Maintenance Rule
+# 13. Acceptance — Bill / Sea Cottage Partner Pikachu Reaction and Yellow Portrait Slice
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-08-29  
+**Initial portrait implementation commit:** `34d7e033dfce7077ee67d593a66a6cef5888b2d7`  
+**Final accepted source commit:** `0cfdbc7ca43ef68ee72dabc75ea8f70834bdc694`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33256305375`  
+**Accepted artifact ID:** `9715960746`  
+**Accepted ROM SHA-256:** `df93fc0c69cd69e81be03a27c4baef63e5bcd5f0ea78211ee06b0e2d7f96adc0`  
+**Manual result:** ACCEPTED PASS  
+**Detailed record:** `Pokemon_Golden_Yellow_Bill_Acceptance_Record.md`
+
+## Scope
+
+This acceptance closes the required Yellow Partner Pikachu Bill reaction at Sea Cottage and validates the project's first native GBA vertical slice for original Yellow Pikachu portrait graphics.
+
+The accepted result preserves compatible FRLG Bill choreography while layering the Yellow-specific transformed/restored Partner reactions onto the scene.
+
+## Accepted behavior
+
+- only canonical Partner Pikachu (`SPECIES_PIKACHU_STARTER`) triggers the Bill portrait reactions;
+- transformed Bill produces the original Yellow confused/questioning Partner portrait sequence;
+- the transformed reaction preserves the existing cry/choreography and blocks scene advancement while the portrait is visible;
+- restored Bill preserves the accepted timing where he moves down one tile and reaches Partner Pikachu's row before the restored-human reaction begins;
+- the restored-human reaction produces the original Yellow shocked/surprised portrait sequence rather than a generic happy reaction;
+- the portrait renderer preserves the original 40×40 Yellow artwork inside a native 64×64 GBA OBJ carrier;
+- Yellow-derived frame timing is translated to GBA frame timing without overflowing the 6-bit animation-frame duration field;
+- portraits can close by duration or A/B input;
+- sprite, palette, window, and task resources are released cleanly after each display;
+- the final portrait window is centered on the 240×160 GBA screen at the accepted `X = 10`, `Y = 5` outer coordinates;
+- Bill, Partner Pikachu, and the scene continue normally after each portrait closes.
+
+## Regression invariants
+
+- ordinary `SPECIES_PIKACHU` must never trigger these Partner-only reactions;
+- preserve the accepted Bill-to-Partner same-row timing before the restored-human reaction;
+- transformed Bill remains mapped to Yellow's confused/questioning portrait art;
+- restored human Bill remains mapped to Yellow's shocked/surprised portrait art;
+- do not replace the restored-human reaction with a generic happy portrait;
+- portrait presentation remains centered;
+- the scene must remain blocked while the portrait is active;
+- portrait rendering must not mutate follower identity or Partner save identity;
+- runtime sprite/window/palette/task resources must continue to be cleaned up deterministically.
+
+The dedicated Bill acceptance record is authoritative for the Yellow source assets, translated timing, renderer architecture, accepted scene choreography, and protected implementation decisions of this milestone.
+
+---
+
+# 14. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
