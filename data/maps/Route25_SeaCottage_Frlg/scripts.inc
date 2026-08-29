@@ -2,6 +2,8 @@
 .equ RETURN_AFTER_SS_TICKET, FLAG_TEMP_3
 .equ YELLOW_BILL_ENTRY_PENDING, VAR_TEMP_0
 .equ YELLOW_BILL_PARTNER_PRESENT, VAR_TEMP_1
+.equ YELLOW_PIKACHU_PORTRAIT_BILL_CONFUSED, 0
+.equ YELLOW_PIKACHU_PORTRAIT_BILL_SHOCKED,  1
 
 Route25_SeaCottage_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, Route25_SeaCottage_OnTransition
@@ -64,6 +66,8 @@ Route25_SeaCottage_EventScript_YellowEntryReaction::
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
+	setvar VAR_0x8004, YELLOW_PIKACHU_PORTRAIT_BILL_CONFUSED
+	callnative GoldenYellow_ShowPartnerPikachuPortrait, requests_effects=1
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerConfusedByBill
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
@@ -384,6 +388,8 @@ Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
+	setvar VAR_0x8004, YELLOW_PIKACHU_PORTRAIT_BILL_SHOCKED
+	callnative GoldenYellow_ShowPartnerPikachuPortrait, requests_effects=1
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerExcitedBillRestored
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
 
