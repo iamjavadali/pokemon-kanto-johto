@@ -221,6 +221,18 @@ static void FinishPartnerReaction(u8 taskId)
 
     if (task->rMode == GY_PARTNER_REACTION_MODE_DEBUG_BROWSER)
     {
+        struct ObjectEvent *follower = GetFollowerObject();
+
+        // Debug-browser normalization only: each Emotion must begin from the
+        // same player-facing baseline so its body-language choreography can be
+        // evaluated independently. Authored one-shot reactions intentionally
+        // retain their story/portrait-synchronized final pose.
+        if (follower != NULL && follower->active)
+        {
+            ObjectEventClearHeldMovementIfActive(follower);
+            ObjectEventTurn(follower, GetFollowerDirectionTowardPlayer(follower));
+        }
+
         task->rState = GY_PARTNER_REACTION_STATE_BROWSER_IDLE;
         task->rInputCooldown = 2;
     }
