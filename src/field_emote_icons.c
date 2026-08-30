@@ -8,6 +8,7 @@
 #include "constants/field_effects.h"
 
 #define SHARED_EMOTE_FRAMES 60
+#define TAG_SHARED_ANIMATED_EMOTICON 0x2A12
 
 static const u8 sFieldEmoteHappyGfx[] =
     INCGFX_U8("graphics/field_effects/pics/emotion_happy.png", ".4bpp");
@@ -19,6 +20,13 @@ static const u8 sFieldEmoteBoltGfx[] =
     INCGFX_U8("graphics/field_effects/pics/emotion_bolt.png", ".4bpp");
 static const u8 sFieldEmoteFishGfx[] =
     INCGFX_U8("graphics/field_effects/pics/emotion_fish.png", ".4bpp");
+
+// Reuse the existing generic FRLG/expansion emoticon sheet for source-faithful
+// animated symbols instead of maintaining a second hand-drawn copy.
+static const u16 sAnimatedEmoticonGfx[] =
+    INCGFX_U16("graphics/misc/emoticons.png", ".4bpp", "-mwidth 2 -mheight 2");
+static const u16 sAnimatedEmoticonPal[] =
+    INCGFX_U16("graphics/misc/emoticons.png", ".gbapal");
 
 static const struct OamData sFieldEmoteOam =
 {
@@ -44,6 +52,13 @@ static const struct SpriteFrameImage sFieldEmoteImages[] =
     { .data = sFieldEmoteSleepGfx, .size = sizeof(sFieldEmoteSleepGfx) },
     { .data = sFieldEmoteBoltGfx, .size = sizeof(sFieldEmoteBoltGfx) },
     { .data = sFieldEmoteFishGfx, .size = sizeof(sFieldEmoteFishGfx) },
+};
+
+static const struct SpriteFrameImage sAnimatedExclamationImages[] =
+{
+    { .data = (const u8 *)(sAnimatedEmoticonGfx + 0x000), .size = 0x80 },
+    { .data = (const u8 *)(sAnimatedEmoticonGfx + 0x040), .size = 0x80 },
+    { .data = (const u8 *)(sAnimatedEmoticonGfx + 0x080), .size = 0x80 },
 };
 
 static const union AnimCmd sFieldEmoteAnimHappy[] =
@@ -85,6 +100,25 @@ static const union AnimCmd *const sFieldEmoteAnims[] =
     [FIELD_EMOTE_FISH] = sFieldEmoteAnimFish,
 };
 
+static const union AnimCmd sAnimatedExclamationAnim[] =
+{
+    ANIMCMD_FRAME(0, 4),
+    ANIMCMD_FRAME(1, 4),
+    ANIMCMD_FRAME(2, 52),
+    ANIMCMD_END,
+};
+
+static const union AnimCmd *const sAnimatedExclamationAnims[] =
+{
+    sAnimatedExclamationAnim,
+};
+
+static const struct SpritePalette sAnimatedEmoticonPalette =
+{
+    .data = sAnimatedEmoticonPal,
+    .tag = TAG_SHARED_ANIMATED_EMOTICON,
+};
+
 static void SpriteCB_SharedEmoteIcon(struct Sprite *sprite);
 
 static const struct SpriteTemplate sFieldEmoteTemplate =
@@ -100,14 +134,26 @@ static const struct SpriteTemplate sFieldEmoteTemplate =
     .callback = SpriteCB_SharedEmoteIcon,
 };
 
-#define sLocalId    data[0]
-#define sMapNum     data[1]
-#define sMapGroup   data[2]
-#define sYVelocity  data[3]
-#define sYOffset    data[4]
-#define sFldEffId   data[7]
+static const struct SpriteTemplate sAnimatedExclamationTemplate =
+{
+    .tileTag = TAG_NONE,
+    .paletteTag = TAG_SHARED_ANIMATED_EMOTICON,
+    .oam = &sFieldEmoteOam,
+    .anims = sAnimatedExclamationAnims,
+    .images = sAnimatedExclamationImages,
+    .affineAnims = gDummySpriteAffineAnimTable,
+    .callback = SpriteCB_SharedEmoteIcon,
+};
 
-static void SetSharedEmoteSpriteData(struct Sprite *sprite, enum FieldEmoteIcon icon)
+#define sLocalId            data[0]
+#define sMapNum             data[1]
+#define sMapGroup           data[2]
+#define sYVelocity          data[3]
+#define sYOffset            data[4]
+#define sUsesPrivatePalette data[6]
+#define sFldEffId           data[7]
+
+static void SetSharedEmoteSpriteData(struct Sprite *sprite, u8 spriteAnimNum, bool8 usesPrivatePalette)
 {
     sprite->oam.priority = 1;
     sprite->coordOffsetEnabled = TRUE;
@@ -116,14 +162,18 @@ static void SetSharedEmoteSpriteData(struct Sprite *sprite, enum FieldEmoteIcon 
     sprite->sMapNum = gFieldEffectArguments[1];
     sprite->sMapGroup = gFieldEffectArguments[2];
     sprite->sYVelocity = -5;
+    sprite->sUsesPrivatePalette = usesPrivatePalette;
     sprite->sFldEffId = FLDEFF_SHARED_EMOTE_ICON;
 
-    StartSpriteAnim(sprite, icon);
+    StartSpriteAnim(sprite, spriteAnimNum);
 }
 
 u8 FldEff_SharedEmoteIcon(void)
 {
     enum FieldEmoteIcon icon = gFieldEffectArguments[7];
+    const struct SpriteTemplate *template;
+    u8 spriteAnimNum;
+    bool8 usesPrivatePalette = FALSE;
     u8 spriteId;
 
     if (icon >= FIELD_EMOTE_COUNT)
@@ -132,15 +182,30 @@ u8 FldEff_SharedEmoteIcon(void)
         return 0;
     }
 
-    spriteId = CreateSpriteAtEnd(&sFieldEmoteTemplate, 0, 0, 0x52);
+    if (icon == FIELD_EMOTE_ANIMATED_EXCLAMATION)
+    {
+        LoadSpritePalette(&sAnimatedEmoticonPalette);
+        template = &sAnimatedExclamationTemplate;
+        spriteAnimNum = 0;
+        usesPrivatePalette = TRUE;
+    }
+    else
+    {
+        template = &sFieldEmoteTemplate;
+        spriteAnimNum = icon;
+    }
+
+    spriteId = CreateSpriteAtEnd(template, 0, 0, 0x52);
     if (spriteId == MAX_SPRITES)
     {
+        if (usesPrivatePalette)
+            FreeSpritePaletteByTag(TAG_SHARED_ANIMATED_EMOTICON);
         FieldEffectActiveListRemove(FLDEFF_SHARED_EMOTE_ICON);
         return 0;
     }
 
-    SetSharedEmoteSpriteData(&gSprites[spriteId], icon);
-    UpdateSpritePaletteByTemplate(&sFieldEmoteTemplate, &gSprites[spriteId]);
+    SetSharedEmoteSpriteData(&gSprites[spriteId], spriteAnimNum, usesPrivatePalette);
+    UpdateSpritePaletteByTemplate(template, &gSprites[spriteId]);
     return 0;
 }
 
@@ -167,7 +232,11 @@ static void SpriteCB_SharedEmoteIcon(struct Sprite *sprite)
     if (TryGetObjectEventIdByLocalIdAndMap(sprite->sLocalId, sprite->sMapNum, sprite->sMapGroup, &objectEventId)
      || sprite->animEnded)
     {
+        bool8 usesPrivatePalette = sprite->sUsesPrivatePalette;
+
         FieldEffectStop(sprite, sprite->sFldEffId);
+        if (usesPrivatePalette)
+            FreeSpritePaletteByTag(TAG_SHARED_ANIMATED_EMOTICON);
     }
     else
     {
@@ -190,4 +259,5 @@ static void SpriteCB_SharedEmoteIcon(struct Sprite *sprite)
 #undef sMapGroup
 #undef sYVelocity
 #undef sYOffset
+#undef sUsesPrivatePalette
 #undef sFldEffId

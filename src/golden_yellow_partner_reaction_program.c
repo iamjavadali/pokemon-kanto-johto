@@ -1,22 +1,20 @@
 #include "global.h"
 #include "event_object_movement.h"
 #include "field_effect.h"
+#include "field_emote_icons.h"
 #include "field_player_avatar.h"
+#include "follower_helper.h"
 #include "golden_yellow_partner_reaction.h"
 #include "main.h"
-#include "palette.h"
 #include "pokemon.h"
 #include "script.h"
 #include "sound.h"
-#include "sprite.h"
 #include "task.h"
 #include "constants/event_object_movement.h"
 #include "constants/field_effects.h"
 #include "constants/golden_yellow_partner_reactions.h"
 #include "constants/species.h"
 
-#define TAG_GOLDEN_YELLOW_PARTNER_BUBBLE 0x2A11
-#define PARTNER_REACTION_BUBBLE_FRAMES   60
 #define PARTNER_REACTION_NO_FIELD_EFFECT (-1)
 #define PARTNER_REACTION_TURN_AWAY_MOVEMENT 0xFE
 
@@ -46,126 +44,15 @@ struct GoldenYellowPartnerReactionCommand
 
 #include "golden_yellow_partner_reaction_data.inc"
 
-/*
- * These Yellow bubbles follow the exact sprite lifecycle proven by
- * golden_yellow_sleep_emote.c: source PNG graphics + source PNG palette,
- * a real timed animation, field-coordinate offsets, and stable follower
- * object-event anchoring. Heart, exclamation, and question retain the native
- * GBA field effects because those render correctly in the accepted field UI.
- */
-static const u8 sPartnerBubbleHappyGfx[] =
-    INCGFX_U8("graphics/field_effects/pics/emotion_happy.png", ".4bpp");
-static const u16 sPartnerBubbleHappyPal[] =
-    INCGFX_U16("graphics/field_effects/pics/emotion_happy.png", ".gbapal");
-static const u8 sPartnerBubbleSkullGfx[] =
-    INCGFX_U8("graphics/field_effects/pics/emotion_skull.png", ".4bpp");
-static const u16 sPartnerBubbleSkullPal[] =
-    INCGFX_U16("graphics/field_effects/pics/emotion_skull.png", ".gbapal");
-static const u8 sPartnerBubbleZzzGfx[] =
-    INCGFX_U8("graphics/field_effects/pics/emotion_zzz.png", ".4bpp");
-static const u16 sPartnerBubbleZzzPal[] =
-    INCGFX_U16("graphics/field_effects/pics/emotion_zzz.png", ".gbapal");
-static const u8 sPartnerBubbleBoltGfx[] =
-    INCGFX_U8("graphics/field_effects/pics/emotion_bolt.png", ".4bpp");
-static const u16 sPartnerBubbleBoltPal[] =
-    INCGFX_U16("graphics/field_effects/pics/emotion_bolt.png", ".gbapal");
-static const u8 sPartnerBubbleFishGfx[] =
-    INCGFX_U8("graphics/field_effects/pics/emotion_fish.png", ".4bpp");
-static const u16 sPartnerBubbleFishPal[] =
-    INCGFX_U16("graphics/field_effects/pics/emotion_fish.png", ".gbapal");
-
-static const struct OamData sPartnerReactionBubbleOam =
-{
-    .y = 0,
-    .affineMode = ST_OAM_AFFINE_OFF,
-    .objMode = ST_OAM_OBJ_NORMAL,
-    .mosaic = FALSE,
-    .bpp = ST_OAM_4BPP,
-    .shape = SPRITE_SHAPE(16x16),
-    .x = 0,
-    .matrixNum = 0,
-    .size = SPRITE_SIZE(16x16),
-    .tileNum = 0,
-    .priority = 1,
-    .paletteNum = 0,
-    .affineParam = 0,
-};
-
-static const union AnimCmd sPartnerReactionBubbleAnim[] =
-{
-    ANIMCMD_FRAME(0, PARTNER_REACTION_BUBBLE_FRAMES),
-    ANIMCMD_END,
-};
-
-static const union AnimCmd *const sPartnerReactionBubbleAnims[] =
-{
-    sPartnerReactionBubbleAnim,
-};
-
-#define PARTNER_BUBBLE_IMAGE_TABLE(name_, gfx_) \
-    static const struct SpriteFrameImage name_[] = \
-    { \
-        { .data = (gfx_), .size = sizeof(gfx_) }, \
-    }
-
-PARTNER_BUBBLE_IMAGE_TABLE(sPartnerBubbleHappyImages, sPartnerBubbleHappyGfx);
-PARTNER_BUBBLE_IMAGE_TABLE(sPartnerBubbleSkullImages, sPartnerBubbleSkullGfx);
-PARTNER_BUBBLE_IMAGE_TABLE(sPartnerBubbleZzzImages, sPartnerBubbleZzzGfx);
-PARTNER_BUBBLE_IMAGE_TABLE(sPartnerBubbleBoltImages, sPartnerBubbleBoltGfx);
-PARTNER_BUBBLE_IMAGE_TABLE(sPartnerBubbleFishImages, sPartnerBubbleFishGfx);
-
-#undef PARTNER_BUBBLE_IMAGE_TABLE
-
-#define PARTNER_BUBBLE_PALETTE(name_, pal_) \
-    static const struct SpritePalette name_ = \
-    { \
-        .data = (pal_), \
-        .tag = TAG_GOLDEN_YELLOW_PARTNER_BUBBLE, \
-    }
-
-PARTNER_BUBBLE_PALETTE(sPartnerBubbleHappyPalette, sPartnerBubbleHappyPal);
-PARTNER_BUBBLE_PALETTE(sPartnerBubbleSkullPalette, sPartnerBubbleSkullPal);
-PARTNER_BUBBLE_PALETTE(sPartnerBubbleZzzPalette, sPartnerBubbleZzzPal);
-PARTNER_BUBBLE_PALETTE(sPartnerBubbleBoltPalette, sPartnerBubbleBoltPal);
-PARTNER_BUBBLE_PALETTE(sPartnerBubbleFishPalette, sPartnerBubbleFishPal);
-
-#undef PARTNER_BUBBLE_PALETTE
-
-static void SpriteCB_PartnerReactionBubble(struct Sprite *sprite);
-
-#define PARTNER_BUBBLE_TEMPLATE(name_, images_) \
-    static const struct SpriteTemplate name_ = \
-    { \
-        .tileTag = TAG_NONE, \
-        .paletteTag = TAG_GOLDEN_YELLOW_PARTNER_BUBBLE, \
-        .oam = &sPartnerReactionBubbleOam, \
-        .anims = sPartnerReactionBubbleAnims, \
-        .images = (images_), \
-        .affineAnims = gDummySpriteAffineAnimTable, \
-        .callback = SpriteCB_PartnerReactionBubble, \
-    }
-
-PARTNER_BUBBLE_TEMPLATE(sPartnerBubbleHappyTemplate, sPartnerBubbleHappyImages);
-PARTNER_BUBBLE_TEMPLATE(sPartnerBubbleSkullTemplate, sPartnerBubbleSkullImages);
-PARTNER_BUBBLE_TEMPLATE(sPartnerBubbleZzzTemplate, sPartnerBubbleZzzImages);
-PARTNER_BUBBLE_TEMPLATE(sPartnerBubbleBoltTemplate, sPartnerBubbleBoltImages);
-PARTNER_BUBBLE_TEMPLATE(sPartnerBubbleFishTemplate, sPartnerBubbleFishImages);
-
-#undef PARTNER_BUBBLE_TEMPLATE
-
-#define rReactionId       data[0]
-#define rCommandIndex     data[1]
-#define rState            data[2]
-#define rMode             data[3]
-#define rWaitTimer        data[4]
-#define rMovementId       data[5]
-#define rMovementStep     data[6]
-#define rInputCooldown    data[7]
-#define rBubbleSpriteId   data[8]
-#define rBubbleEffectId   data[9]
-
-#define sFollowerObjectEventId data[0]
-#define sOwnerTaskId            data[1]
+#define rReactionId     data[0]
+#define rCommandIndex   data[1]
+#define rState          data[2]
+#define rMode           data[3]
+#define rWaitTimer      data[4]
+#define rMovementId     data[5]
+#define rMovementStep   data[6]
+#define rInputCooldown  data[7]
+#define rBubbleEffectId data[8]
 
 static void Task_PartnerReaction(u8 taskId);
 static bool32 StartPartnerReactionTask(u8 reactionId, enum GoldenYellowPartnerReactionTaskMode mode);
@@ -178,10 +65,7 @@ static void ExecutePartnerReactionCommand(u8 taskId);
 static void ExecutePartnerReactionCallback(u8 callbackId);
 static bool32 StartPartnerReactionBubble(u8 taskId, u8 bubbleId);
 static bool32 IsPartnerReactionBubbleActive(u8 taskId);
-static u8 StartCustomPartnerReactionBubble(u8 taskId, u8 bubbleId);
-static const struct SpriteTemplate *GetCustomPartnerBubbleTemplate(u8 bubbleId);
-static const struct SpritePalette *GetCustomPartnerBubblePalette(u8 bubbleId);
-static void DestroyPartnerReactionBubbleSprite(struct Sprite *sprite);
+static s16 GetFollowerEmotionForBubble(u8 bubbleId);
 static void StartPartnerReactionMovement(u8 taskId, u8 movementId);
 static bool32 UpdatePartnerReactionMovement(u8 taskId);
 static enum Direction GetFollowerDirectionTowardPlayer(const struct ObjectEvent *follower);
@@ -236,7 +120,6 @@ static bool32 StartPartnerReactionTask(u8 reactionId, enum GoldenYellowPartnerRe
 
     taskId = CreateTask(Task_PartnerReaction, 0x51);
     gTasks[taskId].rMode = mode;
-    gTasks[taskId].rBubbleSpriteId = MAX_SPRITES;
     gTasks[taskId].rBubbleEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
     BeginPartnerReaction(taskId, reactionId);
     return TRUE;
@@ -275,7 +158,6 @@ static void BeginPartnerReaction(u8 taskId, u8 reactionId)
     task->rWaitTimer = 0;
     task->rMovementId = 0;
     task->rMovementStep = 0;
-    task->rBubbleSpriteId = MAX_SPRITES;
     task->rBubbleEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
 }
 
@@ -296,14 +178,10 @@ static void FinishPartnerReaction(u8 taskId)
 
 static void ClosePartnerReactionBrowser(u8 taskId)
 {
-    struct Task *task = &gTasks[taskId];
     struct ObjectEvent *follower = GetFollowerObject();
 
     if (follower != NULL && follower->active)
         ObjectEventClearHeldMovementIfActive(follower);
-
-    if (task->rBubbleSpriteId < MAX_SPRITES && gSprites[task->rBubbleSpriteId].inUse)
-        DestroyPartnerReactionBubbleSprite(&gSprites[task->rBubbleSpriteId]);
 
     DestroyTask(taskId);
     UnlockPlayerFieldControls();
@@ -365,6 +243,7 @@ static void Task_PartnerReaction(u8 taskId)
     case GY_PARTNER_REACTION_STATE_WAIT_BUBBLE:
         if (!IsPartnerReactionBubbleActive(taskId))
         {
+            task->rBubbleEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
             task->rCommandIndex++;
             task->rState = GY_PARTNER_REACTION_STATE_RUN_COMMAND;
         }
@@ -476,46 +355,93 @@ static void ExecutePartnerReactionCallback(u8 callbackId)
     (void)callbackId;
 }
 
+static s16 GetFollowerEmotionForBubble(u8 bubbleId)
+{
+    switch (bubbleId)
+    {
+    case GY_PARTNER_BUBBLE_FOLLOWER_HAPPY:
+        return FOLLOWER_EMOTION_HAPPY;
+    case GY_PARTNER_BUBBLE_FOLLOWER_NEUTRAL:
+        return FOLLOWER_EMOTION_NEUTRAL;
+    case GY_PARTNER_BUBBLE_FOLLOWER_SAD:
+        return FOLLOWER_EMOTION_SAD;
+    case GY_PARTNER_BUBBLE_FOLLOWER_UPSET:
+        return FOLLOWER_EMOTION_UPSET;
+    case GY_PARTNER_BUBBLE_FOLLOWER_ANGRY:
+        return FOLLOWER_EMOTION_ANGRY;
+    case GY_PARTNER_BUBBLE_FOLLOWER_PENSIVE:
+        return FOLLOWER_EMOTION_PENSIVE;
+    case GY_PARTNER_BUBBLE_FOLLOWER_LOVE:
+        return FOLLOWER_EMOTION_LOVE;
+    case GY_PARTNER_BUBBLE_FOLLOWER_SURPRISE:
+        return FOLLOWER_EMOTION_SURPRISE;
+    case GY_PARTNER_BUBBLE_FOLLOWER_CURIOUS:
+        return FOLLOWER_EMOTION_CURIOUS;
+    case GY_PARTNER_BUBBLE_FOLLOWER_MUSIC:
+        return FOLLOWER_EMOTION_MUSIC;
+    case GY_PARTNER_BUBBLE_FOLLOWER_POISONED:
+        return FOLLOWER_EMOTION_POISONED;
+    default:
+        return -1;
+    }
+}
+
 static bool32 StartPartnerReactionBubble(u8 taskId, u8 bubbleId)
 {
     struct Task *task = &gTasks[taskId];
     struct ObjectEvent *follower = GetFollowerObject();
-    s16 fieldEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
+    s16 followerEmotion = GetFollowerEmotionForBubble(bubbleId);
+    enum FieldEmoteIcon sharedIcon;
 
     if (follower == NULL || !follower->active)
         return FALSE;
 
-    task->rBubbleSpriteId = MAX_SPRITES;
     task->rBubbleEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
 
+    // First choice: reuse the expansion's existing animated HGSS follower
+    // emotion renderer exactly as ordinary follower interactions do.
+    if (followerEmotion >= 0)
+    {
+        if (FieldEffectActiveListContains(FLDEFF_EMOTE))
+            return FALSE;
+
+        gFieldEffectArguments[0] = follower->localId;
+        gFieldEffectArguments[1] = gSaveBlock1Ptr->location.mapNum;
+        gFieldEffectArguments[2] = gSaveBlock1Ptr->location.mapGroup;
+        gFieldEffectArguments[7] = followerEmotion;
+        FieldEffectStart(FLDEFF_EMOTE);
+        task->rBubbleEffectId = FLDEFF_EMOTE;
+        return TRUE;
+    }
+
+    // Yellow-only concepts stay in the shared field-emote subsystem so they
+    // remain reusable by other followers/NPCs rather than becoming
+    // Partner-Pikachu-private presentation code.
     switch (bubbleId)
     {
-    case GY_PARTNER_BUBBLE_HEART:
-        fieldEffectId = FLDEFF_HEART_ICON;
-        break;
-    case GY_PARTNER_BUBBLE_EXCLAMATION:
-        fieldEffectId = FLDEFF_EXCLAMATION_MARK_ICON;
-        break;
-    case GY_PARTNER_BUBBLE_QUESTION:
-        fieldEffectId = FLDEFF_QUESTION_MARK_ICON;
-        break;
-    case GY_PARTNER_BUBBLE_SMILE:
     case GY_PARTNER_BUBBLE_SKULL:
+        sharedIcon = FIELD_EMOTE_SKULL;
+        break;
     case GY_PARTNER_BUBBLE_ZZZ:
+        sharedIcon = FIELD_EMOTE_SLEEP;
+        break;
     case GY_PARTNER_BUBBLE_BOLT:
+        sharedIcon = FIELD_EMOTE_BOLT;
+        break;
     case GY_PARTNER_BUBBLE_FISH:
-        task->rBubbleSpriteId = StartCustomPartnerReactionBubble(taskId, bubbleId);
-        return task->rBubbleSpriteId < MAX_SPRITES;
+        sharedIcon = FIELD_EMOTE_FISH;
+        break;
+    case GY_PARTNER_BUBBLE_ANIMATED_EXCLAMATION:
+        sharedIcon = FIELD_EMOTE_ANIMATED_EXCLAMATION;
+        break;
     default:
         return FALSE;
     }
 
-    gFieldEffectArguments[0] = follower->localId;
-    gFieldEffectArguments[1] = gSaveBlock1Ptr->location.mapNum;
-    gFieldEffectArguments[2] = gSaveBlock1Ptr->location.mapGroup;
-    gFieldEffectArguments[7] = -1;
-    FieldEffectStart(fieldEffectId);
-    task->rBubbleEffectId = fieldEffectId;
+    if (!FieldEmote_StartOnObjectEvent(follower, sharedIcon))
+        return FALSE;
+
+    task->rBubbleEffectId = FLDEFF_SHARED_EMOTE_ICON;
     return TRUE;
 }
 
@@ -523,115 +449,10 @@ static bool32 IsPartnerReactionBubbleActive(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];
 
-    if (task->rBubbleEffectId != PARTNER_REACTION_NO_FIELD_EFFECT)
-        return FieldEffectActiveListContains(task->rBubbleEffectId);
+    if (task->rBubbleEffectId == PARTNER_REACTION_NO_FIELD_EFFECT)
+        return FALSE;
 
-    if (task->rBubbleSpriteId < MAX_SPRITES)
-        return gSprites[task->rBubbleSpriteId].inUse;
-
-    return FALSE;
-}
-
-static const struct SpriteTemplate *GetCustomPartnerBubbleTemplate(u8 bubbleId)
-{
-    switch (bubbleId)
-    {
-    case GY_PARTNER_BUBBLE_SMILE:
-        return &sPartnerBubbleHappyTemplate;
-    case GY_PARTNER_BUBBLE_SKULL:
-        return &sPartnerBubbleSkullTemplate;
-    case GY_PARTNER_BUBBLE_ZZZ:
-        return &sPartnerBubbleZzzTemplate;
-    case GY_PARTNER_BUBBLE_BOLT:
-        return &sPartnerBubbleBoltTemplate;
-    case GY_PARTNER_BUBBLE_FISH:
-        return &sPartnerBubbleFishTemplate;
-    default:
-        return NULL;
-    }
-}
-
-static const struct SpritePalette *GetCustomPartnerBubblePalette(u8 bubbleId)
-{
-    switch (bubbleId)
-    {
-    case GY_PARTNER_BUBBLE_SMILE:
-        return &sPartnerBubbleHappyPalette;
-    case GY_PARTNER_BUBBLE_SKULL:
-        return &sPartnerBubbleSkullPalette;
-    case GY_PARTNER_BUBBLE_ZZZ:
-        return &sPartnerBubbleZzzPalette;
-    case GY_PARTNER_BUBBLE_BOLT:
-        return &sPartnerBubbleBoltPalette;
-    case GY_PARTNER_BUBBLE_FISH:
-        return &sPartnerBubbleFishPalette;
-    default:
-        return NULL;
-    }
-}
-
-static u8 StartCustomPartnerReactionBubble(u8 taskId, u8 bubbleId)
-{
-    const struct SpriteTemplate *template = GetCustomPartnerBubbleTemplate(bubbleId);
-    const struct SpritePalette *palette = GetCustomPartnerBubblePalette(bubbleId);
-    struct ObjectEvent *follower = GetFollowerObject();
-    u8 spriteId;
-
-    if (template == NULL || palette == NULL || follower == NULL || !follower->active)
-        return MAX_SPRITES;
-
-    LoadSpritePalette(palette);
-    spriteId = CreateSprite(template, 0, 0, 0x52);
-    if (spriteId == MAX_SPRITES)
-    {
-        FreeSpritePaletteByTag(TAG_GOLDEN_YELLOW_PARTNER_BUBBLE);
-        return MAX_SPRITES;
-    }
-
-    gSprites[spriteId].coordOffsetEnabled = TRUE;
-    gSprites[spriteId].sFollowerObjectEventId = follower - gObjectEvents;
-    gSprites[spriteId].sOwnerTaskId = taskId;
-    SpriteCB_PartnerReactionBubble(&gSprites[spriteId]);
-    return spriteId;
-}
-
-static void SpriteCB_PartnerReactionBubble(struct Sprite *sprite)
-{
-    u8 objectEventId = sprite->sFollowerObjectEventId;
-    u8 taskId = sprite->sOwnerTaskId;
-
-    if (objectEventId >= OBJECT_EVENTS_COUNT
-     || !gObjectEvents[objectEventId].active
-     || taskId >= NUM_TASKS
-     || !gTasks[taskId].isActive
-     || gTasks[taskId].func != Task_PartnerReaction
-     || sprite->animEnded)
-    {
-        DestroyPartnerReactionBubbleSprite(sprite);
-        return;
-    }
-
-    {
-        struct Sprite *followerSprite = &gSprites[gObjectEvents[objectEventId].spriteId];
-
-        sprite->x = followerSprite->x;
-        sprite->y = followerSprite->y - 16;
-        sprite->x2 = followerSprite->x2;
-        sprite->y2 = followerSprite->y2;
-    }
-}
-
-static void DestroyPartnerReactionBubbleSprite(struct Sprite *sprite)
-{
-    u8 taskId = sprite->sOwnerTaskId;
-
-    if (taskId < NUM_TASKS
-     && gTasks[taskId].isActive
-     && gTasks[taskId].func == Task_PartnerReaction)
-        gTasks[taskId].rBubbleSpriteId = MAX_SPRITES;
-
-    DestroySprite(sprite);
-    FreeSpritePaletteByTag(TAG_GOLDEN_YELLOW_PARTNER_BUBBLE);
+    return FieldEffectActiveListContains(task->rBubbleEffectId);
 }
 
 static enum Direction GetFollowerDirectionTowardPlayer(const struct ObjectEvent *follower)
@@ -1067,7 +888,4 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
 #undef rMovementId
 #undef rMovementStep
 #undef rInputCooldown
-#undef rBubbleSpriteId
 #undef rBubbleEffectId
-#undef sFollowerObjectEventId
-#undef sOwnerTaskId
