@@ -8,14 +8,19 @@
 #include "script_menu.h"
 #include "sprite.h"
 #include "task.h"
+#include "text_window.h"
 #include "constants/rgb.h"
 
 #define TAG_GOLDEN_YELLOW_PARTNER_PORTRAIT 0x2A10
 
-#define PARTNER_PORTRAIT_WINDOW_X      10
-#define PARTNER_PORTRAIT_WINDOW_Y      5
-#define PARTNER_PORTRAIT_WINDOW_WIDTH  8
-#define PARTNER_PORTRAIT_WINDOW_HEIGHT 8
+// The 6x6 interior plus one border tile on every side gives the 40x40 Yellow
+// portrait a 48x48 white field inside a 64x64 visible frame. Moving the window
+// origin inward by one tile preserves the accepted portrait screen center.
+#define PARTNER_PORTRAIT_WINDOW_X      11
+#define PARTNER_PORTRAIT_WINDOW_Y      6
+#define PARTNER_PORTRAIT_WINDOW_WIDTH  6
+#define PARTNER_PORTRAIT_WINDOW_HEIGHT 6
+#define PARTNER_PORTRAIT_SPRITE_OFFSET 36
 
 #define YELLOW_PIKAPIC_PROGRAM_COUNT       29
 #define YELLOW_PIKAPIC_SOURCE_TICK_FRAMES  3
@@ -74,6 +79,29 @@ static const u16 sPartnerPortraitPalette[16] =
     [13] = RGB(21, 21, 21),
     [14] = RGB(10, 10, 10),
     [15] = RGB_BLACK,
+};
+
+// Dedicated Partner UI palette for FRLG frame 1. Palette index 0 remains the
+// transparent border color; the visible purples are remapped to Pikachu yellow
+// with darker gold edging while the portrait's white interior stays separate.
+static const u16 sPartnerPortraitFramePalette[16] =
+{
+    [0]  = RGB(12, 24, 12),
+    [1]  = RGB(5, 6, 6),
+    [2]  = RGB(15, 11, 1),
+    [3]  = RGB(30, 25, 4),
+    [4]  = RGB(24, 18, 1),
+    [5]  = RGB(27, 22, 2),
+    [6]  = RGB(31, 28, 6),
+    [7]  = RGB(31, 29, 18),
+    [8]  = RGB(31, 30, 26),
+    [9]  = RGB_BLACK,
+    [10] = RGB_BLACK,
+    [11] = RGB_BLACK,
+    [12] = RGB_BLACK,
+    [13] = RGB_BLACK,
+    [14] = RGB_WHITE,
+    [15] = RGB(10, 8, 3),
 };
 
 static EWRAM_DATA u8 sPikaPicBaseCarrier[YELLOW_PIKAPIC_CARRIER_SIZE];
@@ -351,8 +379,8 @@ static bool32 StartPartnerPortrait(u8 programId, enum YellowPikaPicTaskMode mode
 
     spriteId = CreateSpriteUnchecked(
         &sPartnerPortraitTemplate,
-        PARTNER_PORTRAIT_WINDOW_X * 8 + 44,
-        PARTNER_PORTRAIT_WINDOW_Y * 8 + 44,
+        PARTNER_PORTRAIT_WINDOW_X * 8 + PARTNER_PORTRAIT_SPRITE_OFFSET,
+        PARTNER_PORTRAIT_WINDOW_Y * 8 + PARTNER_PORTRAIT_SPRITE_OFFSET,
         0);
     if (spriteId == MAX_SPRITES)
     {
@@ -374,6 +402,11 @@ static bool32 StartPartnerPortrait(u8 programId, enum YellowPikaPicTaskMode mode
     gSprites[spriteId].oam.priority = 0;
     ResetPartnerPortraitProgram(taskId, programId);
 
+    // Give Partner Pikachu a dedicated frame without mutating the user's
+    // configured menu frame. FRLG frame 1 supplies the geometry; this feature
+    // temporarily replaces only its BG palette with the Pikachu yellow theme.
+    LoadWindowGfx(windowId, 0, STD_WINDOW_BASE_TILE_NUM, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
+    LoadPalette(sPartnerPortraitFramePalette, BG_PLTT_ID(STD_WINDOW_PALETTE_NUM), PLTT_SIZE_4BPP);
     SetStandardWindowBorderStyle(windowId, TRUE);
     ScheduleBgCopyTilemapToVram(0);
 
@@ -507,6 +540,14 @@ static void ClosePartnerPortrait(u8 taskId)
 
     DestroySprite(&gSprites[task->tSpriteId]);
     FreeSpritePaletteByTag(TAG_GOLDEN_YELLOW_PARTNER_PORTRAIT);
+
+    // Restore the player's selected window-frame tiles and palette before the
+    // temporary Partner portrait window is removed, so no later menu inherits
+    // the Pikachu-yellow styling.
+    LoadUserWindowBorderGfx(
+        task->tWindowId,
+        STD_WINDOW_BASE_TILE_NUM,
+        BG_PLTT_ID(STD_WINDOW_PALETTE_NUM));
     ClearToTransparentAndRemoveWindow(task->tWindowId);
     ScheduleBgCopyTilemapToVram(0);
     DestroyTask(taskId);
