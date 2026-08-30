@@ -17,6 +17,7 @@
 
 #define PARTNER_REACTION_NO_FIELD_EFFECT (-1)
 #define PARTNER_REACTION_TURN_AWAY_MOVEMENT 0xFE
+#define PARTNER_REACTION_POSE_HOLD_FRAMES 6
 
 enum GoldenYellowPartnerReactionTaskMode
 {
@@ -30,9 +31,19 @@ enum GoldenYellowPartnerReactionTaskState
     GY_PARTNER_REACTION_STATE_WAIT_CRY,
     GY_PARTNER_REACTION_STATE_WAIT_BUBBLE,
     GY_PARTNER_REACTION_STATE_WAIT_MOVEMENT,
+    GY_PARTNER_REACTION_STATE_WAIT_POSE,
     GY_PARTNER_REACTION_STATE_WAIT_PORTRAIT,
     GY_PARTNER_REACTION_STATE_WAIT_DELAY,
     GY_PARTNER_REACTION_STATE_BROWSER_IDLE,
+};
+
+enum GoldenYellowPartnerPortraitPose
+{
+    GY_PARTNER_POSE_KEEP,
+    GY_PARTNER_POSE_FACE_PLAYER,
+    GY_PARTNER_POSE_FACE_AWAY,
+    GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    GY_PARTNER_POSE_SIDE_COUNTERCLOCKWISE,
 };
 
 struct GoldenYellowPartnerReactionCommand
@@ -44,6 +55,46 @@ struct GoldenYellowPartnerReactionCommand
 
 #include "golden_yellow_partner_reaction_data.inc"
 
+// Final overworld pose before each portrait. This is deliberately independent
+// from the expressive movement preset so a reaction can dance, recoil, sway,
+// or hop first and still visually agree with the Yellow close-up pose.
+static const u8 sPartnerReactionPortraitPoses[GY_PARTNER_REACTION_COUNT] =
+{
+    [GY_PARTNER_REACTION_EMPTY]                  = GY_PARTNER_POSE_KEEP,
+    [GY_PARTNER_REACTION_NEUTRAL]                = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_HAPPY]                  = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_SUBDUED]                = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_PLAYFUL]                = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_DISPLEASED]             = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_IRRITATED]              = GY_PARTNER_POSE_FACE_AWAY,
+    [GY_PARTNER_REACTION_ENERGETIC_HAPPY]        = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_HAPPY_GRIN]             = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_STRONG_DISPLEASURE]     = GY_PARTNER_POSE_FACE_AWAY,
+    [GY_PARTNER_REACTION_AFFECTION]              = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_SLEEPING]               = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_FROWNING]               = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_ALOOF]                  = GY_PARTNER_POSE_FACE_AWAY,
+    [GY_PARTNER_REACTION_VERY_ANGRY]             = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_CONTENT]                = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_STRONG_HAPPINESS]       = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_UNHAPPY]                = GY_PARTNER_POSE_FACE_AWAY,
+    [GY_PARTNER_REACTION_CAPTURE_SUCCESS]        = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_STRONG_AFFECTION]       = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_MAX_AFFECTION]          = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_FISHING]                = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_TOWER_AFRAID]           = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_BILL_CONFUSED]          = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_THUNDER_STONE_REFUSAL]  = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_ELECTRIC_POWER]         = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_PEWTER_JIGGLYPUFF]      = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_BILL_SHOCKED]           = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_STATUS_SICK]            = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_FAN_CLUB_AFFECTION]     = GY_PARTNER_POSE_FACE_PLAYER,
+    [GY_PARTNER_REACTION_FAN_CLUB_MAX_AFFECTION] = GY_PARTNER_POSE_FACE_AWAY,
+    [GY_PARTNER_REACTION_BILL_POST_STATE]        = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+    [GY_PARTNER_REACTION_BILL_INTERMEDIATE]      = GY_PARTNER_POSE_SIDE_CLOCKWISE,
+};
+
 #define rReactionId     data[0]
 #define rCommandIndex   data[1]
 #define rState          data[2]
@@ -53,6 +104,7 @@ struct GoldenYellowPartnerReactionCommand
 #define rMovementStep   data[6]
 #define rInputCooldown  data[7]
 #define rBubbleEffectId data[8]
+#define rPoseApplied    data[9]
 
 static void Task_PartnerReaction(u8 taskId);
 static bool32 StartPartnerReactionTask(u8 reactionId, enum GoldenYellowPartnerReactionTaskMode mode);
@@ -68,6 +120,7 @@ static bool32 IsPartnerReactionBubbleActive(u8 taskId);
 static s16 GetFollowerEmotionForBubble(u8 bubbleId);
 static void StartPartnerReactionMovement(u8 taskId, u8 movementId);
 static bool32 UpdatePartnerReactionMovement(u8 taskId);
+static bool32 UpdatePartnerReactionPose(u8 taskId);
 static enum Direction GetFollowerDirectionTowardPlayer(const struct ObjectEvent *follower);
 static enum Direction GetFollowerDirectionAwayFromPlayer(const struct ObjectEvent *follower);
 
@@ -159,6 +212,7 @@ static void BeginPartnerReaction(u8 taskId, u8 reactionId)
     task->rMovementId = 0;
     task->rMovementStep = 0;
     task->rBubbleEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
+    task->rPoseApplied = FALSE;
 }
 
 static void FinishPartnerReaction(u8 taskId)
@@ -257,6 +311,11 @@ static void Task_PartnerReaction(u8 taskId)
         }
         break;
 
+    case GY_PARTNER_REACTION_STATE_WAIT_POSE:
+        if (UpdatePartnerReactionPose(taskId))
+            task->rState = GY_PARTNER_REACTION_STATE_RUN_COMMAND;
+        break;
+
     case GY_PARTNER_REACTION_STATE_WAIT_PORTRAIT:
         if (!GoldenYellow_IsPartnerPikachuPortraitActive())
         {
@@ -316,10 +375,24 @@ static void ExecutePartnerReactionCommand(u8 taskId)
         break;
 
     case GY_PARTNER_REACTION_CMD_PORTRAIT:
-        if (GoldenYellow_StartPartnerPikachuPortraitForReaction(command->arg))
-            task->rState = GY_PARTNER_REACTION_STATE_WAIT_PORTRAIT;
+        // The expressive movement may intentionally end in any direction.
+        // Resolve a separate pose before opening the close-up so overworld
+        // Pikachu and Yellow portrait body language agree with one another.
+        if (!task->rPoseApplied)
+        {
+            task->rPoseApplied = TRUE;
+            task->rMovementStep = 0;
+            task->rWaitTimer = 0;
+            task->rState = GY_PARTNER_REACTION_STATE_WAIT_POSE;
+        }
         else
-            task->rCommandIndex++;
+        {
+            task->rPoseApplied = FALSE;
+            if (GoldenYellow_StartPartnerPikachuPortraitForReaction(command->arg))
+                task->rState = GY_PARTNER_REACTION_STATE_WAIT_PORTRAIT;
+            else
+                task->rCommandIndex++;
+        }
         break;
 
     case GY_PARTNER_REACTION_CMD_DELAY:
@@ -478,6 +551,65 @@ static enum Direction GetFollowerDirectionAwayFromPlayer(const struct ObjectEven
     return GetOppositeDirection(GetFollowerDirectionTowardPlayer(follower));
 }
 
+static bool32 UpdatePartnerReactionPose(u8 taskId)
+{
+    struct Task *task = &gTasks[taskId];
+    struct ObjectEvent *follower = GetFollowerObject();
+    enum Direction towardPlayer;
+    enum Direction poseDirection;
+    u8 pose = sPartnerReactionPortraitPoses[task->rReactionId];
+
+    if (follower == NULL || !follower->active || pose == GY_PARTNER_POSE_KEEP)
+        return TRUE;
+
+    if (ObjectEventIsHeldMovementActive(follower))
+    {
+        if (!ObjectEventClearHeldMovementIfFinished(follower))
+            return FALSE;
+    }
+
+    if (task->rWaitTimer > 0)
+    {
+        task->rWaitTimer--;
+        return FALSE;
+    }
+
+    if (task->rMovementStep == 0)
+    {
+        towardPlayer = GetFollowerDirectionTowardPlayer(follower);
+        switch (pose)
+        {
+        case GY_PARTNER_POSE_FACE_PLAYER:
+            poseDirection = towardPlayer;
+            break;
+        case GY_PARTNER_POSE_FACE_AWAY:
+            poseDirection = GetOppositeDirection(towardPlayer);
+            break;
+        case GY_PARTNER_POSE_SIDE_CLOCKWISE:
+            poseDirection = GetNinetyDegreeDirection(towardPlayer, TRUE);
+            break;
+        case GY_PARTNER_POSE_SIDE_COUNTERCLOCKWISE:
+            poseDirection = GetNinetyDegreeDirection(towardPlayer, FALSE);
+            break;
+        default:
+            return TRUE;
+        }
+
+        ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(poseDirection));
+        task->rMovementStep = 1;
+        return FALSE;
+    }
+
+    if (task->rMovementStep == 1)
+    {
+        task->rWaitTimer = PARTNER_REACTION_POSE_HOLD_FRAMES;
+        task->rMovementStep = 2;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void StartPartnerReactionMovement(u8 taskId, u8 movementId)
 {
     struct Task *task = &gTasks[taskId];
@@ -493,6 +625,8 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
     struct ObjectEvent *follower = GetFollowerObject();
     enum Direction towardPlayer;
     enum Direction awayFromPlayer;
+    enum Direction sideClockwise;
+    enum Direction sideCounterclockwise;
 
     if (follower == NULL || !follower->active)
         return TRUE;
@@ -511,17 +645,39 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
 
     towardPlayer = GetFollowerDirectionTowardPlayer(follower);
     awayFromPlayer = GetFollowerDirectionAwayFromPlayer(follower);
+    sideClockwise = GetNinetyDegreeDirection(towardPlayer, TRUE);
+    sideCounterclockwise = GetNinetyDegreeDirection(towardPlayer, FALSE);
 
     switch (task->rMovementId)
     {
     case GY_PARTNER_MOVEMENT_ENERGETIC_HOP: // Yellow fd224
-        if (task->rMovementStep < 2)
+        // Keep Yellow's in-place hopping, but add a short run-in-place burst so
+        // energetic happiness reads immediately on the GBA overworld sprite.
+        switch (task->rMovementStep)
         {
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(follower->facingDirection));
-            task->rMovementStep++;
+        case 0:
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
+            task->rMovementStep = 1;
             return FALSE;
+        case 1:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
+            task->rMovementStep = 2;
+            return FALSE;
+        case 2:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(towardPlayer));
+            task->rMovementStep = 3;
+            return FALSE;
+        case 3:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(towardPlayer));
+            task->rMovementStep = 4;
+            return FALSE;
+        case 4:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
+            task->rMovementStep = 5;
+            return FALSE;
+        default:
+            return TRUE;
         }
-        return TRUE;
 
     case GY_PARTNER_MOVEMENT_PLAYFUL_HOP: // Yellow fd230
         switch (task->rMovementStep)
@@ -531,12 +687,20 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rMovementStep = 1;
             return FALSE;
         case 1:
-            task->rWaitTimer = 8;
+            task->rWaitTimer = 4;
             task->rMovementStep = 2;
             return FALSE;
         case 2:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(follower->facingDirection));
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideClockwise));
             task->rMovementStep = 3;
+            return FALSE;
+        case 3:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideCounterclockwise));
+            task->rMovementStep = 4;
+            return FALSE;
+        case 4:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
+            task->rMovementStep = 5;
             return FALSE;
         default:
             return TRUE;
@@ -555,6 +719,14 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rWaitTimer = 30;
             task->rMovementStep = 2;
             return FALSE;
+        case 2:
+            if (task->rReactionId == GY_PARTNER_REACTION_IRRITATED)
+            {
+                ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
+                task->rMovementStep = 3;
+                return FALSE;
+            }
+            return TRUE;
         default:
             return TRUE;
         }
@@ -579,8 +751,16 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rMovementStep = 3;
             return FALSE;
         case 3:
-            task->rWaitTimer = 30;
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideClockwise));
             task->rMovementStep = 4;
+            return FALSE;
+        case 4:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideCounterclockwise));
+            task->rMovementStep = 5;
+            return FALSE;
+        case 5:
+            task->rWaitTimer = 18;
+            task->rMovementStep = 6;
             return FALSE;
         default:
             return TRUE;
@@ -594,13 +774,26 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rMovementStep = 1;
             return FALSE;
         case 1:
-        case 3:
             ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep++;
+            task->rMovementStep = 2;
             return FALSE;
         case 2:
+            if (task->rReactionId == GY_PARTNER_REACTION_CONTENT)
+                return TRUE;
             task->rWaitTimer = 4;
             task->rMovementStep = 3;
+            return FALSE;
+        case 3:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
+            task->rMovementStep = 4;
+            return FALSE;
+        case 4:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(towardPlayer));
+            task->rMovementStep = 5;
+            return FALSE;
+        case 5:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(towardPlayer));
+            task->rMovementStep = 6;
             return FALSE;
         default:
             return TRUE;
@@ -625,11 +818,25 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
             task->rMovementStep = 4;
             return FALSE;
+        case 4:
+            if (task->rReactionId == GY_PARTNER_REACTION_STRONG_AFFECTION)
+            {
+                ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(towardPlayer));
+                task->rMovementStep = 5;
+                return FALSE;
+            }
+            return TRUE;
+        case 5:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(towardPlayer));
+            task->rMovementStep = 6;
+            return FALSE;
         default:
             return TRUE;
         }
 
     case GY_PARTNER_MOVEMENT_CELEBRATE:
+        // Reuse the spirit of the follower Dance routine while retaining the
+        // existing four-direction in-place jumps that were already accepted.
         switch (task->rMovementStep)
         {
         case 0:
@@ -641,20 +848,36 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rMovementStep = 2;
             return FALSE;
         case 2:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_SOUTH));
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_WEST));
             task->rMovementStep = 3;
             return FALSE;
         case 3:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_WEST));
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_SOUTH));
             task->rMovementStep = 4;
             return FALSE;
         case 4:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_EAST));
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_EAST));
             task->rMovementStep = 5;
             return FALSE;
         case 5:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_WEST));
             task->rMovementStep = 6;
+            return FALSE;
+        case 6:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(DIR_NORTH));
+            task->rMovementStep = 7;
+            return FALSE;
+        case 7:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_EAST));
+            task->rMovementStep = 8;
+            return FALSE;
+        case 8:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(DIR_SOUTH));
+            task->rMovementStep = 9;
+            return FALSE;
+        case 9:
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
+            task->rMovementStep = 10;
             return FALSE;
         default:
             return TRUE;
@@ -664,9 +887,7 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
         switch (task->rMovementStep)
         {
         case 0:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, TRUE)));
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
             task->rMovementStep = 1;
             return FALSE;
         case 1:
@@ -674,9 +895,7 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rMovementStep = 2;
             return FALSE;
         case 2:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, FALSE)));
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
             task->rMovementStep = 3;
             return FALSE;
         case 3:
@@ -696,16 +915,12 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
         {
         case 0:
         case 4:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, TRUE)));
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
             task->rMovementStep++;
             return FALSE;
         case 2:
         case 6:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, FALSE)));
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
             task->rMovementStep++;
             return FALSE;
         case 1:
@@ -742,6 +957,18 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
             task->rMovementStep = 4;
             return FALSE;
+        case 4:
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
+            task->rMovementStep = 5;
+            return FALSE;
+        case 5:
+            task->rWaitTimer = 4;
+            task->rMovementStep = 6;
+            return FALSE;
+        case 6:
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
+            task->rMovementStep = 7;
+            return FALSE;
         default:
             return TRUE;
         }
@@ -750,26 +977,28 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
         switch (task->rMovementStep)
         {
         case 0:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetJumpInPlaceMovementAction(GetNinetyDegreeDirection(towardPlayer, TRUE)));
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(sideClockwise));
             task->rMovementStep = 1;
             return FALSE;
         case 1:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetJumpInPlaceMovementAction(GetNinetyDegreeDirection(towardPlayer, FALSE)));
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(sideCounterclockwise));
             task->rMovementStep = 2;
             return FALSE;
         case 2:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetJumpInPlaceMovementAction(GetNinetyDegreeDirection(towardPlayer, TRUE)));
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(sideCounterclockwise));
             task->rMovementStep = 3;
             return FALSE;
         case 3:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(sideClockwise));
             task->rMovementStep = 4;
+            return FALSE;
+        case 4:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(sideClockwise));
+            task->rMovementStep = 5;
+            return FALSE;
+        case 5:
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
+            task->rMovementStep = 6;
             return FALSE;
         default:
             return TRUE;
@@ -779,14 +1008,26 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
         switch (task->rMovementStep)
         {
         case 0:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, TRUE)));
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
             task->rMovementStep = 1;
             return FALSE;
         case 1:
+            if (task->rReactionId == GY_PARTNER_REACTION_DISPLEASED)
+            {
+                ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(sideClockwise));
+                task->rMovementStep = 2;
+                return FALSE;
+            }
             task->rWaitTimer = 24;
-            task->rMovementStep = 2;
+            task->rMovementStep = 4;
+            return FALSE;
+        case 2:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(sideClockwise));
+            task->rMovementStep = 3;
+            return FALSE;
+        case 3:
+            task->rWaitTimer = 12;
+            task->rMovementStep = 4;
             return FALSE;
         default:
             return TRUE;
@@ -796,9 +1037,7 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
         switch (task->rMovementStep)
         {
         case 0:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, TRUE)));
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
             task->rMovementStep = 1;
             return FALSE;
         case 1:
@@ -806,9 +1045,7 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rMovementStep = 2;
             return FALSE;
         case 2:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, FALSE)));
+            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
             task->rMovementStep = 3;
             return FALSE;
         case 3:
@@ -820,6 +1057,8 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
         }
 
     case GY_PARTNER_MOVEMENT_WEAK_PAUSE:
+        // Adapt the existing follower dizzy language using only in-place
+        // animations, preserving the follower's tile and collision authority.
         switch (task->rMovementStep)
         {
         case 0:
@@ -827,14 +1066,28 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
             task->rMovementStep = 1;
             return FALSE;
         case 1:
-            task->rWaitTimer = 24;
+            task->rWaitTimer = 12;
             task->rMovementStep = 2;
             return FALSE;
         case 2:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(towardPlayer, TRUE)));
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(DIR_WEST));
             task->rMovementStep = 3;
+            return FALSE;
+        case 3:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_EAST));
+            task->rMovementStep = 4;
+            return FALSE;
+        case 4:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(DIR_NORTH));
+            task->rMovementStep = 5;
+            return FALSE;
+        case 5:
+            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_SOUTH));
+            task->rMovementStep = 6;
+            return FALSE;
+        case 6:
+            task->rWaitTimer = 8;
+            task->rMovementStep = 7;
             return FALSE;
         default:
             return TRUE;
@@ -868,13 +1121,30 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
         }
 
     case PARTNER_REACTION_TURN_AWAY_MOVEMENT:
-        if (task->rMovementStep == 0)
+        // Yellow's Fan Club command explicitly turns Pikachu away. Keep that
+        // source beat, then add two shy in-place hops without giving up the
+        // final back-facing pose.
+        switch (task->rMovementStep)
         {
+        case 0:
             ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(awayFromPlayer));
             task->rMovementStep = 1;
             return FALSE;
+        case 1:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
+            task->rMovementStep = 2;
+            return FALSE;
+        case 2:
+            task->rWaitTimer = 8;
+            task->rMovementStep = 3;
+            return FALSE;
+        case 3:
+            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
+            task->rMovementStep = 4;
+            return FALSE;
+        default:
+            return TRUE;
         }
-        return TRUE;
     }
 
     return TRUE;
@@ -889,3 +1159,4 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
 #undef rMovementStep
 #undef rInputCooldown
 #undef rBubbleEffectId
+#undef rPoseApplied
