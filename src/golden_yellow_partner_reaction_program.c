@@ -32,6 +32,7 @@ enum GoldenYellowPartnerReactionTaskState
     GY_PARTNER_REACTION_STATE_WAIT_BUBBLE,
     GY_PARTNER_REACTION_STATE_WAIT_MOVEMENT,
     GY_PARTNER_REACTION_STATE_WAIT_POSE,
+    GY_PARTNER_REACTION_STATE_DEBUG_WAIT_PORTRAIT,
     GY_PARTNER_REACTION_STATE_WAIT_PORTRAIT,
     GY_PARTNER_REACTION_STATE_WAIT_DELAY,
     GY_PARTNER_REACTION_STATE_BROWSER_IDLE,
@@ -95,16 +96,17 @@ static const u8 sPartnerReactionPortraitPoses[GY_PARTNER_REACTION_COUNT] =
     [GY_PARTNER_REACTION_BILL_INTERMEDIATE]      = GY_PARTNER_POSE_SIDE_CLOCKWISE,
 };
 
-#define rReactionId     data[0]
-#define rCommandIndex   data[1]
-#define rState          data[2]
-#define rMode           data[3]
-#define rWaitTimer      data[4]
-#define rMovementId     data[5]
-#define rMovementStep   data[6]
-#define rInputCooldown  data[7]
-#define rBubbleEffectId data[8]
-#define rPoseApplied    data[9]
+#define rReactionId          data[0]
+#define rCommandIndex        data[1]
+#define rState               data[2]
+#define rMode                data[3]
+#define rWaitTimer           data[4]
+#define rMovementId          data[5]
+#define rMovementStep        data[6]
+#define rInputCooldown       data[7]
+#define rBubbleEffectId      data[8]
+#define rPoseApplied         data[9]
+#define rDebugPortraitReady  data[10]
 
 static void Task_PartnerReaction(u8 taskId);
 static bool32 StartPartnerReactionTask(u8 reactionId, enum GoldenYellowPartnerReactionTaskMode mode);
@@ -194,6 +196,9 @@ bool32 GoldenYellow_DebugStartPikachuReactionBrowser(void)
     //   LEFT/RIGHT  previous/next Yellow Emotion (0-32)
     //   A           replay current Emotion
     //   B           close browser
+    // During the pre-portrait inspection hold:
+    //   A           show the portrait
+    //   B           close browser
     //
     // A/B belong to a child portrait while that portrait is visible. A short
     // input cooldown prevents the same key edge from also replaying/exiting the
@@ -213,6 +218,7 @@ static void BeginPartnerReaction(u8 taskId, u8 reactionId)
     task->rMovementStep = 0;
     task->rBubbleEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
     task->rPoseApplied = FALSE;
+    task->rDebugPortraitReady = FALSE;
 }
 
 static void FinishPartnerReaction(u8 taskId)
@@ -328,6 +334,24 @@ static void Task_PartnerReaction(u8 taskId)
             task->rState = GY_PARTNER_REACTION_STATE_RUN_COMMAND;
         break;
 
+    case GY_PARTNER_REACTION_STATE_DEBUG_WAIT_PORTRAIT:
+        // Debug browser only: hold the final overworld pose indefinitely so
+        // the tester can inspect the complete body-language result before the
+        // portrait covers Pikachu. A advances; B exits the browser.
+        if (gMain.newKeys & B_BUTTON)
+        {
+            ClosePartnerReactionBrowser(taskId);
+            return;
+        }
+
+        if (gMain.newKeys & A_BUTTON)
+        {
+            task->rDebugPortraitReady = TRUE;
+            task->rInputCooldown = 2;
+            task->rState = GY_PARTNER_REACTION_STATE_RUN_COMMAND;
+        }
+        break;
+
     case GY_PARTNER_REACTION_STATE_WAIT_PORTRAIT:
         if (!GoldenYellow_IsPartnerPikachuPortraitActive())
         {
@@ -397,9 +421,15 @@ static void ExecutePartnerReactionCommand(u8 taskId)
             task->rWaitTimer = 0;
             task->rState = GY_PARTNER_REACTION_STATE_WAIT_POSE;
         }
+        else if (task->rMode == GY_PARTNER_REACTION_MODE_DEBUG_BROWSER
+              && !task->rDebugPortraitReady)
+        {
+            task->rState = GY_PARTNER_REACTION_STATE_DEBUG_WAIT_PORTRAIT;
+        }
         else
         {
             task->rPoseApplied = FALSE;
+            task->rDebugPortraitReady = FALSE;
             if (GoldenYellow_StartPartnerPikachuPortraitForReaction(command->arg))
                 task->rState = GY_PARTNER_REACTION_STATE_WAIT_PORTRAIT;
             else
@@ -1172,3 +1202,4 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
 #undef rInputCooldown
 #undef rBubbleEffectId
 #undef rPoseApplied
+#undef rDebugPortraitReady
