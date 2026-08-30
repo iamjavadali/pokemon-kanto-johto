@@ -70,6 +70,7 @@ A later branch HEAD does not invalidate an earlier acceptance merely because add
 | Cerulean Rival #3 / Fame Checker / Partner choreography | ACCEPTED | This log |
 | Route 24 Charmander rescue / Damian adoption | ACCEPTED | `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md` |
 | Bill / Sea Cottage Partner Pikachu reaction + Yellow portrait slice | ACCEPTED | `Pokemon_Golden_Yellow_Bill_Acceptance_Record.md` |
+| Full Yellow Partner portrait catalog + generalized renderer (P1/P2) | ACCEPTED | This log |
 
 ---
 
@@ -382,7 +383,52 @@ The dedicated Bill acceptance record is authoritative for the Yellow source asse
 
 ---
 
-# 14. Maintenance Rule
+# 14. Acceptance — Full Yellow Partner Portrait Catalog and Generalized Renderer (P1/P2)
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-08-30  
+**Generalized renderer commit:** `7d2d0186691c491f1bbacc4ccd114e187401ec7c`  
+**Final accepted presentation commit:** `c8d03846f5afbce26e6d55f3dd0180c166b504b5`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33321231681`  
+**Accepted artifact ID:** `9734996200`  
+**Accepted ROM SHA-256:** `836d93a2c3647f17eb37e864196775bdb9d84dd135aa7551ffe68495a029cbda`  
+**Manual result:** PASS
+
+## Scope
+
+This acceptance closes P1/P2 of the Yellow Partner Pikachu portrait reconstruction: the complete directly selectable Yellow portrait-program catalog and the reusable native-GBA renderer/presentation layer that displays it.
+
+The acceptance is based on cumulative manual review of the portrait debug/browser path across programs `0–28`, followed by a final ROM retest after the visible frame-size and Pikachu-themed border correction.
+
+## Accepted behavior
+
+- Yellow portrait programs `0–28` are available through the generalized portrait registry/browser path;
+- the imported Yellow artwork remains unscaled 40×40 source-derived portrait content carried inside the existing native 64×64 GBA OBJ;
+- multi-stage portrait programs render their reconstructed visible timelines rather than degrading to a single static frame;
+- program-to-program transitions do not visibly leak stale tiles or previous portrait content;
+- the debug portrait browser can move through the catalog and close back to field control cleanly;
+- the visible portrait box is reduced to an approximately 64×64 outer presentation with a 48×48 white interior around the 40×40 Yellow artwork;
+- the portrait frame uses a dedicated warm Pikachu-yellow/gold palette while the portrait UI is active;
+- the player's normal configured window-frame graphics/palette are restored after portrait dismissal so unrelated menus are not permanently recolored;
+- the portrait remains centered and the original 64×64 OBJ carrier/resource model is preserved;
+- accepted Bill transformed/restored portrait behavior remains the regression baseline for authored scene integration.
+
+## Regression invariants
+
+- do not scale, stretch, or redraw the original 40×40 Yellow portrait artwork merely to fill the carrier;
+- do not enlarge the visible box back to the prior oversized 8×8-tile interior presentation without explicit redesign approval;
+- keep the Pikachu-yellow/gold frame treatment local to the Partner portrait UI and restore the user's normal frame palette afterward;
+- preserve the 64×64 native OBJ carrier and deterministic sprite/window/palette/task cleanup architecture;
+- portrait programs `0–28` must remain addressable in the established order and must not be silently remapped by future reaction-director work;
+- ordinary Pikachu must not gain canonical Partner-only authored reaction behavior merely because the portrait renderer is reusable;
+- P3 and later reaction-selection work must build on this accepted renderer rather than create a second portrait system.
+
+This acceptance closes the graphics/catalog and generalized portrait-renderer foundation. It does not by itself accept the still-pending Yellow emotion/reaction-director selection logic, mood system, or remaining authored reaction integrations.
+
+---
+
+# 15. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
