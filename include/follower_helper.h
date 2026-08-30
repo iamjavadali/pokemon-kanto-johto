@@ -1,6 +1,8 @@
 #ifndef GUARD_FOLLOWER_HELPER_H
 #define GUARD_FOLLOWER_HELPER_H
 
+#include "data.h"
+
 enum FollowerEmotion
 {
     FOLLOWER_EMOTION_HAPPY = 0,
