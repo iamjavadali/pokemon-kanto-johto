@@ -30,6 +30,7 @@
     - [Acceptance Log](golden-yellow-build/Pokemon_Golden_Yellow_Acceptance_Log.md)
     - [Yellow Unique Specification](golden-yellow-build/Pokemon_Golden_Yellow_Yellow_Unique_Specification.md)
     - [FireRed Retention Specification](golden-yellow-build/Pokemon_Golden_Yellow_FireRed_Retention_Specification.md)
+    - [Yellow Partner Portrait Blueprint](golden-yellow-build/Yellow-portrait.md)
     - [Mt. Moon Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md)
     - [Charmander Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md)
     - [Bill Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Bill_Acceptance_Record.md)
