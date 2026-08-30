@@ -2,9 +2,9 @@
  * Pokemon Yellow source:
  *   data/pikachu/pikachu_emotions.asm
  *
- * Preserve source command order exactly. Game Boy-only setup/restore
- * subcommands are represented as semantic callbacks and intentionally remain
- * inert during P3 debug execution.
+ * Preserve each source command in order. Golden Yellow GBA choreography
+ * commands are additive presentation around those source commands and never
+ * move the follower off its current map tile.
  */
 #define GY_REACTION_CMD(type_, arg_, value_) \
     { .type = (type_), .arg = (arg_), .value = (value_) }
@@ -40,6 +40,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction1[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction2[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_SMILE),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_HAPPY_BOUNCE),
     GY_REACTION_CRY(GY_PARTNER_CRY_35),
     GY_REACTION_PORTRAIT(2),
     GY_REACTION_END(),
@@ -47,6 +48,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction2[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction3[] =
 {
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_SAD_TURN),
     GY_REACTION_CRY(GY_PARTNER_CRY_40),
     GY_REACTION_PORTRAIT(3),
     GY_REACTION_END(),
@@ -62,6 +64,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction4[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction5[] =
 {
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_SAD_TURN),
     GY_REACTION_CRY(GY_PARTNER_CRY_31),
     GY_REACTION_PORTRAIT(5),
     GY_REACTION_END(),
@@ -87,6 +90,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction7[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction8[] =
 {
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_HAPPY_BOUNCE),
     GY_REACTION_CRY(GY_PARTNER_CRY_39),
     GY_REACTION_PORTRAIT(8),
     GY_REACTION_END(),
@@ -104,6 +108,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction9[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction10[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_HEART),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_AFFECTION_BOUNCE),
     GY_REACTION_CRY(GY_PARTNER_CRY_5),
     GY_REACTION_PORTRAIT(10),
     GY_REACTION_END(),
@@ -112,6 +117,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction10[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction11[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_ZZZ),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_SLEEPY_SWAY),
     GY_REACTION_CRY(GY_PARTNER_CRY_37),
     GY_REACTION_PORTRAIT(11),
     GY_REACTION_END(),
@@ -119,6 +125,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction11[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction12[] =
 {
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_SAD_TURN),
     GY_REACTION_CRY(GY_PARTNER_CRY_DEFAULT),
     GY_REACTION_PORTRAIT(12),
     GY_REACTION_END(),
@@ -134,6 +141,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction13[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction14[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_BOLT),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_ELECTRIC_JOLT),
     GY_REACTION_CRY(GY_PARTNER_CRY_10),
     GY_REACTION_PORTRAIT(14),
     GY_REACTION_END(),
@@ -141,6 +149,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction14[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction15[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_SMILE),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_HAPPY_BOUNCE),
     GY_REACTION_CRY(GY_PARTNER_CRY_34),
     GY_REACTION_PORTRAIT(15),
     GY_REACTION_END(),
@@ -148,6 +158,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction15[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction16[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_SMILE),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_CELEBRATE),
     GY_REACTION_CRY(GY_PARTNER_CRY_33),
     GY_REACTION_PORTRAIT(16),
     GY_REACTION_END(),
@@ -155,6 +167,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction16[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction17[] =
 {
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_SAD_TURN),
     GY_REACTION_CRY(GY_PARTNER_CRY_13),
     GY_REACTION_PORTRAIT(17),
     GY_REACTION_END(),
@@ -162,6 +175,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction17[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction18[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_SMILE),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_CELEBRATE),
     GY_REACTION_CRY(GY_PARTNER_CRY_DEFAULT),
     GY_REACTION_PORTRAIT(18),
     GY_REACTION_END(),
@@ -170,6 +185,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction18[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction19[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_HEART),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_AFFECTION_BOUNCE),
     GY_REACTION_CRY(GY_PARTNER_CRY_33),
     GY_REACTION_PORTRAIT(19),
     GY_REACTION_END(),
@@ -178,6 +194,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction19[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction20[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_HEART),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_AFFECTION_BOUNCE),
     GY_REACTION_CRY(GY_PARTNER_CRY_5),
     GY_REACTION_PORTRAIT(20),
     GY_REACTION_END(),
@@ -186,6 +203,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction20[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction21[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_FISH),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_CONFUSED_LOOK),
     GY_REACTION_CRY(GY_PARTNER_CRY_DEFAULT),
     GY_REACTION_PORTRAIT(21),
     GY_REACTION_END(),
@@ -193,6 +211,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction21[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction22[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_EXCLAMATION),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_FEAR_RECOIL),
     GY_REACTION_CRY(GY_PARTNER_CRY_4),
     GY_REACTION_PORTRAIT(22),
     GY_REACTION_END(),
@@ -200,6 +220,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction22[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction23[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_QUESTION),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_CONFUSED_LOOK),
     GY_REACTION_CRY(GY_PARTNER_CRY_19),
     GY_REACTION_PORTRAIT(23),
     GY_REACTION_CALLBACK(GY_PARTNER_CALLBACK_SHOW_MAP_VIEW),
@@ -209,6 +231,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction23[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction24[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_EXCLAMATION),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_REFUSAL_SHAKE),
     GY_REACTION_CRY(GY_PARTNER_CRY_DEFAULT),
     GY_REACTION_PORTRAIT(24),
     GY_REACTION_END(),
@@ -217,6 +240,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction24[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction25[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_BOLT),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_ELECTRIC_JOLT),
     GY_REACTION_CRY(GY_PARTNER_CRY_35),
     GY_REACTION_PORTRAIT(25),
     GY_REACTION_END(),
@@ -225,6 +249,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction25[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction26[] =
 {
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_ZZZ),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_SLEEPY_SWAY),
     GY_REACTION_CRY(GY_PARTNER_CRY_37),
     GY_REACTION_PORTRAIT(26),
     GY_REACTION_CALLBACK(GY_PARTNER_CALLBACK_SHOW_MAP_VIEW),
@@ -234,6 +259,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction26[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction27[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_EXCLAMATION),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_STARTLED_HOP),
     GY_REACTION_CRY(GY_PARTNER_CRY_9),
     GY_REACTION_PORTRAIT(27),
     GY_REACTION_END(),
@@ -241,6 +268,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction27[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction28[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_SKULL),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_WEAK_PAUSE),
     GY_REACTION_CRY(GY_PARTNER_CRY_15),
     GY_REACTION_PORTRAIT(28),
     GY_REACTION_END(),
@@ -248,6 +277,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction28[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction29[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_HEART),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_AFFECTION_BOUNCE),
     GY_REACTION_CRY(GY_PARTNER_CRY_5),
     GY_REACTION_PORTRAIT(10),
     GY_REACTION_END(),
@@ -256,6 +287,7 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction29[] =
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction30[] =
 {
     GY_REACTION_TURN_AWAY(),
+    GY_REACTION_DELAY(12),
     GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_HEART),
     GY_REACTION_CRY(GY_PARTNER_CRY_5),
     GY_REACTION_PORTRAIT(20),
@@ -267,6 +299,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction30[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction31[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_QUESTION),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_CONFUSED_LOOK),
     GY_REACTION_CRY(GY_PARTNER_CRY_19),
     GY_REACTION_PORTRAIT(23),
     GY_REACTION_CALLBACK(GY_PARTNER_CALLBACK_SHOW_MAP_VIEW),
@@ -276,6 +310,8 @@ static const struct GoldenYellowPartnerReactionCommand sPartnerReaction31[] =
 
 static const struct GoldenYellowPartnerReactionCommand sPartnerReaction32[] =
 {
+    GY_REACTION_BUBBLE(GY_PARTNER_BUBBLE_QUESTION),
+    GY_REACTION_MOVEMENT(GY_PARTNER_MOVEMENT_CONFUSED_LOOK),
     GY_REACTION_CRY(GY_PARTNER_CRY_26),
     GY_REACTION_PORTRAIT(23),
     GY_REACTION_END(),

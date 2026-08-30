@@ -62,6 +62,7 @@ enum GoldenYellowPartnerBubble
     GY_PARTNER_BUBBLE_BOLT,
     GY_PARTNER_BUBBLE_FISH,
     GY_PARTNER_BUBBLE_EXCLAMATION,
+    GY_PARTNER_BUBBLE_QUESTION,
 };
 
 enum GoldenYellowPartnerMovement
@@ -71,6 +72,21 @@ enum GoldenYellowPartnerMovement
     GY_PARTNER_MOVEMENT_ALOOF_TURN,    // PikachuMovementData_fd21e
     GY_PARTNER_MOVEMENT_ENERGETIC_HOP, // PikachuMovementData_fd224
     GY_PARTNER_MOVEMENT_PLAYFUL_HOP,   // PikachuMovementData_fd230
+
+    // Golden Yellow GBA choreography presets. These never displace the
+    // follower from its map tile; they only add safe facing/jump timing around
+    // the source-faithful portrait reaction.
+    GY_PARTNER_MOVEMENT_HAPPY_BOUNCE,
+    GY_PARTNER_MOVEMENT_AFFECTION_BOUNCE,
+    GY_PARTNER_MOVEMENT_CELEBRATE,
+    GY_PARTNER_MOVEMENT_CONFUSED_LOOK,
+    GY_PARTNER_MOVEMENT_REFUSAL_SHAKE,
+    GY_PARTNER_MOVEMENT_FEAR_RECOIL,
+    GY_PARTNER_MOVEMENT_ELECTRIC_JOLT,
+    GY_PARTNER_MOVEMENT_SAD_TURN,
+    GY_PARTNER_MOVEMENT_SLEEPY_SWAY,
+    GY_PARTNER_MOVEMENT_WEAK_PAUSE,
+    GY_PARTNER_MOVEMENT_STARTLED_HOP,
 };
 
 enum GoldenYellowPartnerReactionCallback
