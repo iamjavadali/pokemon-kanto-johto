@@ -32,6 +32,7 @@ enum YellowPikaPicTaskMode
 {
     YELLOW_PIKAPIC_MODE_SCRIPT,
     YELLOW_PIKAPIC_MODE_DEBUG_BROWSER,
+    YELLOW_PIKAPIC_MODE_REACTION,
 };
 
 struct YellowPikaPicPatchAsset
@@ -455,6 +456,16 @@ bool32 GoldenYellow_DebugStartPikachuPortraitBrowser(void)
     //   B           close browser
     // Each program otherwise loops after its canonical Yellow outer duration.
     return StartPartnerPortrait(0, YELLOW_PIKAPIC_MODE_DEBUG_BROWSER, NULL);
+}
+
+bool32 GoldenYellow_StartPartnerPikachuPortraitForReaction(u8 programId)
+{
+    return StartPartnerPortrait(programId, YELLOW_PIKAPIC_MODE_REACTION, NULL);
+}
+
+bool32 GoldenYellow_IsPartnerPikachuPortraitActive(void)
+{
+    return FindTaskIdByFunc(Task_PartnerPortrait) != TASK_NONE;
 }
 
 static void Task_PartnerPortrait(u8 taskId)

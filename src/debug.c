@@ -37,6 +37,20 @@ static void DebugAction_GoldenYellow_PikachuPortraits(u8 taskId)
     }
 }
 
+static void DebugAction_GoldenYellow_PikachuReactions(u8 taskId)
+{
+    Debug_DestroyMenu_Full(taskId);
+    LockPlayerFieldControls();
+    FreezeObjectEvents();
+
+    if (!GoldenYellow_DebugStartPikachuReactionBrowser())
+    {
+        UnlockPlayerFieldControls();
+        UnfreezeObjectEvents();
+        ScriptContext_Enable();
+    }
+}
+
 #define GY_SELECTION(name, cp, path) \
     static const struct GoldenYellowDebugMenuSelection name = { cp, path }
 
@@ -195,6 +209,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_YellowEvents
 {
     { COMPOUND_STRING("Partner & Opening…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_YellowOpening },
     { COMPOUND_STRING("Pikachu Portraits"), DebugAction_GoldenYellow_PikachuPortraits },
+    { COMPOUND_STRING("Pikachu Reactions"), DebugAction_GoldenYellow_PikachuReactions },
     { COMPOUND_STRING("Gift Pokemon…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_Gifts },
     { COMPOUND_STRING("Jessie & James…"), DebugAction_OpenSubMenu, sDebugMenu_Actions_GoldenYellow_JessieJames },
     { NULL }
