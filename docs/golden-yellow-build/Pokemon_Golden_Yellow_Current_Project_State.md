@@ -4,7 +4,7 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot date:** August 29, 2026
+**Snapshot date:** August 30, 2026
 
 ---
 
@@ -37,7 +37,8 @@ The Golden Yellow documentation set has these distinct roles:
 4. `Pokemon_Golden_Yellow_FireRed_Retention_Specification.md` — compatible FireRed/Gen III systems and presentation to retain.
 5. `Pokemon_Golden_Yellow_Current_Project_State.md` — broad current development position.
 6. `Pokemon_Golden_Yellow_Acceptance_Log.md` — canonical cumulative manual-acceptance ledger.
-7. Dedicated acceptance records — deep implementation history for major milestones when warranted.
+7. `Yellow-portrait.md` — source audit and phased reconstruction blueprint for Yellow Partner Pikachu portraits/reactions.
+8. Dedicated acceptance records — deep implementation history for major milestones when warranted.
 
 Current State must not duplicate the Acceptance Log in detail.
 
@@ -54,13 +55,14 @@ Broad progression currently stands at:
 → **Pewter / Brock**  
 → **Route 3 / Mt. Moon**  
 → **Cerulean / Route 24 / Route 25 / Bill — ACCEPTED THROUGH BILL REACTION**  
-→ **Partner Pikachu graphics/reaction-system reconstruction — ACTIVE ENGINEERING BOUNDARY**
+→ **Yellow Partner portrait catalog + generalized renderer (P1/P2) — ACCEPTED**  
+→ **Yellow Partner reaction-program director (P3) — ACTIVE ENGINEERING BOUNDARY**
 
-The accepted gameplay baseline now extends through the Yellow Cerulean Rival #3 / Fame Checker integration, Route 24 Charmander rescue / Damian adoption milestone, and the required Bill / Sea Cottage Partner Pikachu transformed/restored reaction.
+The accepted gameplay baseline extends through the Yellow Cerulean Rival #3 / Fame Checker integration, Route 24 Charmander rescue / Damian adoption milestone, and the required Bill / Sea Cottage Partner Pikachu transformed/restored reaction.
 
-The Bill milestone also validates the first original-Yellow Pikachu portrait vertical slice on native GBA architecture.
+The complete directly selectable Yellow portrait-program catalog (`0–28`) and its reusable native-GBA renderer/presentation layer are now also manually accepted. The accepted renderer preserves the 40×40 Yellow artwork inside a native 64×64 OBJ carrier, uses the tightened Pikachu-themed visible frame, and remains the common renderer for later Partner-reaction work.
 
-The immediate next engineering boundary is to import Yellow's complete Pikachu portrait/graphics catalog and reconstruct the reusable Yellow Partner reaction/emotion system while preserving the accepted Bill behavior as the regression baseline.
+The immediate next engineering boundary is P3 from `Yellow-portrait.md`: reconstruct the reusable Yellow reaction-program director on top of the accepted portrait renderer rather than adding another one-off portrait path.
 
 ---
 
@@ -141,21 +143,27 @@ A checkpoint is testing infrastructure only.
 
 The accepted Charmander checkpoint reconstructs the pre-event Route 24 state while deliberately placing the tester south of the event trigger rather than starting the scene immediately on warp-in.
 
-## 5.7 Yellow Pikachu Portrait Vertical Slice
+## 5.7 Full Yellow Partner Portrait Catalog and Generalized Renderer
 
-The accepted Bill milestone establishes a proven narrow GBA rendering path for original Pokémon Yellow Partner Pikachu portrait artwork.
+P1/P2 of the `Yellow-portrait.md` reconstruction blueprint are accepted.
 
-The validated slice includes:
+The established portrait foundation now includes:
 
-- original Yellow 40×40 portrait art carried inside a native 64×64 GBA OBJ;
-- Yellow-derived frame timing translated to GBA timing;
-- script blocking while a portrait is active;
-- A/B or timer dismissal;
-- deterministic portrait resource cleanup;
+- the complete directly selectable Yellow portrait-program catalog `0–28`;
+- original Yellow 40×40 portrait artwork preserved without scaling;
+- a native 64×64 GBA OBJ carrier;
+- reconstructed multi-stage visible portrait timelines where the source program requires them;
+- Yellow-derived timing translated to GBA timing;
+- script blocking for authored portrait use;
+- debug/browser access for direct program validation;
+- A/B or timer dismissal where applicable;
+- deterministic sprite/window/palette/task cleanup;
 - centered portrait presentation;
-- canonical Partner-only gating.
+- a tightened approximately 64×64 visible outer box with 48×48 white interior;
+- a dedicated warm Pikachu-yellow/gold portrait-frame treatment that restores the player's normal configured window frame after dismissal;
+- preserved compatibility with the already-accepted Bill transformed/restored portrait reactions.
 
-This is **not yet the complete Yellow Pikachu emotion system**. It is the accepted technical foundation that the next pass should generalize into the full reusable system.
+This foundation is accepted and should not be reimplemented. The still-pending work is the higher-level Yellow reaction-selection and behavior architecture that chooses and sequences these accepted portrait programs in gameplay.
 
 ---
 
@@ -174,14 +182,15 @@ These are broad project decisions, not individual acceptance records.
 - Trade-dependent evolutions must ultimately have single-player alternatives.
 - Accepted gameplay should not be reopened without a regression or an explicitly approved redesign.
 - Original Yellow Partner Pikachu graphics and reaction semantics may be translated onto native GBA rendering architecture rather than reproducing the Game Boy renderer literally.
+- P3 and later Partner-reaction work must reuse the accepted common portrait renderer rather than creating a parallel renderer.
 
 For the exact content of accepted milestones, use the Acceptance Log.
 
 ---
 
-# 7. Accepted Story Boundary
+# 7. Accepted Story and Engine Boundary
 
-The currently accepted Yellow story boundary reaches through:
+The currently accepted Yellow story/engine boundary reaches through:
 
 - Yellow opening and Partner Pikachu foundation;
 - Viridian early progression and Teachy TV integration;
@@ -201,48 +210,49 @@ The currently accepted Yellow story boundary reaches through:
 - Route 25 / Sea Cottage Bill progression for the current approved scope;
 - required Partner Pikachu reaction to transformed Bill;
 - required Partner Pikachu reaction when Bill returns to human form;
-- centered original-Yellow confused/questioning and shocked/surprised portrait presentation for those Bill reactions.
+- accepted original-Yellow confused/questioning and shocked/surprised Bill portrait presentation;
+- complete Yellow portrait-program catalog `0–28` and generalized GBA portrait renderer/presentation foundation.
 
 The details, commits, workflow runs, ROM hashes, and manual-validation notes for these milestones are maintained in `Pokemon_Golden_Yellow_Acceptance_Log.md` and any linked dedicated acceptance record.
 
 ---
 
-# 8. Current Active Development Boundary — Full Yellow Partner Pikachu Reaction System
+# 8. Current Active Development Boundary — P3 Yellow Reaction Program Director
 
-The Cerulean-era story pass remains active, but the immediate next work is an engine/content foundation pass before proceeding deeper into the story.
+The Cerulean-era story pass remains active, but the immediate next work is the next engine layer from the accepted portrait foundation.
 
 The active engineering boundary is:
 
-**import complete Yellow Pikachu graphics → catalog/map Yellow portrait animations → reconstruct reusable GBA portrait/reaction engine → preserve accepted Bill behavior → integrate remaining required Yellow Partner reactions**
+**accepted portrait programs + renderer → reusable Yellow reaction-program director → later normal A-button/mood/modifier/authored-reaction integration**
 
-The next pass should build outward from the accepted Bill vertical slice rather than creating another one-off scene implementation.
+P3 must build directly on the accepted P1/P2 renderer and the source mapping documented in `Yellow-portrait.md`.
 
-Expected system scope includes:
+Expected P3 scope includes:
 
-1. Import the complete usable Yellow Pikachu portrait/graphics catalog with source provenance.
-2. Preserve Yellow's semantic mapping between portrait animation scripts and reaction contexts.
-3. Build a reusable resource registry rather than hard-coding Bill-only assets.
-4. Generalize the native GBA portrait renderer while retaining physical-GBA-safe resource handling.
-5. Reconstruct Yellow's reaction-director behavior where appropriate: portrait, cry, emote, movement, delay, and scene-specific commands.
-6. Recreate the generic Yellow happiness/mood portrait selection behavior without treating ordinary Pikachu as the Partner.
-7. Integrate or migrate the already-required authored reactions so they share the common system where practical.
-8. Keep the accepted Bill transformed/restored choreography and portrait result unchanged during generalization.
+1. Reconstruct the reusable reaction-program command/director layer that can sequence portrait, cry, emote, movement, delay, and other source-supported reaction actions.
+2. Preserve Yellow's semantic mapping between reaction programs and portrait programs rather than selecting portraits ad hoc by scene.
+3. Keep authored story reactions capable of taking precedence over generic state-driven reactions.
+4. Use the existing canonical Partner resolver and never treat ordinary `SPECIES_PIKACHU` as the Partner.
+5. Reuse the existing follower-safe movement architecture instead of creating an independent movement/follower identity system.
+6. Keep accepted Bill transformed/restored choreography and portrait results unchanged as a regression target.
+7. Keep P3 modular so P4 normal A-button interaction, P5 mood, P6 one-shot modifiers, and P7 authored reaction migrations can layer onto it without replacing it.
+8. Do not guess unresolved Yellow behavior such as the exact initial mood value or unidentified modifier triggers; preserve those as research items until source evidence resolves them.
 
-After that system foundation is stable, the remaining immediate Cerulean story scope is:
+After the Partner reaction-system foundation reaches the appropriate stable boundary, the remaining immediate Cerulean story scope is:
 
 - Melanie / Bulbasaur gift using canonical Partner Pikachu happiness;
 - Misty / Cerulean Gym Yellow identity validation;
 - Cerulean exit progression toward Vermilion;
 - remaining Route 4 / Nugget Bridge / Rocket recruiter regression coverage as needed around the accepted path.
 
-Before changing code in the new system pass:
+Before changing code for P3:
 
 - resolve the live branch HEAD;
-- inspect the complete current Bill renderer and all existing Partner/follower helpers;
-- use `pret/pokeyellow` as the source authority for portrait assets, emotion definitions, animation scripts, and event mappings;
+- inspect the accepted generalized portrait renderer and existing Partner/follower helpers;
+- use `Yellow-portrait.md` and `pret/pokeyellow` source mappings as the behavior authority;
 - translate behavior to GBA architecture rather than porting Game Boy tile-engine assumptions literally;
 - retain canonical `SPECIES_PIKACHU_STARTER` gating;
-- design the system so later Vermilion Fan Club and Pokémon Tower reactions do not require duplicate renderers.
+- preserve the accepted portrait frame/palette presentation and cleanup behavior.
 
 ---
 
@@ -252,11 +262,13 @@ The following are examples of required Yellow content that remains ahead of the 
 
 ## Partner Pikachu system
 
-- complete Yellow Pikachu portrait/graphics import;
-- reusable Yellow reaction/emotion architecture;
-- generic happiness/mood portrait behavior;
+- P3 reusable Yellow reaction-program director;
+- P4 normal A-button Partner interaction path;
+- P5 generic Yellow happiness/mood selection behavior;
+- P6 one-shot reaction modifiers once source triggers are verified;
+- P7 migration/integration of authored reactions onto the common reaction system where appropriate;
 - Partner evolution-refusal presentation when applicable;
-- migration/integration of authored reactions onto the common system where appropriate.
+- later audio fidelity work where Yellow-specific PCM/cry behavior is required and feasible.
 
 ## Cerulean era
 
@@ -324,7 +336,7 @@ The rules are:
 - dedicated acceptance records may preserve detailed choreography or implementation history for complex milestones;
 - Current Project State should not duplicate that detailed evidence.
 
-The accepted Bill behavior must remain a regression target while the portrait/reaction renderer is generalized.
+The accepted Bill behavior and the accepted P1/P2 portrait renderer/presentation are regression targets for P3 and later reaction-system work.
 
 ---
 
@@ -332,9 +344,9 @@ The accepted Bill behavior must remain a regression target while the portrait/re
 
 **No known blocking regression is open at this snapshot.**
 
-The Bill / Sea Cottage Partner Pikachu portrait milestone has passed manual acceptance after the portrait-centering correction and successful prototype build.
+The full portrait catalog and generalized renderer/presentation have passed manual acceptance after the tightened visible-box and Pikachu-yellow/gold frame correction. The corresponding prototype build also passed.
 
-Development can proceed from the accepted Bill baseline into the complete Yellow Pikachu graphics/reaction-system reconstruction.
+Development can proceed directly into P3, the Yellow reaction-program director, using the accepted portrait renderer as a fixed foundation.
 
 ---
 
