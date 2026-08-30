@@ -8,6 +8,7 @@
 #include "main.h"
 #include "pokemon.h"
 #include "script.h"
+#include "script_movement.h"
 #include "sound.h"
 #include "task.h"
 #include "constants/event_object_movement.h"
@@ -55,6 +56,90 @@ struct GoldenYellowPartnerReactionCommand
 };
 
 #include "golden_yellow_partner_reaction_data.inc"
+
+// Proven follower movement scripts from data/scripts/follower.inc. P3 invokes
+// these through the same ScriptMovement executor used by applymovement rather
+// than feeding individual held movements directly into the follower object.
+extern const u8 FollowerSkippingMovement[];
+extern const u8 FollowerShiverVerticalMovement[];
+extern const u8 FollowerShiverHorizontalMovement[];
+extern const u8 FollowerLookAway[];
+extern const u8 FollowerLookAwayBark[];
+extern const u8 FollowerLookAwayPokeG[];
+extern const u8 FollowerPokeGround[];
+extern const u8 FollowerHopFast[];
+extern const u8 FollowerDizzy[];
+extern const u8 FollowerLookAround[];
+extern const u8 FollowerDance[];
+extern const u8 FollowerStartled[];
+
+// A few Yellow-specific body-language beats do not have an exact stock
+// follower equivalent. They still run through ScriptMovement, remain entirely
+// in-place, and use the same movement actions as the existing follower scripts.
+static const u8 sPartnerEnergeticMovement[] =
+{
+    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_LOCK_FACING_DIRECTION,
+    MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
+    MOVEMENT_ACTION_WALK_IN_PLACE_FASTER_DOWN,
+    MOVEMENT_ACTION_WALK_IN_PLACE_FAST_DOWN,
+    MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
+    MOVEMENT_ACTION_UNLOCK_FACING_DIRECTION,
+    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_STEP_END,
+};
+
+static const u8 sPartnerStrongAffectionMovement[] =
+{
+    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_LOCK_FACING_DIRECTION,
+    MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
+    MOVEMENT_ACTION_DELAY_4,
+    MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
+    MOVEMENT_ACTION_WALK_IN_PLACE_FAST_DOWN,
+    MOVEMENT_ACTION_UNLOCK_FACING_DIRECTION,
+    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_STEP_END,
+};
+
+static const u8 sPartnerRefusalMovement[] =
+{
+    MOVEMENT_ACTION_FACE_LEFT,
+    MOVEMENT_ACTION_DELAY_4,
+    MOVEMENT_ACTION_FACE_RIGHT,
+    MOVEMENT_ACTION_DELAY_4,
+    MOVEMENT_ACTION_FACE_LEFT,
+    MOVEMENT_ACTION_DELAY_4,
+    MOVEMENT_ACTION_FACE_RIGHT,
+    MOVEMENT_ACTION_DELAY_4,
+    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_STEP_END,
+};
+
+static const u8 sPartnerFearMovement[] =
+{
+    MOVEMENT_ACTION_FACE_AWAY_PLAYER,
+    MOVEMENT_ACTION_LOCK_FACING_DIRECTION,
+    MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
+    MOVEMENT_ACTION_UNLOCK_FACING_DIRECTION,
+    MOVEMENT_ACTION_DELAY_8,
+    MOVEMENT_ACTION_FACE_LEFT,
+    MOVEMENT_ACTION_DELAY_8,
+    MOVEMENT_ACTION_FACE_RIGHT,
+    MOVEMENT_ACTION_DELAY_8,
+    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_STEP_END,
+};
+
+static const u8 sPartnerSleepySwayMovement[] =
+{
+    MOVEMENT_ACTION_FACE_LEFT,
+    MOVEMENT_ACTION_DELAY_16,
+    MOVEMENT_ACTION_FACE_RIGHT,
+    MOVEMENT_ACTION_DELAY_16,
+    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_STEP_END,
+};
 
 // Final overworld pose before each portrait. This is deliberately independent
 // from the expressive movement preset so a reaction can dance, recoil, sway,
@@ -120,11 +205,11 @@ static void ExecutePartnerReactionCallback(u8 callbackId);
 static bool32 StartPartnerReactionBubble(u8 taskId, u8 bubbleId);
 static bool32 IsPartnerReactionBubbleActive(u8 taskId);
 static s16 GetFollowerEmotionForBubble(u8 bubbleId);
+static const u8 *GetPartnerReactionMovementScript(u8 reactionId, u8 movementId, const struct ObjectEvent *follower);
 static void StartPartnerReactionMovement(u8 taskId, u8 movementId);
 static bool32 UpdatePartnerReactionMovement(u8 taskId);
 static bool32 UpdatePartnerReactionPose(u8 taskId);
 static enum Direction GetFollowerDirectionTowardPlayer(const struct ObjectEvent *follower);
-static enum Direction GetFollowerDirectionAwayFromPlayer(const struct ObjectEvent *follower);
 
 static bool32 HasFreePartnerReactionTaskSlot(void)
 {
@@ -236,6 +321,7 @@ static void FinishPartnerReaction(u8 taskId)
         if (follower != NULL && follower->active)
         {
             ObjectEventClearHeldMovementIfActive(follower);
+            UnfreezeObjectEvent(follower);
             ObjectEventTurn(follower, GetFollowerDirectionTowardPlayer(follower));
         }
 
@@ -253,7 +339,10 @@ static void ClosePartnerReactionBrowser(u8 taskId)
     struct ObjectEvent *follower = GetFollowerObject();
 
     if (follower != NULL && follower->active)
+    {
         ObjectEventClearHeldMovementIfActive(follower);
+        UnfreezeObjectEvent(follower);
+    }
 
     DestroyTask(taskId);
     UnlockPlayerFieldControls();
@@ -588,9 +677,70 @@ static enum Direction GetFollowerDirectionTowardPlayer(const struct ObjectEvent 
     return follower->facingDirection;
 }
 
-static enum Direction GetFollowerDirectionAwayFromPlayer(const struct ObjectEvent *follower)
+static const u8 *GetPartnerReactionMovementScript(u8 reactionId, u8 movementId, const struct ObjectEvent *follower)
 {
-    return GetOppositeDirection(GetFollowerDirectionTowardPlayer(follower));
+    enum Direction towardPlayer = GetFollowerDirectionTowardPlayer(follower);
+
+    switch (movementId)
+    {
+    case GY_PARTNER_MOVEMENT_AGITATED_TURN:
+        return FollowerLookAwayPokeG;
+
+    case GY_PARTNER_MOVEMENT_ALOOF_TURN:
+        if (reactionId == GY_PARTNER_REACTION_IRRITATED)
+            return FollowerLookAwayBark;
+        return FollowerLookAway;
+
+    case GY_PARTNER_MOVEMENT_ENERGETIC_HOP:
+        return sPartnerEnergeticMovement;
+
+    case GY_PARTNER_MOVEMENT_PLAYFUL_HOP:
+        return FollowerHopFast;
+
+    case GY_PARTNER_MOVEMENT_HAPPY_BOUNCE:
+        return FollowerSkippingMovement;
+
+    case GY_PARTNER_MOVEMENT_AFFECTION_BOUNCE:
+        if (reactionId == GY_PARTNER_REACTION_STRONG_AFFECTION)
+            return sPartnerStrongAffectionMovement;
+        return FollowerSkippingMovement;
+
+    case GY_PARTNER_MOVEMENT_CELEBRATE:
+        return FollowerDance;
+
+    case GY_PARTNER_MOVEMENT_CONFUSED_LOOK:
+        return FollowerLookAround;
+
+    case GY_PARTNER_MOVEMENT_REFUSAL_SHAKE:
+        return sPartnerRefusalMovement;
+
+    case GY_PARTNER_MOVEMENT_FEAR_RECOIL:
+        return sPartnerFearMovement;
+
+    case GY_PARTNER_MOVEMENT_ELECTRIC_JOLT:
+        if (towardPlayer == DIR_NORTH || towardPlayer == DIR_SOUTH)
+            return FollowerShiverVerticalMovement;
+        return FollowerShiverHorizontalMovement;
+
+    case GY_PARTNER_MOVEMENT_SAD_TURN:
+        if (reactionId == GY_PARTNER_REACTION_DISPLEASED)
+            return FollowerPokeGround;
+        return FollowerLookAway;
+
+    case GY_PARTNER_MOVEMENT_SLEEPY_SWAY:
+        return sPartnerSleepySwayMovement;
+
+    case GY_PARTNER_MOVEMENT_WEAK_PAUSE:
+        return FollowerDizzy;
+
+    case GY_PARTNER_MOVEMENT_STARTLED_HOP:
+        return FollowerStartled;
+
+    case PARTNER_REACTION_TURN_AWAY_MOVEMENT:
+        return FollowerLookAwayBark;
+    }
+
+    return NULL;
 }
 
 static bool32 UpdatePartnerReactionPose(u8 taskId)
@@ -603,12 +753,6 @@ static bool32 UpdatePartnerReactionPose(u8 taskId)
 
     if (follower == NULL || !follower->active || pose == GY_PARTNER_POSE_KEEP)
         return TRUE;
-
-    if (ObjectEventIsHeldMovementActive(follower))
-    {
-        if (!ObjectEventClearHeldMovementIfFinished(follower))
-            return FALSE;
-    }
 
     if (task->rWaitTimer > 0)
     {
@@ -637,15 +781,15 @@ static bool32 UpdatePartnerReactionPose(u8 taskId)
             return TRUE;
         }
 
-        ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(poseDirection));
+        // ScriptMovement freezes an object at STEP_END. The movement wait
+        // explicitly unfreezes the Partner, then the final portrait pose uses
+        // ObjectEventTurn directly so facing cannot be swallowed by the
+        // follower's normal held-movement callback.
+        ObjectEventClearHeldMovementIfActive(follower);
+        UnfreezeObjectEvent(follower);
+        ObjectEventTurn(follower, poseDirection);
         task->rMovementStep = 1;
-        return FALSE;
-    }
-
-    if (task->rMovementStep == 1)
-    {
         task->rWaitTimer = PARTNER_REACTION_POSE_HOLD_FRAMES;
-        task->rMovementStep = 2;
         return FALSE;
     }
 
@@ -665,530 +809,46 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];
     struct ObjectEvent *follower = GetFollowerObject();
-    enum Direction towardPlayer;
-    enum Direction awayFromPlayer;
-    enum Direction sideClockwise;
-    enum Direction sideCounterclockwise;
+    const u8 *movementScript;
 
     if (follower == NULL || !follower->active)
         return TRUE;
 
-    if (ObjectEventIsHeldMovementActive(follower))
-    {
-        if (!ObjectEventClearHeldMovementIfFinished(follower))
-            return FALSE;
-    }
+    movementScript = GetPartnerReactionMovementScript(task->rReactionId, task->rMovementId, follower);
+    if (movementScript == NULL)
+        return TRUE;
 
-    if (task->rWaitTimer > 0)
+    if (task->rMovementStep == 0)
     {
-        task->rWaitTimer--;
+        // Clear only the follower engine's ordinary held step, then hand the
+        // whole choreography to the same executor used by applymovement.
+        ObjectEventClearHeldMovementIfActive(follower);
+        UnfreezeObjectEvent(follower);
+
+        // ScriptMovement returns FALSE when it successfully schedules a script.
+        // Fail open instead of stranding field controls if an authored scene
+        // incorrectly overlaps another scripted movement.
+        if (ScriptMovement_StartObjectMovementScript(
+                follower->localId,
+                gSaveBlock1Ptr->location.mapNum,
+                gSaveBlock1Ptr->location.mapGroup,
+                movementScript))
+            return TRUE;
+
+        task->rMovementStep = 1;
         return FALSE;
     }
 
-    towardPlayer = GetFollowerDirectionTowardPlayer(follower);
-    awayFromPlayer = GetFollowerDirectionAwayFromPlayer(follower);
-    sideClockwise = GetNinetyDegreeDirection(towardPlayer, TRUE);
-    sideCounterclockwise = GetNinetyDegreeDirection(towardPlayer, FALSE);
+    if (!ScriptMovement_IsObjectMovementFinished(
+            follower->localId,
+            gSaveBlock1Ptr->location.mapNum,
+            gSaveBlock1Ptr->location.mapGroup))
+        return FALSE;
 
-    switch (task->rMovementId)
-    {
-    case GY_PARTNER_MOVEMENT_ENERGETIC_HOP: // Yellow fd224
-        // Keep Yellow's in-place hopping, but add a short run-in-place burst so
-        // energetic happiness reads immediately on the GBA overworld sprite.
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(towardPlayer));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(towardPlayer));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 5;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_PLAYFUL_HOP: // Yellow fd230
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(follower->facingDirection));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            task->rWaitTimer = 4;
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideClockwise));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideCounterclockwise));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 5;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_ALOOF_TURN: // Yellow fd21e
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(follower->facingDirection, TRUE)));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            task->rWaitTimer = 30;
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            if (task->rReactionId == GY_PARTNER_REACTION_IRRITATED)
-            {
-                ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
-                task->rMovementStep = 3;
-                return FALSE;
-            }
-            return TRUE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_AGITATED_TURN: // Yellow fd218
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(follower->facingDirection, TRUE)));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            task->rWaitTimer = 4;
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(
-                follower,
-                GetFaceDirectionMovementAction(GetNinetyDegreeDirection(follower->facingDirection, TRUE)));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideClockwise));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(sideCounterclockwise));
-            task->rMovementStep = 5;
-            return FALSE;
-        case 5:
-            task->rWaitTimer = 18;
-            task->rMovementStep = 6;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_HAPPY_BOUNCE:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            if (task->rReactionId == GY_PARTNER_REACTION_CONTENT)
-                return TRUE;
-            task->rWaitTimer = 4;
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(towardPlayer));
-            task->rMovementStep = 5;
-            return FALSE;
-        case 5:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(towardPlayer));
-            task->rMovementStep = 6;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_AFFECTION_BOUNCE:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            task->rWaitTimer = 8;
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            if (task->rReactionId == GY_PARTNER_REACTION_STRONG_AFFECTION)
-            {
-                ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(towardPlayer));
-                task->rMovementStep = 5;
-                return FALSE;
-            }
-            return TRUE;
-        case 5:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(towardPlayer));
-            task->rMovementStep = 6;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_CELEBRATE:
-        // Reuse the spirit of the follower Dance routine while retaining the
-        // existing four-direction in-place jumps that were already accepted.
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_NORTH));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_WEST));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_SOUTH));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_EAST));
-            task->rMovementStep = 5;
-            return FALSE;
-        case 5:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_WEST));
-            task->rMovementStep = 6;
-            return FALSE;
-        case 6:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(DIR_NORTH));
-            task->rMovementStep = 7;
-            return FALSE;
-        case 7:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(DIR_EAST));
-            task->rMovementStep = 8;
-            return FALSE;
-        case 8:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(DIR_SOUTH));
-            task->rMovementStep = 9;
-            return FALSE;
-        case 9:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 10;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_CONFUSED_LOOK:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            task->rWaitTimer = 8;
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            task->rWaitTimer = 8;
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 5;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_REFUSAL_SHAKE:
-        switch (task->rMovementStep)
-        {
-        case 0:
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
-            task->rMovementStep++;
-            return FALSE;
-        case 2:
-        case 6:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
-            task->rMovementStep++;
-            return FALSE;
-        case 1:
-        case 3:
-        case 5:
-        case 7:
-            task->rWaitTimer = 4;
-            task->rMovementStep++;
-            return FALSE;
-        case 8:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 9;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_FEAR_RECOIL:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(awayFromPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            task->rWaitTimer = 8;
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
-            task->rMovementStep = 5;
-            return FALSE;
-        case 5:
-            task->rWaitTimer = 4;
-            task->rMovementStep = 6;
-            return FALSE;
-        case 6:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
-            task->rMovementStep = 7;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_ELECTRIC_JOLT:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(sideClockwise));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(sideCounterclockwise));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(sideCounterclockwise));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFasterMovementAction(sideClockwise));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(sideClockwise));
-            task->rMovementStep = 5;
-            return FALSE;
-        case 5:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 6;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_SAD_TURN:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            if (task->rReactionId == GY_PARTNER_REACTION_DISPLEASED)
-            {
-                ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(sideClockwise));
-                task->rMovementStep = 2;
-                return FALSE;
-            }
-            task->rWaitTimer = 24;
-            task->rMovementStep = 4;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(sideClockwise));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            task->rWaitTimer = 12;
-            task->rMovementStep = 4;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_SLEEPY_SWAY:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideClockwise));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            task->rWaitTimer = 18;
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(sideCounterclockwise));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            task->rWaitTimer = 18;
-            task->rMovementStep = 4;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_WEAK_PAUSE:
-        // Adapt the existing follower dizzy language using only in-place
-        // animations, preserving the follower's tile and collision authority.
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            task->rWaitTimer = 12;
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(DIR_WEST));
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_EAST));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceSlowMovementAction(DIR_NORTH));
-            task->rMovementStep = 5;
-            return FALSE;
-        case 5:
-            ObjectEventSetHeldMovement(follower, GetWalkInPlaceFastMovementAction(DIR_SOUTH));
-            task->rMovementStep = 6;
-            return FALSE;
-        case 6:
-            task->rWaitTimer = 8;
-            task->rMovementStep = 7;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case GY_PARTNER_MOVEMENT_STARTLED_HOP:
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(towardPlayer));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            task->rWaitTimer = 4;
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
-            task->rMovementStep = 4;
-            return FALSE;
-        case 4:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(towardPlayer));
-            task->rMovementStep = 5;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-
-    case PARTNER_REACTION_TURN_AWAY_MOVEMENT:
-        // Yellow's Fan Club command explicitly turns Pikachu away. Keep that
-        // source beat, then add two shy in-place hops without giving up the
-        // final back-facing pose.
-        switch (task->rMovementStep)
-        {
-        case 0:
-            ObjectEventSetHeldMovement(follower, GetFaceDirectionMovementAction(awayFromPlayer));
-            task->rMovementStep = 1;
-            return FALSE;
-        case 1:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
-            task->rMovementStep = 2;
-            return FALSE;
-        case 2:
-            task->rWaitTimer = 8;
-            task->rMovementStep = 3;
-            return FALSE;
-        case 3:
-            ObjectEventSetHeldMovement(follower, GetJumpInPlaceMovementAction(awayFromPlayer));
-            task->rMovementStep = 4;
-            return FALSE;
-        default:
-            return TRUE;
-        }
-    }
-
+    // STEP_END freezes scripted objects. Restore follower authority before the
+    // cry/pose/portrait pipeline continues.
+    UnfreezeObjectEvent(follower);
+    task->rMovementStep = 0;
     return TRUE;
 }
 
