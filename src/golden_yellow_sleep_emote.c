@@ -1,80 +1,19 @@
 #include "global.h"
 #include "event_object_movement.h"
+#include "field_effect.h"
+#include "field_emote_icons.h"
 #include "field_player_avatar.h"
-#include "palette.h"
 #include "script.h"
-#include "sprite.h"
+#include "task.h"
+#include "constants/field_effects.h"
 
-#define TAG_GOLDEN_YELLOW_SLEEP_EMOTE 0x1015
-#define SLEEP_EMOTE_FRAMES 60
-
-static const u8 sGoldenYellowSleepEmoteGfx[] =
-    INCGFX_U8("graphics/field_effects/pics/emotion_sleep.png", ".4bpp");
-static const u16 sGoldenYellowSleepEmotePal[] =
-    INCGFX_U16("graphics/field_effects/pics/emotion_sleep.png", ".gbapal");
-
-static void SpriteCB_GoldenYellowSleepEmote(struct Sprite *sprite);
+static void Task_WaitForGoldenYellowSleepEmote(u8 taskId);
 static bool8 GoldenYellow_WaitForPlayerFaceFollower(void);
-
-static const struct OamData sGoldenYellowSleepEmoteOam =
-{
-    .y = 0,
-    .affineMode = ST_OAM_AFFINE_OFF,
-    .objMode = ST_OAM_OBJ_NORMAL,
-    .mosaic = FALSE,
-    .bpp = ST_OAM_4BPP,
-    .shape = SPRITE_SHAPE(16x16),
-    .x = 0,
-    .matrixNum = 0,
-    .size = SPRITE_SIZE(16x16),
-    .tileNum = 0,
-    .priority = 1,
-    .paletteNum = 0,
-    .affineParam = 0,
-};
-
-static const struct SpriteFrameImage sGoldenYellowSleepEmoteImages[] =
-{
-    {
-        .data = sGoldenYellowSleepEmoteGfx,
-        .size = sizeof(sGoldenYellowSleepEmoteGfx),
-    },
-};
-
-static const union AnimCmd sGoldenYellowSleepEmoteAnim[] =
-{
-    ANIMCMD_FRAME(0, SLEEP_EMOTE_FRAMES),
-    ANIMCMD_END,
-};
-
-static const union AnimCmd *const sGoldenYellowSleepEmoteAnims[] =
-{
-    sGoldenYellowSleepEmoteAnim,
-};
-
-static const struct SpritePalette sGoldenYellowSleepEmotePalette =
-{
-    .data = sGoldenYellowSleepEmotePal,
-    .tag = TAG_GOLDEN_YELLOW_SLEEP_EMOTE,
-};
-
-static const struct SpriteTemplate sGoldenYellowSleepEmoteTemplate =
-{
-    .tileTag = TAG_NONE,
-    .paletteTag = TAG_GOLDEN_YELLOW_SLEEP_EMOTE,
-    .oam = &sGoldenYellowSleepEmoteOam,
-    .anims = sGoldenYellowSleepEmoteAnims,
-    .images = sGoldenYellowSleepEmoteImages,
-    .affineAnims = gDummySpriteAffineAnimTable,
-    .callback = SpriteCB_GoldenYellowSleepEmote,
-};
-
-#define sFollowerObjectEventId data[0]
 
 void GoldenYellow_ShowFollowerSleepEmote(void)
 {
     struct ObjectEvent *follower = GetFollowerObject();
-    u8 spriteId;
+    u8 taskId;
 
     if (follower == NULL || !follower->active)
     {
@@ -82,18 +21,18 @@ void GoldenYellow_ShowFollowerSleepEmote(void)
         return;
     }
 
-    LoadSpritePalette(&sGoldenYellowSleepEmotePalette);
-    spriteId = CreateSprite(&sGoldenYellowSleepEmoteTemplate, 0, 0, 0x52);
-    if (spriteId == MAX_SPRITES)
+    taskId = CreateTask(Task_WaitForGoldenYellowSleepEmote, 0x52);
+    if (taskId == TASK_NONE)
     {
-        FreeSpritePaletteByTag(TAG_GOLDEN_YELLOW_SLEEP_EMOTE);
         ScriptContext_Enable();
         return;
     }
 
-    gSprites[spriteId].coordOffsetEnabled = TRUE;
-    gSprites[spriteId].sFollowerObjectEventId = follower - gObjectEvents;
-    SpriteCB_GoldenYellowSleepEmote(&gSprites[spriteId]);
+    if (!FieldEmote_StartOnObjectEvent(follower, FIELD_EMOTE_SLEEP))
+    {
+        DestroyTask(taskId);
+        ScriptContext_Enable();
+    }
 }
 
 void GoldenYellow_FacePlayerTowardFollower(struct ScriptContext *ctx)
@@ -129,35 +68,18 @@ void GoldenYellow_FacePlayerTowardFollower(struct ScriptContext *ctx)
     SetupNativeScript(ctx, GoldenYellow_WaitForPlayerFaceFollower);
 }
 
+static void Task_WaitForGoldenYellowSleepEmote(u8 taskId)
+{
+    if (!FieldEffectActiveListContains(FLDEFF_SHARED_EMOTE_ICON))
+    {
+        DestroyTask(taskId);
+        ScriptContext_Enable();
+    }
+}
+
 static bool8 GoldenYellow_WaitForPlayerFaceFollower(void)
 {
     struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
 
     return ObjectEventClearHeldMovementIfFinished(player) != 0;
 }
-
-static void SpriteCB_GoldenYellowSleepEmote(struct Sprite *sprite)
-{
-    u8 objectEventId = sprite->sFollowerObjectEventId;
-
-    if (objectEventId >= OBJECT_EVENTS_COUNT
-     || !gObjectEvents[objectEventId].active
-     || sprite->animEnded)
-    {
-        DestroySprite(sprite);
-        FreeSpritePaletteByTag(TAG_GOLDEN_YELLOW_SLEEP_EMOTE);
-        ScriptContext_Enable();
-        return;
-    }
-
-    {
-        struct Sprite *followerSprite = &gSprites[gObjectEvents[objectEventId].spriteId];
-
-        sprite->x = followerSprite->x;
-        sprite->y = followerSprite->y - 16;
-        sprite->x2 = followerSprite->x2;
-        sprite->y2 = followerSprite->y2;
-    }
-}
-
-#undef sFollowerObjectEventId
