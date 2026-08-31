@@ -71,6 +71,7 @@ A later branch HEAD does not invalidate an earlier acceptance merely because add
 | Route 24 Charmander rescue / Damian adoption | ACCEPTED | `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md` |
 | Bill / Sea Cottage Partner Pikachu reaction + Yellow portrait slice | ACCEPTED | `Pokemon_Golden_Yellow_Bill_Acceptance_Record.md` |
 | Full Yellow Partner portrait catalog + generalized renderer (P1/P2) | ACCEPTED | This log |
+| Yellow Partner reaction-program director (P3) | ACCEPTED | This log |
 
 ---
 
@@ -428,7 +429,84 @@ This acceptance closes the graphics/catalog and generalized portrait-renderer fo
 
 ---
 
-# 15. Maintenance Rule
+# 15. Acceptance — Yellow Partner Reaction-Program Director (P3)
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-08-30  
+**Initial P3 director commit:** `a36b413fd837f9ae982486b48bbcf304d9495f9c`  
+**Unified follower-emote implementation:** `50772d5cbfee4b0a443d0d5369af21fd46ae3a0b`  
+**Follower-message-pool include correction:** `653823791b79540acd53a4f33b55840ed55ce2aa`  
+**Portrait-synchronized choreography commit:** `668aaba61d728535fa4431af3a8d08ba62feae5f`  
+**Debug facing normalization:** `1d1eaf4bae89f9ccc1d9157c98b457ebfdfc497a`  
+**Debug portrait-gate commit:** `019728c9a7ed1f210210901a5d85cbd025685ce6`  
+**Native movement executor commit:** `68224bd0eb71b65f1331a203647b301bdbd97f27`  
+**Final accepted linker correction / source tip:** `598dc0534297c5a7edb099d42a857e2c0eea130a`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33342904667`  
+**Accepted artifact ID:** `9741152434`  
+**Accepted ROM SHA-256:** `27dee98c48112a7fa15b46c986ea42e711f9373ef049eeea82a2d09e77d6642f`  
+**Manual result:** PASS — user confirmed the completed P3 result and readiness for P4
+
+## Prior sub-acceptance — unified follower emote layer
+
+Before full P3 closeout, the user explicitly accepted the Fix1d emote layer.
+
+Evidence:
+
+- implementation commit `50772d5cbfee4b0a443d0d5369af21fd46ae3a0b`;
+- include-fix commit `653823791b79540acd53a4f33b55840ed55ce2aa`;
+- workflow run `33337676908`;
+- artifact ID `9739598594`;
+- ROM SHA-256 `bfe10ac0f34b82ce9d55754d1b323e8bc1f231906f1823e51d7c344a6ec24301`;
+- manual result: PASS for the emote layer.
+
+That earlier acceptance is preserved here as a sub-acceptance and is now also part of the fully accepted P3 system.
+
+## Scope
+
+This acceptance closes P3 of the `Yellow-portrait.md` reconstruction blueprint: the reusable Yellow Partner reaction-program director that sequences Yellow reaction semantics over the accepted P1/P2 portrait renderer and the existing follower system.
+
+The final manual pass was performed through the dedicated 0–32 reaction debug browser after adding deterministic test normalization and a pre-portrait inspection gate. The accepted build uses the native `ScriptMovement` executor for visible follower body-language choreography rather than the earlier unreliable direct held-movement implementation.
+
+## Accepted behavior
+
+- Yellow Emotion/reaction IDs `0–32` are represented by ordered, typed reaction programs and remain traceable to the source command ordering;
+- reaction programs can sequence cry, follower emote/bubble, movement, portrait, delay, turn-away, and semantic callback commands;
+- reaction ID `33` remains an inaccessible sentinel rather than a normal selectable reaction;
+- only canonical Partner Pikachu (`SPECIES_PIKACHU_STARTER`) qualifies for the Partner reaction director;
+- ordinary `SPECIES_PIKACHU` remains ordinary and is not treated as the Partner;
+- the accepted P1/P2 portrait renderer is reused rather than replaced by a parallel portrait system;
+- the unified emote resolver uses the existing HGSS follower-emotion presentation for standard emotional states and the shared Golden Yellow field-emote path for Skull, Sleep/ZZZ, Bolt, Fish, and the animated exclamation reaction;
+- the reaction-specific 0–32 emote mapping accepted during Fix1d remains the regression baseline;
+- expressive overworld movement now executes through the native scripted-movement system used by field `applymovement`, including C-linkable tile-safe equivalents of the required existing follower movement scripts;
+- reaction movement preserves the follower's map tile and does not use generic tile-displacing choreography in the reusable P3 browser/program layer;
+- movement completion restores follower authority rather than leaving Partner Pikachu frozen or stranded;
+- deterministic final portrait-facing is enforced after expressive movement so front-, side-, and back-facing portrait semantics can agree with the overworld pose;
+- the debug browser returns Pikachu to a player-facing baseline after every completed reaction so sequential testing remains deterministic;
+- the debug browser holds the final overworld pose before the portrait and waits for A, allowing movement and final facing to be inspected before the portrait covers the field;
+- production/one-shot reactions remain automatic and do not inherit the debug-only manual portrait gate;
+- A/B portrait dismissal and reaction cleanup return control without duplicate followers, stuck held movement, or follower drift;
+- source-semantic story callbacks remain inert at the reusable P3 layer and do not independently advance authored Pewter, Bill, or Fan Club story state.
+
+## Regression invariants
+
+- do not replace or fork the accepted P1/P2 portrait renderer for later reaction work;
+- do not regress standard follower emotions to the rejected placeholder/custom presentation when the existing HGSS follower sheet already supplies the accepted emotion;
+- preserve the accepted Skull, Sleep/ZZZ, Bolt, Fish, and animated-exclamation shared field-emote behavior;
+- preserve the accepted reaction ID `0–32` ordering and source-semantic program mapping;
+- ordinary Pikachu must never satisfy canonical Partner-only reaction gates;
+- keep reusable P3 reaction choreography tile-safe unless a later authored scene explicitly guarantees safe tile displacement;
+- do not reintroduce the rejected per-step direct held-movement executor as the default P3 body-language backend; the accepted path is native `ScriptMovement` sequencing;
+- final portrait-facing must remain deterministic and synchronized with the intended front/side/back reaction semantics;
+- debug-only test normalization/manual portrait gating must not leak into production story reaction flow;
+- P3 semantic callbacks must remain non-authoritative for story progression until their authored P7 integrations explicitly bind them;
+- later P4/P5/P6/P7 layers must extend this accepted reaction director rather than creating a second Partner-reaction engine.
+
+This acceptance advances the Partner-reaction reconstruction boundary to P4: normal A-button Partner interaction on top of the accepted P1/P2/P3 foundation.
+
+---
+
+# 16. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
