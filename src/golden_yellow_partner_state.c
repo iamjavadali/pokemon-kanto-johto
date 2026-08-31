@@ -11,23 +11,48 @@
 #include "constants/game_stat.h"
 #include "constants/golden_yellow_partner_reactions.h"
 #include "constants/item_effects.h"
+#include "constants/items.h"
+#include "constants/moves.h"
 #include "constants/pokemon.h"
 #include "constants/species.h"
 
+// fishing.c deliberately owns the native implementation and does not include
+// fishing.h, allowing the public header to route callers through the P6 wrapper.
+void StartFishing(u8 rod);
+
 // P5 claims three otherwise-unused saved event vars. Mood is encoded as
 // mood + 1 so zero remains an uninitialized sentinel for old/dev saves.
-#define VAR_GY_PARTNER_MOOD          VAR_UNUSED_0x40F7
-#define VAR_GY_PARTNER_MOOD_STEP_LO  VAR_UNUSED_0x40F8
-#define VAR_GY_PARTNER_MOOD_STEP_HI  VAR_UNUSED_0x40F9
+#define VAR_GY_PARTNER_MOOD              VAR_UNUSED_0x40F7
+#define VAR_GY_PARTNER_MOOD_STEP_LO      VAR_UNUSED_0x40F8
+#define VAR_GY_PARTNER_MOOD_STEP_HI      VAR_UNUSED_0x40F9
+// P6 mirrors Yellow's single wPikachuEmotionModifier byte. Zero is no override.
+#define VAR_GY_PARTNER_REACTION_MODIFIER VAR_UNUSED_0x40FA
 
-#define PARTNER_INITIAL_FRIENDSHIP   90
-#define PARTNER_MOOD_NEUTRAL         128
-#define PARTNER_MOOD_AFTER_HEAL      131
-#define PARTNER_MOOD_AFTER_LEVEL     138
-#define PARTNER_MOOD_AFTER_TMHM      148
-#define PARTNER_MOOD_AFTER_FAINT     108
-#define PARTNER_MOOD_AFTER_PSN_FAINT 98
-#define PARTNER_MOOD_AFTER_WIN       130
+#define PARTNER_INITIAL_FRIENDSHIP       90
+#define PARTNER_MOOD_NEUTRAL             128
+#define PARTNER_MOOD_AFTER_HEAL          131
+#define PARTNER_MOOD_AFTER_LEVEL         138
+#define PARTNER_MOOD_AFTER_TMHM          148
+#define PARTNER_MOOD_AFTER_ELECTRIC_MOVE 133
+#define PARTNER_MOOD_AFTER_FAINT         108
+#define PARTNER_MOOD_AFTER_PSN_FAINT     98
+#define PARTNER_MOOD_AFTER_WIN           130
+
+enum GoldenYellowPartnerReactionModifier
+{
+    GY_PARTNER_MODIFIER_NONE = 0,
+    GY_PARTNER_MODIFIER_CAPTURE = 1,
+    GY_PARTNER_MODIFIER_FISHING = 2,
+    GY_PARTNER_MODIFIER_RESERVED_3 = 3,
+    GY_PARTNER_MODIFIER_THUNDER_STONE = 4,
+    GY_PARTNER_MODIFIER_ELECTRIC_POWER = 5,
+};
+
+// Replacement move flows first report MON_HAS_MAX_MOVES, then commit the chosen
+// slot later. Keep that in-flight state volatile; only the resulting one-shot
+// modifier belongs in the save block.
+static EWRAM_DATA struct BoxPokemon *sPendingPartnerElectricBox = NULL;
+static EWRAM_DATA enum Move sPendingPartnerElectricMove = MOVE_NONE;
 
 static const u8 sPartnerTalkReactionMatrix[7][5] =
 {
@@ -62,6 +87,19 @@ static struct Pokemon *FindPlayerPartnerPikachu(void)
         struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][i];
 
         if (GetMonData(mon, MON_DATA_SPECIES) == SPECIES_PIKACHU_STARTER)
+            return mon;
+    }
+
+    return NULL;
+}
+
+static struct Pokemon *FindPlayerPartnerPikachuByBox(struct BoxPokemon *boxMon)
+{
+    for (u32 i = 0; i < PARTY_SIZE; i++)
+    {
+        struct Pokemon *mon = &gParties[B_TRAINER_PLAYER][i];
+
+        if (&mon->box == boxMon && GetMonData(mon, MON_DATA_SPECIES) == SPECIES_PIKACHU_STARTER)
             return mon;
     }
 
@@ -106,6 +144,59 @@ static void EnsurePartnerStateInitialized(struct Pokemon *partner)
 
     SetStoredMood(PARTNER_MOOD_NEUTRAL);
     SetStoredMoodStepCount(GetCurrentStepCount());
+}
+
+static void SetPartnerReactionModifier(struct Pokemon *partner, u8 modifier)
+{
+    if (!IsPlayerPartnerPikachu(partner))
+        return;
+
+    EnsurePartnerStateInitialized(partner);
+    VarSet(VAR_GY_PARTNER_REACTION_MODIFIER, modifier);
+}
+
+static bool32 IsPartnerElectricPowerMove(enum Move move)
+{
+    return move == MOVE_THUNDERBOLT || move == MOVE_THUNDER;
+}
+
+static void ClearPendingPartnerElectricMove(void)
+{
+    sPendingPartnerElectricBox = NULL;
+    sPendingPartnerElectricMove = MOVE_NONE;
+}
+
+static void ApplyPartnerElectricPowerEvent(struct Pokemon *partner)
+{
+    if (!IsPlayerPartnerPikachu(partner))
+        return;
+
+    // Source behavior is an exact assignment to 0x85, not a directional P5
+    // target. Advance lazy step decay first, then establish the new event mood.
+    GoldenYellow_GetPartnerPikachuMood(partner);
+    SetStoredMood(PARTNER_MOOD_AFTER_ELECTRIC_MOVE);
+    SetStoredMoodStepCount(GetCurrentStepCount());
+    SetPartnerReactionModifier(partner, GY_PARTNER_MODIFIER_ELECTRIC_POWER);
+}
+
+static void HandlePartnerMoveLearningResult(struct Pokemon *partner, enum Move move, u16 result)
+{
+    if (!IsPlayerPartnerPikachu(partner))
+        return;
+
+    ClearPendingPartnerElectricMove();
+    if (!IsPartnerElectricPowerMove(move))
+        return;
+
+    if (result == move)
+    {
+        ApplyPartnerElectricPowerEvent(partner);
+    }
+    else if (result == MON_HAS_MAX_MOVES)
+    {
+        sPendingPartnerElectricBox = &partner->box;
+        sPendingPartnerElectricMove = move;
+    }
 }
 
 u8 GoldenYellow_GetPartnerPikachuMood(struct Pokemon *partner)
@@ -219,6 +310,42 @@ u8 GoldenYellow_SelectPartnerTalkReaction(struct Pokemon *partner)
     return GoldenYellow_SelectPartnerTalkReactionForState(friendship, mood);
 }
 
+bool8 GoldenYellow_TryGetPartnerPikachuOneShotReaction(struct Pokemon *partner, u8 *reaction)
+{
+    if (!IsPlayerPartnerPikachu(partner) || reaction == NULL)
+        return FALSE;
+
+    EnsurePartnerStateInitialized(partner);
+    switch (VarGet(VAR_GY_PARTNER_REACTION_MODIFIER))
+    {
+    case GY_PARTNER_MODIFIER_CAPTURE:
+        *reaction = GY_PARTNER_REACTION_CAPTURE_SUCCESS;
+        return TRUE;
+    case GY_PARTNER_MODIFIER_FISHING:
+        *reaction = GY_PARTNER_REACTION_FISHING;
+        return TRUE;
+    case GY_PARTNER_MODIFIER_RESERVED_3:
+        // Yellow maps modifier 3 to Emotion23. Its gameplay writer remains
+        // deliberately unimplemented until a canonical source trigger is found.
+        *reaction = GY_PARTNER_REACTION_BILL_CONFUSED;
+        return TRUE;
+    case GY_PARTNER_MODIFIER_THUNDER_STONE:
+        *reaction = GY_PARTNER_REACTION_THUNDER_STONE_REFUSAL;
+        return TRUE;
+    case GY_PARTNER_MODIFIER_ELECTRIC_POWER:
+        *reaction = GY_PARTNER_REACTION_ELECTRIC_POWER;
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
+void GoldenYellow_ConsumePartnerPikachuOneShotReaction(struct Pokemon *partner)
+{
+    if (IsPlayerPartnerPikachu(partner))
+        VarSet(VAR_GY_PARTNER_REACTION_MODIFIER, GY_PARTNER_MODIFIER_NONE);
+}
+
 void GoldenYellow_DebugSetPartnerPikachuState(struct Pokemon *partner, u8 friendship, u8 mood)
 {
     u32 friendshipValue = friendship;
@@ -250,8 +377,18 @@ void AdjustFriendship(struct Pokemon *mon, u8 event)
         ApplyPartnerMoodTarget(mon, PARTNER_MOOD_AFTER_LEVEL);
         break;
     case FRIENDSHIP_EVENT_LEARN_TMHM:
-        ApplyPartnerMoodTarget(mon, PARTNER_MOOD_AFTER_TMHM);
+    {
+        enum Move taughtMove = ItemIdToBattleMoveId(gSpecialVar_ItemId);
+
+        // TM learning reports friendship after the move has already been
+        // committed. Reassert Yellow's move-specific 0x85 mood after the
+        // generic P5 TM target so Thunderbolt/Thunder finish at source value.
+        if (IsPartnerElectricPowerMove(taughtMove))
+            ApplyPartnerElectricPowerEvent(mon);
+        else
+            ApplyPartnerMoodTarget(mon, PARTNER_MOOD_AFTER_TMHM);
         break;
+    }
     case FRIENDSHIP_EVENT_FAINT_SMALL:
         ApplyPartnerMoodTarget(mon, PARTNER_MOOD_AFTER_FAINT);
         break;
@@ -296,6 +433,15 @@ bool8 ExecuteTableBasedItemEffect(struct Pokemon *mon, enum Item item, u8 partyI
     u8 friendshipBefore = 0;
     bool8 hadNoEffect;
 
+    // Yellow's Partner refuses Thunder Stone evolution. Claim the actual item
+    // attempt here before the generic evolution-item effect can mutate or
+    // consume anything; the normal party callback will show its no-effect path.
+    if (isPartner && item == ITEM_THUNDER_STONE)
+    {
+        SetPartnerReactionModifier(mon, GY_PARTNER_MODIFIER_THUNDER_STONE);
+        return TRUE;
+    }
+
     if (isPartner && !skipPartnerState)
     {
         EnsurePartnerStateInitialized(mon);
@@ -322,21 +468,109 @@ bool8 ExecuteTableBasedItemEffect(struct Pokemon *mon, enum Item item, u8 partyI
     return hadNoEffect;
 }
 
+u16 GiveMoveToMon(struct Pokemon *mon, enum Move move)
+{
+    u16 result = GoldenYellow_GiveMoveToMonBase(mon, move);
+
+    HandlePartnerMoveLearningResult(mon, move, result);
+    return result;
+}
+
+u16 GiveMoveToBoxMon(struct BoxPokemon *boxMon, enum Move move)
+{
+    struct Pokemon *partner = FindPlayerPartnerPikachuByBox(boxMon);
+    u16 result = GoldenYellow_GiveMoveToBoxMonBase(boxMon, move);
+
+    HandlePartnerMoveLearningResult(partner, move, result);
+    return result;
+}
+
+enum Move MonTryLearningNewMoveAtLevel(struct Pokemon *mon, bool32 firstMove, u32 level)
+{
+    enum Move result = GoldenYellow_MonTryLearningNewMoveAtLevelBase(mon, firstMove, level);
+
+    HandlePartnerMoveLearningResult(mon, gMoveToLearn, result);
+    return result;
+}
+
+enum Move MonTryLearningNewMove(struct Pokemon *mon, bool8 firstMove)
+{
+    enum Move result = GoldenYellow_MonTryLearningNewMoveBase(mon, firstMove);
+
+    HandlePartnerMoveLearningResult(mon, gMoveToLearn, result);
+    return result;
+}
+
+void SetMonMoveSlot(struct Pokemon *mon, enum Move move, u8 slot)
+{
+    bool32 isPartner = IsPlayerPartnerPikachu(mon);
+    bool32 confirmsPending = isPartner
+                          && sPendingPartnerElectricBox == &mon->box
+                          && sPendingPartnerElectricMove == move;
+
+    GoldenYellow_SetMonMoveSlotBase(mon, move, slot);
+
+    if (confirmsPending && GetMonData(mon, MON_DATA_MOVE1 + slot) == move)
+        ApplyPartnerElectricPowerEvent(mon);
+
+    if (isPartner && sPendingPartnerElectricBox == &mon->box)
+        ClearPendingPartnerElectricMove();
+}
+
+void SetBoxMonData(struct BoxPokemon *boxMon, s32 field, const void *dataArg)
+{
+    struct Pokemon *partner = FindPlayerPartnerPikachuByBox(boxMon);
+    bool32 isMoveField = field >= MON_DATA_MOVE1 && field <= MON_DATA_MOVE4;
+    enum Move move = MOVE_NONE;
+    bool32 confirmsPending = FALSE;
+
+    if (partner != NULL && isMoveField && dataArg != NULL)
+    {
+        move = *(const u16 *)dataArg;
+        confirmsPending = sPendingPartnerElectricBox == boxMon
+                       && sPendingPartnerElectricMove == move;
+    }
+
+    GoldenYellow_SetBoxMonDataBase(boxMon, field, dataArg);
+
+    if (confirmsPending && GetBoxMonData(boxMon, field) == move)
+        ApplyPartnerElectricPowerEvent(partner);
+
+    if (partner != NULL && isMoveField && sPendingPartnerElectricBox == boxMon)
+        ClearPendingPartnerElectricMove();
+}
+
+void GoldenYellow_StartFishing(u8 rod)
+{
+    struct Pokemon *partner;
+
+    StartFishing(rod);
+    partner = FindPlayerPartnerPikachu();
+    if (partner != NULL)
+        SetPartnerReactionModifier(partner, GY_PARTNER_MODIFIER_FISHING);
+}
+
 void ZeroEnemyPartyMons(void)
 {
     // Standard battle teardown reaches this after gBattleOutcome is final. Keep
-    // Yellow's post-win mood boost out of link/frontier contexts, where the
-    // expansion already suppresses persistent friendship changes.
+    // Yellow state changes out of link/frontier contexts, matching P5's existing
+    // persistence rule.
     if (gMain.callback2 == BattleMainCB2
-     && gBattleOutcome == B_OUTCOME_WON
      && !(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_FRONTIER)))
     {
         struct Pokemon *partner = FindPlayerPartnerPikachu();
 
-        if (partner != NULL && GetMonData(partner, MON_DATA_HP) != 0)
+        if (partner != NULL)
         {
-            EnsurePartnerStateInitialized(partner);
-            EnsurePartnerMoodMinimum(partner, PARTNER_MOOD_AFTER_WIN);
+            if (gBattleOutcome == B_OUTCOME_CAUGHT)
+            {
+                SetPartnerReactionModifier(partner, GY_PARTNER_MODIFIER_CAPTURE);
+            }
+            else if (gBattleOutcome == B_OUTCOME_WON && GetMonData(partner, MON_DATA_HP) != 0)
+            {
+                EnsurePartnerStateInitialized(partner);
+                EnsurePartnerMoodMinimum(partner, PARTNER_MOOD_AFTER_WIN);
+            }
         }
     }
 
