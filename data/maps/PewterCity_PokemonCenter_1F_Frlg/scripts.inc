@@ -52,6 +52,7 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	callnative GoldenYellow_TryStartPewterPartnerSleepOnFollower
 	goto_if_eq VAR_RESULT, FALSE, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
 	callnative GoldenYellow_StartPewterPartnerSleepReaction
+	goto_if_eq VAR_RESULT, FALSE, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
 	callnative GoldenYellow_FacePlayerTowardFollower
 	msgbox PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep, MSGBOX_DEFAULT
 

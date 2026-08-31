@@ -11,10 +11,10 @@
 #define VAR_GY_PEWTER_PARTNER_SLEEP_STATE VAR_UNUSED_0x40FB
 #define VAR_GY_PEWTER_PARTNER_SLEEP_POS   VAR_UNUSED_0x40FC
 
-enum GoldenYellowPewterPartnerSleepStateFix1
+enum GoldenYellowPewterPartnerSleepStateFix2
 {
-    GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX1 = 0,
-    GY_PEWTER_PARTNER_SLEEP_ACTIVE_FIX1 = 1,
+    GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX2 = 0,
+    GY_PEWTER_PARTNER_SLEEP_ACTIVE_FIX2 = 1,
 };
 
 static bool32 IsInPewterPokemonCenter1F(void)
@@ -43,8 +43,36 @@ static void StorePewterPartnerSleepPosition(const struct ObjectEvent *follower)
 
 static void ClearPewterPartnerSleepState(void)
 {
-    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX1);
+    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX2);
     VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_POS, 0);
+}
+
+static void NormalizePewterPartnerFollower(struct ObjectEvent *follower, bool32 reanchorIfDistant)
+{
+    if (follower == NULL || !follower->active)
+        return;
+
+    ObjectEventClearHeldMovementIfActive(follower);
+    UnfreezeObjectEvent(follower);
+
+    if (reanchorIfDistant)
+    {
+        struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+        s16 deltaX = player->currentCoords.x - follower->currentCoords.x;
+        s16 deltaY = player->currentCoords.y - follower->currentCoords.y;
+
+        if (deltaX < 0)
+            deltaX = -deltaX;
+        if (deltaY < 0)
+            deltaY = -deltaY;
+
+        if (deltaX + deltaY > 1)
+            MoveObjectEventToMapCoords(follower, player->previousCoords.x, player->previousCoords.y);
+    }
+
+    SetTrainerMovementType(follower, MOVEMENT_TYPE_FOLLOW_PLAYER);
+    follower->invisible = FALSE;
+    gSprites[follower->spriteId].invisible = FALSE;
 }
 
 static void ParkPewterPartnerFollower(struct ObjectEvent *follower)
@@ -52,7 +80,11 @@ static void ParkPewterPartnerFollower(struct ObjectEvent *follower)
     if (follower == NULL || !follower->active)
         return;
 
+    // Always remove any in-flight follow step before the scene temporarily owns
+    // the object. This is essential for repeat interactions: the second sleep
+    // cycle must not inherit a held movement or frozen bit from the prior wake.
     ObjectEventClearHeldMovementIfActive(follower);
+    UnfreezeObjectEvent(follower);
     SetTrainerMovementType(follower, MOVEMENT_TYPE_NONE);
     follower->invisible = FALSE;
     gSprites[follower->spriteId].invisible = FALSE;
@@ -66,10 +98,8 @@ void GoldenYellow_TryStartPewterPartnerSleepOnFollower(struct ScriptContext *ctx
     (void)ctx;
     gSpecialVar_Result = FALSE;
 
-    // Partner Pikachu is an OW following-Pokemon object, not an NPC follower.
-    // Require the canonical starter and its actual OBJ_EVENT_ID_FOLLOWER object.
     if (!IsInPewterPokemonCenter1F()
-     || VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) != GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX1
+     || VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) != GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX2
      || !IsCanonicalFollowingPartner(partner)
      || GetMonData(partner, MON_DATA_HP) == 0
      || GetMonData(partner, MON_DATA_STATUS) != 0
@@ -77,13 +107,13 @@ void GoldenYellow_TryStartPewterPartnerSleepOnFollower(struct ScriptContext *ctx
      || !follower->active)
         return;
 
+    // Normalize first so a completed prior cycle can never leak follower
+    // movement/freeze state into this authored scene. Only then park and commit
+    // the saved sleep state.
+    NormalizePewterPartnerFollower(follower, FALSE);
     StorePewterPartnerSleepPosition(follower);
-    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_ACTIVE_FIX1);
-
-    // Keep the real follower object in place. MOVEMENT_TYPE_NONE prevents the
-    // normal follow callback and restores ordinary object collision while held
-    // script movements (the authored sleepy animation) remain available.
-    SetTrainerMovementType(follower, MOVEMENT_TYPE_NONE);
+    ParkPewterPartnerFollower(follower);
+    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_ACTIVE_FIX2);
     gSpecialVar_Result = TRUE;
 }
 
@@ -95,7 +125,7 @@ void GoldenYellow_RestorePewterPartnerSleepOnFollower(void)
     s16 x;
     s16 y;
 
-    if (VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) == GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX1)
+    if (VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) == GY_PEWTER_PARTNER_SLEEP_INACTIVE_FIX2)
         return;
 
     partner = GetPartnerAwareFollowingMon();
@@ -105,8 +135,6 @@ void GoldenYellow_RestorePewterPartnerSleepOnFollower(void)
         return;
     }
 
-    // Recreate the normal following-Pokemon object if field loading has not
-    // already done so, then convert that same object back into its parked state.
     follower = GetFollowerObject();
     if (follower == NULL)
     {
@@ -114,14 +142,16 @@ void GoldenYellow_RestorePewterPartnerSleepOnFollower(void)
         follower = GetFollowerObject();
     }
 
-    // Preserve the saved scene state if the field engine is temporarily hiding
-    // the follower during load; a later restore can safely retry.
+    // Field loading can transiently hide the follower. Preserve the saved state
+    // and allow the next transition/resume pass to retry instead of corrupting
+    // the scene.
     if (follower == NULL || !follower->active)
         return;
 
     packedPosition = VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_POS);
     if (packedPosition == 0)
     {
+        NormalizePewterPartnerFollower(follower, FALSE);
         ClearPewterPartnerSleepState();
         return;
     }
@@ -130,37 +160,29 @@ void GoldenYellow_RestorePewterPartnerSleepOnFollower(void)
     y = packedPosition >> 8;
 
     ObjectEventClearHeldMovementIfActive(follower);
+    UnfreezeObjectEvent(follower);
     MoveObjectEventToMapCoords(follower, x, y);
     ObjectEventTurn(follower, DIR_SOUTH);
     ParkPewterPartnerFollower(follower);
+}
+
+void GoldenYellow_CancelPewterPartnerSleepOnFollower(void)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+
+    // Idempotent rollback/cleanup. It is safe to call after a failed reaction
+    // start, invalid pending wake, or a partially completed scene.
+    NormalizePewterPartnerFollower(follower, FALSE);
+    ClearPewterPartnerSleepState();
 }
 
 void GoldenYellow_CompletePewterPartnerWakeOnFollower(void)
 {
     struct ObjectEvent *follower = GetFollowerObject();
 
-    if (follower != NULL && follower->active)
-    {
-        struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
-        s16 deltaX = player->currentCoords.x - follower->currentCoords.x;
-        s16 deltaY = player->currentCoords.y - follower->currentCoords.y;
-
-        if (deltaX < 0)
-            deltaX = -deltaX;
-        if (deltaY < 0)
-            deltaY = -deltaY;
-
-        ObjectEventClearHeldMovementIfActive(follower);
-
-        // Item/Poke Flute wake can occur across the room. Re-anchor the same
-        // following-Pokemon object behind the player before restoring follow.
-        if (deltaX + deltaY > 1)
-            MoveObjectEventToMapCoords(follower, player->previousCoords.x, player->previousCoords.y);
-
-        SetTrainerMovementType(follower, MOVEMENT_TYPE_FOLLOW_PLAYER);
-        follower->invisible = FALSE;
-        gSprites[follower->spriteId].invisible = FALSE;
-    }
-
+    // Wake completion is the single normal scene-end path. Normalize every
+    // follower invariant before clearing persistent state so the next Jigglypuff
+    // interaction begins from a clean FOLLOW_PLAYER object.
+    NormalizePewterPartnerFollower(follower, TRUE);
     ClearPewterPartnerSleepState();
 }

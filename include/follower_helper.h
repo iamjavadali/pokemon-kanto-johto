@@ -128,9 +128,4 @@ enum ConditionalMessage
 extern const struct FollowerMsgInfoExtended gFollowerConditionalMessages[COND_MSG_COUNT];
 extern const struct FollowerMessagePool gFollowerBasicMessages[FOLLOWER_EMOTION_LENGTH];
 
-// event_object_movement.c remains the expansion fallback. Golden Yellow can
-// provide a strong specialization for the canonical Partner without changing
-// ordinary follower behavior or duplicating the movement engine implementation.
-bool32 IsFollowerVisible(void) __attribute__((weak));
-
 #endif //GUARD_FOLLOWER_HELPER_H

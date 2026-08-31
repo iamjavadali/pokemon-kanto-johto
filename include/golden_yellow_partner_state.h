@@ -27,11 +27,13 @@ void GoldenYellow_RestorePewterPartnerSleep(void);
 void GoldenYellow_RequestPewterPartnerWake(void);
 void GoldenYellow_CompletePewterPartnerWake(void);
 
-// P7A Fix1 lifecycle entry points. Partner Pikachu uses the expansion's
-// OBJ_EVENT_ID_FOLLOWER / MOVEMENT_TYPE_FOLLOW_PLAYER system, not follower_npc.
-// These helpers own parking, save restoration, and wake cleanup on that object.
+// P7A following-Pokemon lifecycle entry points. Partner Pikachu remains the
+// expansion's OBJ_EVENT_ID_FOLLOWER object; these helpers temporarily park that
+// object for the authored sleep scene and always normalize it before returning
+// control to MOVEMENT_TYPE_FOLLOW_PLAYER.
 void GoldenYellow_TryStartPewterPartnerSleepOnFollower(struct ScriptContext *ctx);
 void GoldenYellow_RestorePewterPartnerSleepOnFollower(void);
+void GoldenYellow_CancelPewterPartnerSleepOnFollower(void);
 void GoldenYellow_CompletePewterPartnerWakeOnFollower(void);
 
 // Deterministic validation helper for P5's 7x5 Yellow reaction matrix. This is

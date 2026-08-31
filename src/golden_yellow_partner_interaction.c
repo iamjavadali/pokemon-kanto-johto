@@ -32,14 +32,21 @@ void GoldenYellow_RestorePewterPartnerSleepNative(struct ScriptContext *ctx)
 void GoldenYellow_StartPewterPartnerSleepReaction(struct ScriptContext *ctx)
 {
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    gSpecialVar_Result = FALSE;
 
-    // Emotion 11 is Yellow's generic sleeping portrait program. The authored
-    // Pewter wake keeps Emotion 26, so falling asleep and waking remain distinct.
+    // The saved sleep state is prepared immediately before this call. Commit the
+    // authored scene only if the P3 reaction task successfully takes ownership;
+    // otherwise normalize the follower and roll the scene state back to idle so
+    // a later Jigglypuff interaction can safely retry.
     if (!GoldenYellow_StartPartnerPikachuReaction(GY_PARTNER_REACTION_SLEEPING))
+    {
+        GoldenYellow_CancelPewterPartnerSleepOnFollower();
         return;
+    }
 
     SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
     ctx->waitAfterCallNative = TRUE;
+    gSpecialVar_Result = TRUE;
 }
 
 static bool32 GoldenYellow_StartPewterPartnerWake(struct ScriptContext *ctx, struct Pokemon *partner)
@@ -50,7 +57,11 @@ static bool32 GoldenYellow_StartPewterPartnerWake(struct ScriptContext *ctx, str
     if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(GY_PARTNER_REACTION_PEWTER_JIGGLYPUFF))
         return FALSE;
 
-    GoldenYellow_RequestPewterPartnerWake();
+    // Direct A-button wake keeps the existing ACTIVE state until the reaction
+    // finishes. Item/Poke Flute wake already enters WAKE_PENDING before this
+    // function is reached through the map-resume path. Do not promote direct
+    // field talk to WAKE_PENDING, otherwise the on-frame script becomes a second
+    // owner of the same wake transition.
     SetupNativeScript(ctx, GoldenYellow_WaitForPewterPartnerWake);
     ctx->waitAfterCallNative = TRUE;
     return TRUE;
@@ -62,10 +73,14 @@ void GoldenYellow_ResumePendingPewterPartnerWake(struct ScriptContext *ctx)
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
 
-    if (!GoldenYellow_IsPewterPartnerWakePending()
-     || partner == NULL
-     || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER)
+    if (!GoldenYellow_IsPewterPartnerWakePending())
         return;
+
+    if (partner == NULL || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER)
+    {
+        GoldenYellow_CancelPewterPartnerSleepOnFollower();
+        return;
+    }
 
     GoldenYellow_StartPewterPartnerWake(ctx, partner);
 }
