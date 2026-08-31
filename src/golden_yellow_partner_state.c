@@ -4,6 +4,7 @@
 #include "event_data.h"
 #include "golden_yellow_partner_state.h"
 #include "item.h"
+#include "item_menu.h"
 #include "main.h"
 #include "overworld.h"
 #include "pokemon.h"
@@ -378,7 +379,7 @@ void AdjustFriendship(struct Pokemon *mon, u8 event)
         break;
     case FRIENDSHIP_EVENT_LEARN_TMHM:
     {
-        enum Move taughtMove = ItemIdToBattleMoveId(gSpecialVar_ItemId);
+        enum Move taughtMove = GetItemTMHMMoveId(gSpecialVar_ItemId);
 
         // TM learning reports friendship after the move has already been
         // committed. Reassert Yellow's move-specific 0x85 mood after the
