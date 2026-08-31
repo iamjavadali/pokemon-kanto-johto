@@ -51,13 +51,9 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	delay 16
 	callnative GoldenYellow_TryStartPewterPartnerSleepOnFollower
 	goto_if_eq VAR_RESULT, FALSE, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
-	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_WEAK
-	waitmoncry
-	callnative GoldenYellow_ShowFollowerSleepEmote, waitstate=1
+	callnative GoldenYellow_StartPewterPartnerSleepReaction
 	callnative GoldenYellow_FacePlayerTowardFollower
-	delay 16
+	msgbox PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep, MSGBOX_DEFAULT
 
 PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish::
 	release
@@ -193,8 +189,13 @@ PewterCity_PokemonCenter_1F_Text_TeamRocketMtMoonImOnPhone::
 PewterCity_PokemonCenter_1F_Text_Jigglypuff::
 	.string "JIGGLYPUFF: Puu pupuu!$"
 
+PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep::
+	.string "PIKACHU looks fast asleep…\n"
+	.string "Better wake it up.$"
+
 PewterCity_PokemonCenter_1F_Text_PikachuContentAsleep::
-	.string "It looks very content asleep.$"
+	.string "Your PIKACHU looks very content\n"
+	.string "asleep.$"
 
 PewterCity_PokemonCenter_1F_Text_NurseDontLeaveSleepingPikachu::
 	.string "Wait! Your PIKACHU is still fast\n"

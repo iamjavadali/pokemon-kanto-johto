@@ -29,6 +29,19 @@ void GoldenYellow_RestorePewterPartnerSleepNative(struct ScriptContext *ctx)
     GoldenYellow_RestorePewterPartnerSleepOnFollower();
 }
 
+void GoldenYellow_StartPewterPartnerSleepReaction(struct ScriptContext *ctx)
+{
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    // Emotion 11 is Yellow's generic sleeping portrait program. The authored
+    // Pewter wake keeps Emotion 26, so falling asleep and waking remain distinct.
+    if (!GoldenYellow_StartPartnerPikachuReaction(GY_PARTNER_REACTION_SLEEPING))
+        return;
+
+    SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+    ctx->waitAfterCallNative = TRUE;
+}
+
 static bool32 GoldenYellow_StartPewterPartnerWake(struct ScriptContext *ctx, struct Pokemon *partner)
 {
     if (!GoldenYellow_IsPewterPartnerSleepActive(partner))
