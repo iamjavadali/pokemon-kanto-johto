@@ -252,3 +252,10 @@ const struct EggData gEggDatas[EGG_ID_COUNT] =
 {
 #include "egg_data.h"
 };
+
+// pokemon.c is the expansion's owner of the native relationship/item/battle
+// functions. Enable P5's private symbol aliases only after all species data has
+// been declared so Golden Yellow can wrap those existing functions cleanly.
+#define GOLDEN_YELLOW_PARTNER_POKEMON_IMPLEMENTATION
+#include "golden_yellow_partner_state.h"
+#undef GOLDEN_YELLOW_PARTNER_POKEMON_IMPLEMENTATION

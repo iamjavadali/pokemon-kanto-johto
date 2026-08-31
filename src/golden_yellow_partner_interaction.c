@@ -2,18 +2,11 @@
 #include "event_data.h"
 #include "event_object_movement.h"
 #include "golden_yellow_partner_reaction.h"
+#include "golden_yellow_partner_state.h"
 #include "pokemon.h"
 #include "script.h"
 #include "constants/golden_yellow_partner_reactions.h"
 #include "constants/species.h"
-
-// P4 establishes the normal field-interaction dispatch only. P5 replaces this
-// selector with Yellow's exact friendship + mood matrix without changing the
-// A-button hook or the accepted P3 reaction director.
-static u8 SelectPartnerTalkReaction(void)
-{
-    return GY_PARTNER_REACTION_NEUTRAL;
-}
 
 static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
 {
@@ -44,7 +37,7 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
     // a contradictory generic follower message in that case.
     gSpecialVar_Result = TRUE;
 
-    if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(SelectPartnerTalkReaction()))
+    if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(GoldenYellow_SelectPartnerTalkReaction(partner)))
         return;
 
     // Keep the existing follower script locked until P3 has finished its full
