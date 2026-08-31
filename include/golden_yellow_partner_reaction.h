@@ -13,6 +13,7 @@ bool32 GoldenYellow_DebugStartPikachuPortraitBrowser(void);
 // P3 reaction director. Reaction IDs preserve Yellow Emotion 0-32; normal
 // A-button selection and story precedence are intentionally integrated later.
 bool32 GoldenYellow_StartPartnerPikachuReaction(u8 reactionId);
+bool32 GoldenYellow_StartPartnerPikachuFieldTalkReaction(u8 reactionId);
 bool32 GoldenYellow_IsPartnerPikachuReactionActive(void);
 bool32 GoldenYellow_DebugStartPikachuReactionBrowser(void);
 

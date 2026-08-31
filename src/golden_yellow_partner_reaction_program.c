@@ -19,10 +19,12 @@
 #define PARTNER_REACTION_NO_FIELD_EFFECT (-1)
 #define PARTNER_REACTION_TURN_AWAY_MOVEMENT 0xFE
 #define PARTNER_REACTION_POSE_HOLD_FRAMES 6
+#define PARTNER_REACTION_FIELD_TALK_POSE_HOLD_FRAMES 24
 
 enum GoldenYellowPartnerReactionTaskMode
 {
     GY_PARTNER_REACTION_MODE_ONESHOT,
+    GY_PARTNER_REACTION_MODE_FIELD_TALK,
     GY_PARTNER_REACTION_MODE_DEBUG_BROWSER,
 };
 
@@ -268,6 +270,11 @@ static bool32 StartPartnerReactionTask(u8 reactionId, enum GoldenYellowPartnerRe
 bool32 GoldenYellow_StartPartnerPikachuReaction(u8 reactionId)
 {
     return StartPartnerReactionTask(reactionId, GY_PARTNER_REACTION_MODE_ONESHOT);
+}
+
+bool32 GoldenYellow_StartPartnerPikachuFieldTalkReaction(u8 reactionId)
+{
+    return StartPartnerReactionTask(reactionId, GY_PARTNER_REACTION_MODE_FIELD_TALK);
 }
 
 bool32 GoldenYellow_IsPartnerPikachuReactionActive(void)
@@ -789,7 +796,9 @@ static bool32 UpdatePartnerReactionPose(u8 taskId)
         UnfreezeObjectEvent(follower);
         ObjectEventTurn(follower, poseDirection);
         task->rMovementStep = 1;
-        task->rWaitTimer = PARTNER_REACTION_POSE_HOLD_FRAMES;
+        task->rWaitTimer = task->rMode == GY_PARTNER_REACTION_MODE_FIELD_TALK
+                         ? PARTNER_REACTION_FIELD_TALK_POSE_HOLD_FRAMES
+                         : PARTNER_REACTION_POSE_HOLD_FRAMES;
         return FALSE;
     }
 

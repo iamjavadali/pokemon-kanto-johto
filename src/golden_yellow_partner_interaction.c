@@ -44,12 +44,13 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
     // a contradictory generic follower message in that case.
     gSpecialVar_Result = TRUE;
 
-    if (!GoldenYellow_StartPartnerPikachuReaction(SelectPartnerTalkReaction()))
+    if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(SelectPartnerTalkReaction()))
         return;
 
     // Keep the existing follower script locked until P3 has finished its full
-    // cry/emote/movement/pose/portrait lifecycle. Normal gameplay uses P3's
-    // automatic one-shot mode; the debug-only manual portrait gate is not used.
+    // cry/emote/movement/pose/portrait lifecycle. FIELD_TALK keeps P3's
+    // automatic portrait flow while adding a short overworld-pose beat before
+    // the portrait appears; the debug-only manual portrait gate is not used.
     SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
     ctx->waitAfterCallNative = TRUE;
 }
