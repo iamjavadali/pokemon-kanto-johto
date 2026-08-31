@@ -49,7 +49,7 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	playbgm MUS_POKE_CENTER, 1
 	closemessage
 	delay 16
-	callnative GoldenYellow_TryStartPewterPartnerSleep
+	callnative GoldenYellow_TryStartPewterPartnerSleepOnFollower
 	goto_if_eq VAR_RESULT, FALSE, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
 	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
 	waitmovement OBJ_EVENT_ID_FOLLOWER

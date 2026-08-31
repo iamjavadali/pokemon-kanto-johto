@@ -27,6 +27,13 @@ void GoldenYellow_RestorePewterPartnerSleep(void);
 void GoldenYellow_RequestPewterPartnerWake(void);
 void GoldenYellow_CompletePewterPartnerWake(void);
 
+// P7A Fix1 lifecycle entry points. Partner Pikachu uses the expansion's
+// OBJ_EVENT_ID_FOLLOWER / MOVEMENT_TYPE_FOLLOW_PLAYER system, not follower_npc.
+// These helpers own parking, save restoration, and wake cleanup on that object.
+void GoldenYellow_TryStartPewterPartnerSleepOnFollower(struct ScriptContext *ctx);
+void GoldenYellow_RestorePewterPartnerSleepOnFollower(void);
+void GoldenYellow_CompletePewterPartnerWakeOnFollower(void);
+
 // Deterministic validation helper for P5's 7x5 Yellow reaction matrix. This is
 // intentionally not wired into normal gameplay or the story checkpoint system.
 void GoldenYellow_DebugSetPartnerPikachuState(struct Pokemon *partner, u8 friendship, u8 mood);
