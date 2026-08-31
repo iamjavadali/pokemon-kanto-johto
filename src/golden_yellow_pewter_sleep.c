@@ -80,11 +80,11 @@ static void ParkPewterPartnerFollower(struct ObjectEvent *follower)
     if (follower == NULL || !follower->active)
         return;
 
-    // Always remove any in-flight follow step before the scene temporarily owns
-    // the object. This is essential for repeat interactions: the second sleep
-    // cycle must not inherit a held movement or frozen bit from the prior wake.
+    // Match the previously proven P7A sleep-start behavior. Clear only an
+    // ordinary held follow step, then park the existing follower object. Do not
+    // unfreeze/reset it through FOLLOW_PLAYER immediately before P3 takes over:
+    // the reaction director owns the subsequent ScriptMovement choreography.
     ObjectEventClearHeldMovementIfActive(follower);
-    UnfreezeObjectEvent(follower);
     SetTrainerMovementType(follower, MOVEMENT_TYPE_NONE);
     follower->invisible = FALSE;
     gSprites[follower->spriteId].invisible = FALSE;
@@ -107,13 +107,13 @@ void GoldenYellow_TryStartPewterPartnerSleepOnFollower(struct ScriptContext *ctx
      || !follower->active)
         return;
 
-    // Normalize first so a completed prior cycle can never leak follower
-    // movement/freeze state into this authored scene. Only then park and commit
-    // the saved sleep state.
-    NormalizePewterPartnerFollower(follower, FALSE);
+    // Preserve the proven startup order: save the current follower position,
+    // commit the authored sleep state, then park that same follower object.
+    // Transactional rollback remains in GoldenYellow_StartPewterPartnerSleepReaction
+    // if the P3 reaction task cannot take ownership.
     StorePewterPartnerSleepPosition(follower);
-    ParkPewterPartnerFollower(follower);
     VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_ACTIVE_FIX2);
+    ParkPewterPartnerFollower(follower);
     gSpecialVar_Result = TRUE;
 }
 
