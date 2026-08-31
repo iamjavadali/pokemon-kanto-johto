@@ -10,7 +10,7 @@
 
 static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
 {
-    return GoldenYellow_IsPartnerPikachuReactionActive();
+    return !GoldenYellow_IsPartnerPikachuReactionActive();
 }
 
 void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
