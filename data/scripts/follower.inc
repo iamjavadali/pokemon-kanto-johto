@@ -13,10 +13,16 @@ gText_WantsToFly::
 EventScript_Follower::
 	lock
 	bufferlivemonnickname STR_VAR_1
+	callnative GoldenYellow_TryPartnerPikachuFieldInteraction
+	goto_if_eq VAR_RESULT, TRUE, EventScript_GoldenYellowPartnerEnd
 	playfirstmoncry
 	getfolloweraction
 EventScript_FollowerEnd::
 	waitfieldeffect FLDEFF_EMOTE
+	release
+	end
+
+EventScript_GoldenYellowPartnerEnd::
 	release
 	end
 

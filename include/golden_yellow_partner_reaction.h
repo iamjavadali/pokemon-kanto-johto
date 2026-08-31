@@ -16,6 +16,11 @@ bool32 GoldenYellow_StartPartnerPikachuReaction(u8 reactionId);
 bool32 GoldenYellow_IsPartnerPikachuReactionActive(void);
 bool32 GoldenYellow_DebugStartPikachuReactionBrowser(void);
 
+// P4 field-interaction adapter. EventScript_Follower calls this before the
+// expansion's generic follower cry/action path. VAR_RESULT is TRUE only when
+// the interaction belongs to canonical Partner Pikachu.
+void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx);
+
 // Internal bridge used by the P3 director to reuse the accepted P2 renderer
 // without attaching a second native wait to the active field script.
 bool32 GoldenYellow_StartPartnerPikachuPortraitForReaction(u8 programId);
