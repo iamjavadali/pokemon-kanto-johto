@@ -13,6 +13,52 @@ static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
     return !GoldenYellow_IsPartnerPikachuReactionActive();
 }
 
+static bool8 GoldenYellow_WaitForPewterPartnerWake(void)
+{
+    if (GoldenYellow_IsPartnerPikachuReactionActive())
+        return FALSE;
+
+    GoldenYellow_CompletePewterPartnerWake();
+    return TRUE;
+}
+
+void GoldenYellow_RestorePewterPartnerSleepNative(struct ScriptContext *ctx)
+{
+    (void)ctx;
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    GoldenYellow_RestorePewterPartnerSleep();
+}
+
+static bool32 GoldenYellow_StartPewterPartnerWake(struct ScriptContext *ctx, struct Pokemon *partner)
+{
+    if (!GoldenYellow_IsPewterPartnerSleepActive(partner))
+        return FALSE;
+
+    if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(GY_PARTNER_REACTION_PEWTER_JIGGLYPUFF))
+        return FALSE;
+
+    // The authored Pewter reaction owns this interaction. P6 remains pending
+    // and is deliberately not consumed while the story sleep state has priority.
+    GoldenYellow_RequestPewterPartnerWake();
+    SetupNativeScript(ctx, GoldenYellow_WaitForPewterPartnerWake);
+    ctx->waitAfterCallNative = TRUE;
+    return TRUE;
+}
+
+void GoldenYellow_ResumePendingPewterPartnerWake(struct ScriptContext *ctx)
+{
+    struct Pokemon *partner = GetPartnerAwareFollowingMon();
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    if (!GoldenYellow_IsPewterPartnerWakePending()
+     || partner == NULL
+     || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER)
+        return;
+
+    GoldenYellow_StartPewterPartnerWake(ctx, partner);
+}
+
 void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
 {
     struct Pokemon *partner = GetPartnerAwareFollowingMon();
@@ -39,9 +85,18 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
     // a contradictory generic follower message in that case.
     gSpecialVar_Result = TRUE;
 
+    // P7 authored story state has priority over P6/P5. Waking Partner Pikachu
+    // never consumes a pending one-shot modifier; it becomes eligible on the
+    // next normal interaction after the Pewter scene has completed.
+    if (GoldenYellow_IsPewterPartnerSleepActive(partner))
+    {
+        GoldenYellow_StartPewterPartnerWake(ctx, partner);
+        return;
+    }
+
     // P6 one-shot gameplay modifiers sit immediately above P5's normal
-    // friendship/mood matrix. P7 authored/status/area reactions can layer above
-    // this resolver later without changing either subsystem.
+    // friendship/mood matrix. Later authored/status/area reactions can layer
+    // above this resolver without changing either subsystem.
     hasOneShotReaction = GoldenYellow_TryGetPartnerPikachuOneShotReaction(partner, &reaction);
     if (!hasOneShotReaction)
         reaction = GoldenYellow_SelectPartnerTalkReaction(partner);

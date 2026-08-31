@@ -1,16 +1,34 @@
 PewterCity_PokemonCenter_1F_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, PewterCity_PokemonCenter_1F_OnTransition
 	map_script MAP_SCRIPT_ON_RESUME, CableClub_OnResume
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, PewterCity_PokemonCenter_1F_OnFrame
 	.byte 0
 
 PewterCity_PokemonCenter_1F_OnTransition::
 	setrespawn HEAL_LOCATION_PEWTER_CITY
+	callnative GoldenYellow_RestorePewterPartnerSleepNative
+	end
+
+PewterCity_PokemonCenter_1F_OnFrame:
+	map_script_2 VAR_UNUSED_0x40FB, 2, PewterCity_PokemonCenter_1F_EventScript_PartnerWakePending
+	.2byte 0
+
+PewterCity_PokemonCenter_1F_EventScript_PartnerWakePending::
+	lockall
+	callnative GoldenYellow_ResumePendingPewterPartnerWake
+	releaseall
 	end
 
 PewterCity_PokemonCenter_1F_EventScript_Nurse::
 	lock
 	faceplayer
+	goto_if_ne VAR_UNUSED_0x40FB, 0, PewterCity_PokemonCenter_1F_EventScript_NursePartnerSleeping
 	call EventScript_PkmnCenterNurse_Frlg
+	release
+	end
+
+PewterCity_PokemonCenter_1F_EventScript_NursePartnerSleeping::
+	msgbox PewterCity_PokemonCenter_1F_Text_PikachuContentAsleep, MSGBOX_DEFAULT
 	release
 	end
 
@@ -25,52 +43,106 @@ PewterCity_PokemonCenter_1F_EventScript_Jigglypuff::
 	playbgm MUS_RG_JIGGLYPUFF, 0
 	message PewterCity_PokemonCenter_1F_Text_Jigglypuff
 	waitmessage
-	delay 455
+	applymovement LOCALID_PEWTER_JIGGLYPUFF, PewterCity_PokemonCenter_1F_Movement_JigglypuffSing
+	waitmovement LOCALID_PEWTER_JIGGLYPUFF
+	delay 48
 	playbgm MUS_POKE_CENTER, 1
 	closemessage
 	delay 16
-	goto_if_unset FLAG_PARTNER_PIKACHU_FOLLOWING, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
-	setvar VAR_0x8004, 0
-	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
-	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
-	setvar VAR_0x8004, 1
-	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
-	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
-	setvar VAR_0x8004, 2
-	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
-	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
-	setvar VAR_0x8004, 3
-	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
-	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
-	setvar VAR_0x8004, 4
-	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
-	goto_if_eq VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy
-	setvar VAR_0x8004, 5
-	specialvar VAR_RESULT, ScriptGetPartyMonSpecies
-	goto_if_ne VAR_RESULT, SPECIES_PIKACHU_STARTER, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
-
-PewterCity_PokemonCenter_1F_EventScript_PartnerSleepy::
+	callnative GoldenYellow_TryStartPewterPartnerSleep
+	goto_if_eq VAR_RESULT, FALSE, PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish
 	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerSleepy
 	waitmovement OBJ_EVENT_ID_FOLLOWER
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_WEAK
 	waitmoncry
 	callnative GoldenYellow_ShowFollowerSleepEmote, waitstate=1
 	callnative GoldenYellow_FacePlayerTowardFollower
-	delay 8
-	message PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep
-	waitmessage
-	waitbuttonpress
-	closemessage
-	delay 16
-	applymovement OBJ_EVENT_ID_FOLLOWER, PewterCity_PokemonCenter_1F_Movement_PartnerWake
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
-	waitmoncry
 	delay 16
 
 PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish::
 	release
 	end
+
+PewterCity_PokemonCenter_1F_EventScript_BlockFrontExit::
+	lockall
+	applymovement LOCALID_PEWTER_NURSE, PewterCity_PokemonCenter_1F_Movement_NurseStopPlayer
+	waitmovement LOCALID_PEWTER_NURSE
+	msgbox PewterCity_PokemonCenter_1F_Text_NurseDontLeaveSleepingPikachu, MSGBOX_DEFAULT
+	closemessage
+	applymovement LOCALID_PLAYER, PewterCity_PokemonCenter_1F_Movement_PlayerBackFromFrontExit
+	waitmovement 0
+	releaseall
+	end
+
+PewterCity_PokemonCenter_1F_EventScript_BlockUpstairs::
+	lockall
+	applymovement LOCALID_PEWTER_NURSE, PewterCity_PokemonCenter_1F_Movement_NurseStopPlayer
+	waitmovement LOCALID_PEWTER_NURSE
+	msgbox PewterCity_PokemonCenter_1F_Text_NurseDontLeaveSleepingPikachu, MSGBOX_DEFAULT
+	closemessage
+	applymovement LOCALID_PLAYER, PewterCity_PokemonCenter_1F_Movement_PlayerBackFromUpstairs
+	waitmovement 0
+	releaseall
+	end
+
+PewterCity_PokemonCenter_1F_Movement_JigglypuffSing:
+	face_left
+	delay_16
+	face_up
+	delay_16
+	face_right
+	delay_16
+	face_down
+	delay_16
+	face_left
+	delay_16
+	face_up
+	delay_16
+	face_right
+	delay_16
+	face_down
+	delay_16
+	face_left
+	delay_16
+	face_up
+	delay_16
+	face_right
+	delay_16
+	face_down
+	delay_16
+	face_left
+	delay_16
+	face_up
+	delay_16
+	face_right
+	delay_16
+	face_down
+	delay_16
+	face_left
+	delay_16
+	face_up
+	delay_16
+	face_right
+	delay_16
+	face_down
+	delay_16
+	face_left
+	delay_16
+	face_up
+	delay_16
+	face_right
+	delay_16
+	face_down
+	delay_16
+	face_left
+	delay_16
+	face_up
+	delay_16
+	face_right
+	delay_16
+	face_down
+	delay_16
+	step_end
 
 PewterCity_PokemonCenter_1F_Movement_PartnerSleepy:
 	face_down
@@ -84,18 +156,17 @@ PewterCity_PokemonCenter_1F_Movement_PartnerSleepy:
 	delay_16
 	step_end
 
-PewterCity_PokemonCenter_1F_Movement_PartnerWake:
-	face_away_player
-	lock_facing_direction
-	jump_in_place_down
-	unlock_facing_direction
-	face_player
-	delay_8
-	jump_in_place_up
-	jump_in_place_down
-	jump_in_place_left
-	jump_in_place_right
-	face_player
+PewterCity_PokemonCenter_1F_Movement_NurseStopPlayer:
+	emote_exclamation_mark
+	face_down
+	step_end
+
+PewterCity_PokemonCenter_1F_Movement_PlayerBackFromFrontExit:
+	walk_up
+	step_end
+
+PewterCity_PokemonCenter_1F_Movement_PlayerBackFromUpstairs:
+	walk_right
 	step_end
 
 PewterCity_PokemonCenter_1F_EventScript_Youngster::
@@ -122,9 +193,13 @@ PewterCity_PokemonCenter_1F_Text_TeamRocketMtMoonImOnPhone::
 PewterCity_PokemonCenter_1F_Text_Jigglypuff::
 	.string "JIGGLYPUFF: Puu pupuu!$"
 
-PewterCity_PokemonCenter_1F_Text_PikachuFastAsleep::
-	.string "PIKACHU looks fast asleep…\p"
-	.string "Better wake it up.$"
+PewterCity_PokemonCenter_1F_Text_PikachuContentAsleep::
+	.string "It looks very content asleep.$"
+
+PewterCity_PokemonCenter_1F_Text_NurseDontLeaveSleepingPikachu::
+	.string "Wait! Your PIKACHU is still fast\n"
+	.string "asleep.\p"
+	.string "You shouldn't leave it behind.$"
 
 PewterCity_PokemonCenter_1F_Text_WhenJiggylypuffSingsMonsGetDrowsy::
 	.string "Yawn!\p"

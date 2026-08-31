@@ -4,6 +4,8 @@
 #include "global.h"
 #include "pokemon.h"
 
+struct ScriptContext;
+
 // P5 keeps pokeemerald-expansion's MON_DATA_FRIENDSHIP as the single long-term
 // relationship value and layers Yellow's short-term Partner mood on top.
 u8 GoldenYellow_GetPartnerPikachuMood(struct Pokemon *partner);
@@ -14,6 +16,16 @@ u8 GoldenYellow_SelectPartnerTalkReactionForState(u8 friendship, u8 mood);
 // The modifier is only consumed after its field-talk reaction successfully starts.
 bool8 GoldenYellow_TryGetPartnerPikachuOneShotReaction(struct Pokemon *partner, u8 *reaction);
 void GoldenYellow_ConsumePartnerPikachuOneShotReaction(struct Pokemon *partner);
+
+// P7A models the Pewter Jigglypuff sequence as a saved authored overworld state.
+// It never writes battle sleep into MON_DATA_STATUS: UI and sleep-curing items
+// resolve through the scene state while the canonical Partner remains parked.
+bool8 GoldenYellow_IsPewterPartnerSleepActive(struct Pokemon *partner);
+bool8 GoldenYellow_IsPewterPartnerWakePending(void);
+void GoldenYellow_TryStartPewterPartnerSleep(struct ScriptContext *ctx);
+void GoldenYellow_RestorePewterPartnerSleep(void);
+void GoldenYellow_RequestPewterPartnerWake(void);
+void GoldenYellow_CompletePewterPartnerWake(void);
 
 // Deterministic validation helper for P5's 7x5 Yellow reaction matrix. This is
 // intentionally not wired into normal gameplay or the story checkpoint system.

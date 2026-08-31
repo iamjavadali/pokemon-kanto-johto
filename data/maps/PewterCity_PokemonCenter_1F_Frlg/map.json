@@ -17,6 +17,7 @@
   "connections": null,
   "object_events": [
     {
+      "local_id": "LOCALID_PEWTER_JIGGLYPUFF",
       "type": "object",
       "graphics_id": "OBJ_EVENT_GFX_JIGGLYPUFF",
       "x": 2,
@@ -146,6 +147,43 @@
       "dest_warp_id": "0"
     }
   ],
-  "coord_events": [],
+  "coord_events": [
+    {
+      "type": "trigger",
+      "x": 6,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_UNUSED_0x40FB",
+      "var_value": "1",
+      "script": "PewterCity_PokemonCenter_1F_EventScript_BlockFrontExit"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_UNUSED_0x40FB",
+      "var_value": "1",
+      "script": "PewterCity_PokemonCenter_1F_EventScript_BlockFrontExit"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 8,
+      "elevation": 0,
+      "var": "VAR_UNUSED_0x40FB",
+      "var_value": "1",
+      "script": "PewterCity_PokemonCenter_1F_EventScript_BlockFrontExit"
+    },
+    {
+      "type": "trigger",
+      "x": 1,
+      "y": 6,
+      "elevation": 4,
+      "var": "VAR_UNUSED_0x40FB",
+      "var_value": "1",
+      "script": "PewterCity_PokemonCenter_1F_EventScript_BlockUpstairs"
+    }
+  ],
   "bg_events": []
 }

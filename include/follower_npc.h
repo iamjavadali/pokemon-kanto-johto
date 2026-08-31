@@ -107,10 +107,10 @@ bool32 PlayerHasFollowerNPC(void);
 void NPCFollow(struct ObjectEvent *npc, u32 state, bool32 ignoreScriptActive);
 void CreateFollowerNPCAvatar(void);
 void FollowerNPC_HandleSprite(void);
-enum Direction DetermineFollowerNPCDirection(struct ObjectEvent *player, struct ObjectEvent *follower);
+enum Direction DetermineFollowerNPCDirection(struct ObjectEvent *player, struct ObjectEvent *follower) __attribute__((weak));
 u32 GetFollowerNPCObjectId(void);
 bool32 CheckFollowerNPCFlag(u32 flag);
-bool32 FollowerNPC_IsCollisionExempt(struct ObjectEvent *obstacle, struct ObjectEvent *collider);
+bool32 FollowerNPC_IsCollisionExempt(struct ObjectEvent *obstacle, struct ObjectEvent *collider) __attribute__((weak));
 void HideNPCFollower(void);
 void FollowerNPC_WarpSetEnd(void);
 

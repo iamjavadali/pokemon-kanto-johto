@@ -2,18 +2,24 @@
 #include "battle.h"
 #include "battle_main.h"
 #include "event_data.h"
+#include "event_object_movement.h"
+#include "follower_npc.h"
 #include "golden_yellow_partner_state.h"
 #include "item.h"
 #include "item_menu.h"
 #include "main.h"
 #include "overworld.h"
+#include "pokerus.h"
 #include "pokemon.h"
+#include "script.h"
 #include "constants/battle.h"
 #include "constants/game_stat.h"
 #include "constants/golden_yellow_partner_reactions.h"
 #include "constants/item_effects.h"
 #include "constants/items.h"
+#include "constants/maps.h"
 #include "constants/moves.h"
+#include "constants/party_menu.h"
 #include "constants/pokemon.h"
 #include "constants/species.h"
 
@@ -21,13 +27,21 @@
 // fishing.h, allowing the public header to route callers through the P6 wrapper.
 void StartFishing(u8 rod);
 
+// party_menu.c owns the expansion's ailment conversion. Its GetMonAilment
+// implementation is a weak fallback so P7A can add a display-only authored SLP.
+u8 GetAilmentFromStatus(u32 status);
+
 // P5 claims three otherwise-unused saved event vars. Mood is encoded as
 // mood + 1 so zero remains an uninitialized sentinel for old/dev saves.
-#define VAR_GY_PARTNER_MOOD              VAR_UNUSED_0x40F7
-#define VAR_GY_PARTNER_MOOD_STEP_LO      VAR_UNUSED_0x40F8
-#define VAR_GY_PARTNER_MOOD_STEP_HI      VAR_UNUSED_0x40F9
+#define VAR_GY_PARTNER_MOOD               VAR_UNUSED_0x40F7
+#define VAR_GY_PARTNER_MOOD_STEP_LO       VAR_UNUSED_0x40F8
+#define VAR_GY_PARTNER_MOOD_STEP_HI       VAR_UNUSED_0x40F9
 // P6 mirrors Yellow's single wPikachuEmotionModifier byte. Zero is no override.
-#define VAR_GY_PARTNER_REACTION_MODIFIER VAR_UNUSED_0x40FA
+#define VAR_GY_PARTNER_REACTION_MODIFIER  VAR_UNUSED_0x40FA
+// P7A owns the next two unused save vars: authored Pewter sleep state plus the
+// packed follower map coordinates needed to reconstruct a save made mid-scene.
+#define VAR_GY_PEWTER_PARTNER_SLEEP_STATE VAR_UNUSED_0x40FB
+#define VAR_GY_PEWTER_PARTNER_SLEEP_POS   VAR_UNUSED_0x40FC
 
 #define PARTNER_INITIAL_FRIENDSHIP       90
 #define PARTNER_MOOD_NEUTRAL             128
@@ -47,6 +61,13 @@ enum GoldenYellowPartnerReactionModifier
     GY_PARTNER_MODIFIER_RESERVED_3 = 3,
     GY_PARTNER_MODIFIER_THUNDER_STONE = 4,
     GY_PARTNER_MODIFIER_ELECTRIC_POWER = 5,
+};
+
+enum GoldenYellowPewterPartnerSleepState
+{
+    GY_PEWTER_PARTNER_SLEEP_INACTIVE = 0,
+    GY_PEWTER_PARTNER_SLEEP_ACTIVE = 1,
+    GY_PEWTER_PARTNER_SLEEP_WAKE_PENDING = 2,
 };
 
 // Replacement move flows first report MON_HAS_MAX_MOVES, then commit the chosen
@@ -105,6 +126,186 @@ static struct Pokemon *FindPlayerPartnerPikachuByBox(struct BoxPokemon *boxMon)
     }
 
     return NULL;
+}
+
+static bool32 IsInPewterPokemonCenter1F(void)
+{
+    return gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(MAP_PEWTER_CITY_POKEMON_CENTER_1F)
+        && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_PEWTER_CITY_POKEMON_CENTER_1F);
+}
+
+static void StorePewterPartnerSleepPosition(const struct ObjectEvent *follower)
+{
+    u16 packedPosition;
+
+    if (follower == NULL)
+        return;
+
+    packedPosition = (u8)follower->currentCoords.x
+                   | ((u16)(u8)follower->currentCoords.y << 8);
+    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_POS, packedPosition);
+}
+
+static void ClearPewterPartnerSleepState(void)
+{
+    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_INACTIVE);
+    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_POS, 0);
+}
+
+bool8 GoldenYellow_IsPewterPartnerSleepActive(struct Pokemon *partner)
+{
+    if (!IsPlayerPartnerPikachu(partner))
+        return FALSE;
+
+    return VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) != GY_PEWTER_PARTNER_SLEEP_INACTIVE;
+}
+
+bool8 GoldenYellow_IsPewterPartnerWakePending(void)
+{
+    return VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) == GY_PEWTER_PARTNER_SLEEP_WAKE_PENDING;
+}
+
+void GoldenYellow_TryStartPewterPartnerSleep(struct ScriptContext *ctx)
+{
+    struct Pokemon *partner = GetPartnerAwareFollowingMon();
+    struct ObjectEvent *follower = GetFollowerObject();
+
+    (void)ctx;
+    gSpecialVar_Result = FALSE;
+
+    // Match Yellow's guard: only the healthy, living canonical starter that is
+    // actually following the player can enter this authored overworld state.
+    if (!IsInPewterPokemonCenter1F()
+     || VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) != GY_PEWTER_PARTNER_SLEEP_INACTIVE
+     || partner == NULL
+     || !IsPlayerPartnerPikachu(partner)
+     || GetMonData(partner, MON_DATA_HP) == 0
+     || GetMonData(partner, MON_DATA_STATUS) != 0
+     || follower == NULL
+     || !follower->active
+     || !PlayerHasFollowerNPC())
+        return;
+
+    StorePewterPartnerSleepPosition(follower);
+    SetFollowerNPCData(FNPC_DATA_DELAYED_STATE, 0);
+    VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_ACTIVE);
+    gSpecialVar_Result = TRUE;
+}
+
+void GoldenYellow_RestorePewterPartnerSleep(void)
+{
+    struct Pokemon *partner;
+    struct ObjectEvent *follower;
+    u16 packedPosition;
+    u32 objectEventId;
+    s16 x;
+    s16 y;
+
+    if (VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) == GY_PEWTER_PARTNER_SLEEP_INACTIVE)
+        return;
+
+    partner = FindPlayerPartnerPikachu();
+    if (!IsInPewterPokemonCenter1F() || partner == NULL || !PlayerHasFollowerNPC())
+    {
+        ClearPewterPartnerSleepState();
+        return;
+    }
+
+    objectEventId = GetFollowerNPCObjectId();
+    if (objectEventId >= OBJECT_EVENTS_COUNT || !gObjectEvents[objectEventId].active)
+    {
+        CreateFollowerNPCAvatar();
+        objectEventId = GetFollowerNPCObjectId();
+    }
+
+    if (objectEventId >= OBJECT_EVENTS_COUNT || !gObjectEvents[objectEventId].active)
+    {
+        ClearPewterPartnerSleepState();
+        return;
+    }
+
+    packedPosition = VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_POS);
+    if (packedPosition == 0)
+    {
+        ClearPewterPartnerSleepState();
+        return;
+    }
+
+    x = packedPosition & 0xFF;
+    y = packedPosition >> 8;
+    follower = &gObjectEvents[objectEventId];
+    ObjectEventClearHeldMovement(follower);
+    MoveObjectEventToMapCoords(follower, x, y);
+    ObjectEventTurn(follower, DIR_SOUTH);
+    follower->invisible = FALSE;
+
+    SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_NONE);
+    SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
+    SetFollowerNPCData(FNPC_DATA_DELAYED_STATE, 0);
+}
+
+void GoldenYellow_RequestPewterPartnerWake(void)
+{
+    if (VarGet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE) == GY_PEWTER_PARTNER_SLEEP_ACTIVE)
+        VarSet(VAR_GY_PEWTER_PARTNER_SLEEP_STATE, GY_PEWTER_PARTNER_SLEEP_WAKE_PENDING);
+}
+
+void GoldenYellow_CompletePewterPartnerWake(void)
+{
+    // A-button wake happens adjacent to Pikachu, so the existing follower can
+    // resume in place. Item/Poke Flute wake can happen across the room; in that
+    // case use the follower engine's normal hidden/reappear path so the next
+    // player step cleanly re-anchors Pikachu behind the player instead of
+    // leaving a permanently distant follower.
+    if (PlayerHasFollowerNPC())
+    {
+        u32 objectEventId = GetFollowerNPCObjectId();
+
+        if (objectEventId < OBJECT_EVENTS_COUNT && gObjectEvents[objectEventId].active)
+        {
+            struct ObjectEvent *follower = &gObjectEvents[objectEventId];
+            struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+            s16 deltaX = player->currentCoords.x - follower->currentCoords.x;
+            s16 deltaY = player->currentCoords.y - follower->currentCoords.y;
+
+            if (deltaX < 0)
+                deltaX = -deltaX;
+            if (deltaY < 0)
+                deltaY = -deltaY;
+
+            if (deltaX + deltaY > 1)
+            {
+                HideNPCFollower();
+                SetFollowerNPCData(FNPC_DATA_WARP_END, FNPC_WARP_REAPPEAR);
+                SetFollowerNPCData(FNPC_DATA_COME_OUT_DOOR, FNPC_DOOR_NONE);
+                SetFollowerNPCData(FNPC_DATA_DELAYED_STATE, 0);
+            }
+        }
+    }
+
+    ClearPewterPartnerSleepState();
+}
+
+u8 GetMonAilment(struct Pokemon *mon)
+{
+    u8 ailment;
+
+    // Preserve the expansion's exact status precedence, then insert the P7A
+    // narrative sleep display ahead of Pokerus. MON_DATA_STATUS is never changed.
+    if (GetMonData(mon, MON_DATA_HP) == 0)
+        return AILMENT_FNT;
+
+    ailment = GetAilmentFromStatus(GetMonData(mon, MON_DATA_STATUS));
+    if (ailment != AILMENT_NONE)
+        return ailment;
+
+    if (GoldenYellow_IsPewterPartnerSleepActive(mon))
+        return AILMENT_SLP;
+
+    if (ShouldPokemonShowActivePokerus(mon))
+        return AILMENT_PKRS;
+
+    return AILMENT_NONE;
 }
 
 static u32 GetCurrentStepCount(void)
@@ -430,6 +631,10 @@ bool8 ExecuteTableBasedItemEffect(struct Pokemon *mon, enum Item item, u8 partyI
     const u8 *itemEffect = GetItemEffect(item);
     bool32 isPartner = IsPlayerPartnerPikachu(mon);
     bool32 skipPartnerState = isPartner && ShouldSkipFriendshipChange();
+    bool32 curesPewterSleep = isPartner
+                           && GoldenYellow_IsPewterPartnerSleepActive(mon)
+                           && itemEffect != NULL
+                           && (itemEffect[3] & ITEM3_SLEEP);
     u32 hpBefore = 0;
     u8 friendshipBefore = 0;
     bool8 hadNoEffect;
@@ -451,6 +656,17 @@ bool8 ExecuteTableBasedItemEffect(struct Pokemon *mon, enum Item item, u8 partyI
     }
 
     hadNoEffect = GoldenYellow_ExecuteTableBasedItemEffectBase(mon, item, partyIndex, moveIndex);
+
+    // P7A presents narrative sleep without touching MON_DATA_STATUS. Any item
+    // whose native effect metadata includes ITEM3_SLEEP is therefore a valid
+    // wake source even when the base engine sees no battle ailment to clear.
+    // This covers Awakening, Full Heal/Restore, sleep-curing berries, and the
+    // existing Poke Flute path, which invokes this function with ITEM_AWAKENING.
+    if (curesPewterSleep)
+    {
+        GoldenYellow_RequestPewterPartnerWake();
+        hadNoEffect = FALSE;
+    }
 
     if (isPartner
      && !skipPartnerState

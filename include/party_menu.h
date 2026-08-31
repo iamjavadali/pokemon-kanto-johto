@@ -77,7 +77,7 @@ u8 DisplayPartyMenuMessage(const u8 *str, bool8 keepOpen);
 bool8 IsPartyMenuTextPrinterActive(void);
 void PartyMenuModifyHP(u8 taskId, u8 slot, s8 hpIncrement, s16 hpDifference, TaskFunc task);
 u8 GetAilmentFromStatus(u32 status);
-u8 GetMonAilment(struct Pokemon *mon);
+u8 GetMonAilment(struct Pokemon *mon) __attribute__((weak));
 void DisplayPartyMenuStdMessage(u32 stringId);
 bool8 FieldCallback_PrepareFadeInFromMenu(void);
 bool8 FieldCallback_PrepareFadeInForTeleport(void);
