@@ -56,13 +56,14 @@ Broad progression currently stands at:
 → **Route 3 / Mt. Moon**  
 → **Cerulean / Route 24 / Route 25 / Bill — ACCEPTED THROUGH BILL REACTION**  
 → **Yellow Partner portrait catalog + generalized renderer (P1/P2) — ACCEPTED**  
-→ **Yellow Partner reaction-program director (P3) — ACTIVE ENGINEERING BOUNDARY**
+→ **Yellow Partner reaction-program director (P3) — ACCEPTED**  
+→ **Normal A-button Partner interaction (P4) — ACTIVE ENGINEERING BOUNDARY**
 
 The accepted gameplay baseline extends through the Yellow Cerulean Rival #3 / Fame Checker integration, Route 24 Charmander rescue / Damian adoption milestone, and the required Bill / Sea Cottage Partner Pikachu transformed/restored reaction.
 
-The complete directly selectable Yellow portrait-program catalog (`0–28`) and its reusable native-GBA renderer/presentation layer are now also manually accepted. The accepted renderer preserves the 40×40 Yellow artwork inside a native 64×64 OBJ carrier, uses the tightened Pikachu-themed visible frame, and remains the common renderer for later Partner-reaction work.
+The complete directly selectable Yellow portrait-program catalog (`0–28`), reusable native-GBA portrait renderer/presentation layer, unified follower-emote resolver, and reusable Yellow reaction-program director (`0–32`) are now manually accepted foundations.
 
-The immediate next engineering boundary is P3 from `Yellow-portrait.md`: reconstruct the reusable Yellow reaction-program director on top of the accepted portrait renderer rather than adding another one-off portrait path.
+The immediate next engineering boundary is P4 from `Yellow-portrait.md`: route normal field A-button interaction with the canonical Partner Pikachu through the accepted P3 reaction director rather than creating a second interaction/reaction path.
 
 ---
 
@@ -111,6 +112,8 @@ Battle-opening follower integration also uses actual resolved follower Pokémon 
 
 Accepted Cerulean scenes demonstrate lane-aware, scene-local Partner staging across multi-actor choreography without replacing the generic follower engine.
 
+P3 additionally established native `ScriptMovement` sequencing as the accepted reusable body-language backend for Partner reactions. Reusable reaction choreography stays on the follower's current map tile and restores normal follower authority after each sequence.
+
 ## 5.3 Yellow Rival Eevee State
 
 Persistent Yellow Rival branching exists for:
@@ -147,7 +150,7 @@ The accepted Charmander checkpoint reconstructs the pre-event Route 24 state whi
 
 P1/P2 of the `Yellow-portrait.md` reconstruction blueprint are accepted.
 
-The established portrait foundation now includes:
+The established portrait foundation includes:
 
 - the complete directly selectable Yellow portrait-program catalog `0–28`;
 - original Yellow 40×40 portrait artwork preserved without scaling;
@@ -163,7 +166,29 @@ The established portrait foundation now includes:
 - a dedicated warm Pikachu-yellow/gold portrait-frame treatment that restores the player's normal configured window frame after dismissal;
 - preserved compatibility with the already-accepted Bill transformed/restored portrait reactions.
 
-This foundation is accepted and should not be reimplemented. The still-pending work is the higher-level Yellow reaction-selection and behavior architecture that chooses and sequences these accepted portrait programs in gameplay.
+This foundation is accepted and must not be reimplemented.
+
+## 5.8 Yellow Partner Reaction-Program Director
+
+P3 of the `Yellow-portrait.md` reconstruction blueprint is accepted.
+
+The established reaction foundation includes:
+
+- ordered reaction programs for Yellow Emotion IDs `0–32` with source-semantic command ordering;
+- typed commands for cry, emote/bubble, movement, portrait, delay, turn-away, and semantic callbacks;
+- canonical Partner-only gating through `SPECIES_PIKACHU_STARTER`;
+- the accepted P1/P2 renderer as the single portrait backend;
+- existing HGSS follower-emotion presentation for standard emotional states;
+- shared field-emote presentation for Skull, Sleep/ZZZ, Bolt, Fish, and animated exclamation;
+- accepted reaction-specific emote mapping across `0–32`;
+- native `ScriptMovement` body-language sequencing using tile-safe follower movement scripts;
+- deterministic front/side/back final pose enforcement before portrait display;
+- clean restoration of follower authority after reaction movement;
+- a debug reaction browser with deterministic player-facing reset and manual pre-portrait inspection hold;
+- production/one-shot reaction execution that remains automatic and independent from the debug-only portrait gate;
+- semantic story callbacks kept inert until later authored integration owns their story effects.
+
+P4/P5/P6/P7 must extend this common director rather than creating parallel Partner interaction, mood, modifier, or authored-reaction engines.
 
 ---
 
@@ -182,7 +207,8 @@ These are broad project decisions, not individual acceptance records.
 - Trade-dependent evolutions must ultimately have single-player alternatives.
 - Accepted gameplay should not be reopened without a regression or an explicitly approved redesign.
 - Original Yellow Partner Pikachu graphics and reaction semantics may be translated onto native GBA rendering architecture rather than reproducing the Game Boy renderer literally.
-- P3 and later Partner-reaction work must reuse the accepted common portrait renderer rather than creating a parallel renderer.
+- P4 and later Partner-reaction work must reuse the accepted P1/P2/P3 portrait/reaction foundation rather than creating parallel systems.
+- Reusable Partner reaction movement remains tile-safe; authored scenes may use controlled displacement only when map geometry and follower safety are explicitly guaranteed.
 
 For the exact content of accepted milestones, use the Acceptance Log.
 
@@ -211,48 +237,53 @@ The currently accepted Yellow story/engine boundary reaches through:
 - required Partner Pikachu reaction to transformed Bill;
 - required Partner Pikachu reaction when Bill returns to human form;
 - accepted original-Yellow confused/questioning and shocked/surprised Bill portrait presentation;
-- complete Yellow portrait-program catalog `0–28` and generalized GBA portrait renderer/presentation foundation.
+- complete Yellow portrait-program catalog `0–28` and generalized GBA portrait renderer/presentation foundation;
+- complete reusable P3 Partner reaction-program director for Yellow Emotion IDs `0–32`;
+- accepted standard/special Partner emote resolver;
+- accepted tile-safe native follower reaction movement executor and deterministic portrait-pose synchronization.
 
 The details, commits, workflow runs, ROM hashes, and manual-validation notes for these milestones are maintained in `Pokemon_Golden_Yellow_Acceptance_Log.md` and any linked dedicated acceptance record.
 
 ---
 
-# 8. Current Active Development Boundary — P3 Yellow Reaction Program Director
+# 8. Current Active Development Boundary — P4 Normal A-Button Partner Interaction
 
-The Cerulean-era story pass remains active, but the immediate next work is the next engine layer from the accepted portrait foundation.
+The Cerulean-era story pass remains active, but the immediate engine work is now the next layer above the accepted P3 reaction director.
 
 The active engineering boundary is:
 
-**accepted portrait programs + renderer → reusable Yellow reaction-program director → later normal A-button/mood/modifier/authored-reaction integration**
+**accepted P1/P2 portrait renderer + accepted P3 reaction director → normal A-button Partner interaction dispatch (P4) → later P5 mood/P6 modifiers/P7 authored migration**
 
-P3 must build directly on the accepted P1/P2 renderer and the source mapping documented in `Yellow-portrait.md`.
+P4 must build directly on the accepted P3 director and the source mapping documented in `Yellow-portrait.md`.
 
-Expected P3 scope includes:
+Expected P4 scope includes:
 
-1. Reconstruct the reusable reaction-program command/director layer that can sequence portrait, cry, emote, movement, delay, and other source-supported reaction actions.
-2. Preserve Yellow's semantic mapping between reaction programs and portrait programs rather than selecting portraits ad hoc by scene.
-3. Keep authored story reactions capable of taking precedence over generic state-driven reactions.
-4. Use the existing canonical Partner resolver and never treat ordinary `SPECIES_PIKACHU` as the Partner.
-5. Reuse the existing follower-safe movement architecture instead of creating an independent movement/follower identity system.
-6. Keep accepted Bill transformed/restored choreography and portrait results unchanged as a regression target.
-7. Keep P3 modular so P4 normal A-button interaction, P5 mood, P6 one-shot modifiers, and P7 authored reaction migrations can layer onto it without replacing it.
-8. Do not guess unresolved Yellow behavior such as the exact initial mood value or unidentified modifier triggers; preserve those as research items until source evidence resolves them.
+1. Audit the existing follower A-button interaction path and identify the narrowest authoritative hook for canonical Partner Pikachu.
+2. Route normal field interaction with the canonical Partner through the accepted Yellow reaction director rather than adding a second portrait/emote/movement implementation.
+3. Preserve ordinary follower interaction behavior for non-Partner Pokémon unless a later project requirement explicitly generalizes the Yellow system.
+4. Keep ordinary `SPECIES_PIKACHU` distinct from canonical `SPECIES_PIKACHU_STARTER`.
+5. Preserve existing follower lock/release, map-event, field-control, and collision ownership rather than bypassing the follower engine.
+6. Define a clean selection interface that P5 can later feed with happiness/mood-derived reaction IDs without rewriting the A-button integration.
+7. Ensure authored story reactions remain able to take precedence over generic A-button interaction when a scene owns the Partner reaction.
+8. Reuse the accepted P3 emote, native movement, final-pose, cry, portrait, and cleanup pipeline unchanged unless a genuine P4 integration defect requires a targeted correction.
+9. Keep debug-browser behavior test-only; normal gameplay interaction must not expose the debug manual pre-portrait gate.
+10. Do not invent unresolved Yellow mood-selection behavior during P4. P4 establishes interaction dispatch; P5 owns generic mood/happiness selection once source evidence is applied.
 
-After the Partner reaction-system foundation reaches the appropriate stable boundary, the remaining immediate Cerulean story scope is:
+After the Partner interaction foundation reaches the appropriate stable boundary, the remaining immediate Cerulean story scope is:
 
 - Melanie / Bulbasaur gift using canonical Partner Pikachu happiness;
 - Misty / Cerulean Gym Yellow identity validation;
 - Cerulean exit progression toward Vermilion;
 - remaining Route 4 / Nugget Bridge / Rocket recruiter regression coverage as needed around the accepted path.
 
-Before changing code for P3:
+Before changing code for P4:
 
-- resolve the live branch HEAD;
-- inspect the accepted generalized portrait renderer and existing Partner/follower helpers;
-- use `Yellow-portrait.md` and `pret/pokeyellow` source mappings as the behavior authority;
-- translate behavior to GBA architecture rather than porting Game Boy tile-engine assumptions literally;
-- retain canonical `SPECIES_PIKACHU_STARTER` gating;
-- preserve the accepted portrait frame/palette presentation and cleanup behavior.
+- resolve the live `prototype/v0.1` branch HEAD;
+- inspect the existing follower A-button interaction/action resolver before adding hooks;
+- inspect the accepted P3 Partner reaction entry points and canonical Partner resolver;
+- use `Yellow-portrait.md` and `pret/pokeyellow` source mappings as behavior authority where P4 requires Yellow semantics;
+- preserve accepted P1/P2/P3 rendering, emote, movement, pose, and cleanup behavior;
+- avoid duplicating follower identity or reaction-selection state.
 
 ---
 
@@ -262,7 +293,6 @@ The following are examples of required Yellow content that remains ahead of the 
 
 ## Partner Pikachu system
 
-- P3 reusable Yellow reaction-program director;
 - P4 normal A-button Partner interaction path;
 - P5 generic Yellow happiness/mood selection behavior;
 - P6 one-shot reaction modifiers once source triggers are verified;
@@ -336,7 +366,7 @@ The rules are:
 - dedicated acceptance records may preserve detailed choreography or implementation history for complex milestones;
 - Current Project State should not duplicate that detailed evidence.
 
-The accepted Bill behavior and the accepted P1/P2 portrait renderer/presentation are regression targets for P3 and later reaction-system work.
+The accepted Bill behavior, P1/P2 portrait renderer/presentation, and P3 Partner reaction director are regression targets for P4 and later Partner-system work.
 
 ---
 
@@ -344,9 +374,9 @@ The accepted Bill behavior and the accepted P1/P2 portrait renderer/presentation
 
 **No known blocking regression is open at this snapshot.**
 
-The full portrait catalog and generalized renderer/presentation have passed manual acceptance after the tightened visible-box and Pikachu-yellow/gold frame correction. The corresponding prototype build also passed.
+The full portrait catalog/generalized renderer and reusable P3 reaction-program director have both passed manual acceptance. The final accepted P3 build uses the native follower scripted-movement executor and passed the full 0–32 reaction review.
 
-Development can proceed directly into P3, the Yellow reaction-program director, using the accepted portrait renderer as a fixed foundation.
+Development can proceed directly into P4, the normal A-button Partner interaction layer, using the accepted P1/P2/P3 foundation as fixed architecture.
 
 ---
 
