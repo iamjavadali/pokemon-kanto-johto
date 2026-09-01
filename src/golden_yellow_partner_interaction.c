@@ -9,6 +9,7 @@
 #include "script.h"
 #include "script_movement.h"
 #include "sound.h"
+#include "sprite.h"
 #include "constants/battle.h"
 #include "constants/event_object_movement.h"
 #include "constants/event_objects.h"
@@ -44,7 +45,6 @@ enum GoldenYellowPartnerInteractionRoute
 
 static EWRAM_DATA u8 sBillPartnerApproachMovement[BILL_PARTNER_APPROACH_MOVEMENT_CAPACITY];
 static u8 sBillPartnerApproachLocalId;
-static EWRAM_INIT u8 sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
 
 static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
 {
@@ -82,27 +82,45 @@ static bool32 GoldenYellow_IsInBillSeaCottage(void)
 static struct ObjectEvent *GoldenYellow_FindBillPartnerSceneObject(void)
 {
     struct ObjectEvent *follower = GetFollowerObject();
-    u32 i;
 
-    if (!GoldenYellow_IsInBillSeaCottage())
+    if (!GoldenYellow_IsInBillSeaCottage()
+     || follower == NULL
+     || !follower->active
+     || follower->mapGroup != gSaveBlock1Ptr->location.mapGroup
+     || follower->mapNum != gSaveBlock1Ptr->location.mapNum)
         return NULL;
 
-    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
-    {
-        struct ObjectEvent *object = &gObjectEvents[i];
+    return follower;
+}
 
-        if (!object->active
-         || object == follower
-         || object->localId == OBJ_EVENT_ID_FOLLOWER
-         || object->graphicsId != OBJ_EVENT_GFX_PIKACHU_FRLG
-         || object->mapGroup != gSaveBlock1Ptr->location.mapGroup
-         || object->mapNum != gSaveBlock1Ptr->location.mapNum)
-            continue;
+static void GoldenYellow_ParkBillPartnerFollower(struct ObjectEvent *follower)
+{
+    if (follower == NULL || !follower->active)
+        return;
 
-        return object;
-    }
+    // Match the accepted P7A/P7C ownership handoff: preserve the real follower
+    // object, but fully clear any in-flight FOLLOW_PLAYER movement before the
+    // authored Bill scene takes control of its position.
+    ClearObjectEventMovement(follower, &gSprites[follower->spriteId]);
+    UnfreezeObjectEvent(follower);
+    SetTrainerMovementType(follower, MOVEMENT_TYPE_NONE);
+    follower->invisible = FALSE;
+    gSprites[follower->spriteId].invisible = FALSE;
+}
 
-    return NULL;
+static void GoldenYellow_NormalizeBillPartnerFollower(struct ObjectEvent *follower)
+{
+    if (follower == NULL || !follower->active)
+        return;
+
+    // The same object that was parked for Bill resumes normal following. This
+    // avoids the visible remove/recreate handoff that could make Pikachu vanish
+    // until the player moved after the post-restoration A-button reaction.
+    ClearObjectEventMovement(follower, &gSprites[follower->spriteId]);
+    UnfreezeObjectEvent(follower);
+    SetTrainerMovementType(follower, MOVEMENT_TYPE_FOLLOW_PLAYER);
+    follower->invisible = FALSE;
+    gSprites[follower->spriteId].invisible = FALSE;
 }
 
 static struct ObjectEvent *GoldenYellow_FindTransformedBillObject(void)
@@ -238,15 +256,18 @@ void GoldenYellow_StartBillPartnerEntryApproach(struct ScriptContext *ctx)
 
     player = &gObjectEvents[gPlayerAvatar.objectEventId];
 
-    // Reproduce the accepted Fan Club entrance pose: Partner is visibly beside
-    // the player on the player's right before the attention beat begins.
-    ObjectEventClearHeldMovementIfActive(partnerObject);
-    UnfreezeObjectEvent(partnerObject);
+    // Reuse the accepted Fan Club/Pewter lifecycle: keep the actual following-
+    // Pokemon object alive, park it before staging, then establish the visible
+    // right-of-player pose before the attention beat begins.
+    GoldenYellow_ParkBillPartnerFollower(partnerObject);
     MoveObjectEventToMapCoords(partnerObject, player->currentCoords.x + 1, player->currentCoords.y);
     ObjectEventTurn(partnerObject, DIR_NORTH);
 
     if (!GoldenYellow_BuildBillPartnerApproachMovement(partnerObject, billObject))
+    {
+        GoldenYellow_NormalizeBillPartnerFollower(partnerObject);
         return;
+    }
 
     sBillPartnerApproachLocalId = partnerObject->localId;
     PlaySE(SE_PIN);
@@ -256,6 +277,7 @@ void GoldenYellow_StartBillPartnerEntryApproach(struct ScriptContext *ctx)
                                                   sBillPartnerApproachMovement))
     {
         sBillPartnerApproachLocalId = 0;
+        GoldenYellow_NormalizeBillPartnerFollower(partnerObject);
         return;
     }
 
@@ -265,6 +287,8 @@ void GoldenYellow_StartBillPartnerEntryApproach(struct ScriptContext *ctx)
 
 static bool8 GoldenYellow_WaitForBillPartnerRejoin(void)
 {
+    struct ObjectEvent *follower;
+
     if (GoldenYellow_IsPartnerPikachuReactionActive())
         return FALSE;
 
@@ -272,47 +296,36 @@ static bool8 GoldenYellow_WaitForBillPartnerRejoin(void)
 
     if (!GoldenYellow_IsInBillSeaCottage()
      || !FlagGet(FLAG_HELPED_BILL_IN_SEA_COTTAGE))
-    {
-        sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
         return TRUE;
-    }
 
-    // The first post-restoration A-button reaction is the explicit release beat.
-    // Hide/remove the scene-owned Pikachu and hand authority back to the normal
-    // following-Pokemon object. Later visits already use the normal follower, so
-    // this handoff becomes a harmless no-op while Emotion31 remains repeatable.
-    if (FlagGet(FLAG_TEMP_HIDE_FOLLOWER))
-    {
-        if (sBillInteractionObjectEventId < OBJECT_EVENTS_COUNT
-         && gObjectEvents[sBillInteractionObjectEventId].active
-         && gObjectEvents[sBillInteractionObjectEventId].localId != OBJ_EVENT_ID_FOLLOWER)
-            RemoveObjectEvent(&gObjectEvents[sBillInteractionObjectEventId]);
+    follower = GoldenYellow_FindBillPartnerSceneObject();
+    GoldenYellow_NormalizeBillPartnerFollower(follower);
 
-        FlagSet(FLAG_TEMP_5);
-        FlagClear(FLAG_TEMP_HIDE_FOLLOWER);
-        UpdateFollowingPokemon();
-    }
-
+    // Keep the retired map-owned Bill Pikachu hidden and make sure the generic
+    // follower is never suppressed. No object is removed or recreated here.
+    FlagSet(FLAG_TEMP_5);
+    FlagClear(FLAG_TEMP_HIDE_FOLLOWER);
     VarSet(VAR_GY_BILL_PARTNER_RELEASED, 1);
-    sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
     return TRUE;
 }
 
 static bool32 GoldenYellow_IsBillPartnerInteractionObject(void)
 {
     struct ObjectEvent *selectedObject;
+    struct ObjectEvent *follower;
 
     if (!GoldenYellow_IsInBillSeaCottage()
      || gSelectedObjectEvent >= OBJECT_EVENTS_COUNT)
         return FALSE;
 
     selectedObject = &gObjectEvents[gSelectedObjectEvent];
+    follower = GetFollowerObject();
 
-    // The map/location and selected-object test identifies either the dedicated
-    // pre-release scene object or the normal follower used on later visits.
-    // Canonical identity is still established separately below; graphics alone
-    // never qualifies an ordinary Pikachu as the Partner.
-    return selectedObject->active
+    // Bill now uses the same live following-Pokemon object throughout the scene.
+    // Require that exact object rather than accepting any Pikachu-shaped map NPC.
+    return follower != NULL
+        && follower->active
+        && selectedObject == follower
         && selectedObject->graphicsId == OBJ_EVENT_GFX_PIKACHU_FRLG;
 }
 
@@ -352,9 +365,8 @@ static enum GoldenYellowPartnerInteractionRoute GoldenYellow_ResolvePartnerPikac
     // Resolve exactly one owner before dispatch so lower-priority systems cannot
     // consume state or override an authored Yellow reaction.
 
-    // Story: Bill's scene-owned object must resolve before the generic follower
-    // requirement because the accepted Sea Cottage scene can temporarily own a
-    // dedicated visible Partner object.
+    // Story: Bill owns the canonical follower while it is parked for the Sea
+    // Cottage sequence, so resolve that authored reaction before lower tiers.
     if (GoldenYellow_IsBillPartnerInteractionObject())
     {
         *reaction = FlagGet(FLAG_HELPED_BILL_IN_SEA_COTTAGE)
@@ -498,12 +510,10 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
     switch (route)
     {
     case GY_PARTNER_INTERACTION_STORY_BILL:
-        sBillInteractionObjectEventId = gSelectedObjectEvent;
         GoldenYellow_SetPartnerPikachuReactionObject(gSelectedObjectEvent);
         if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(reaction))
         {
             GoldenYellow_ClearPartnerPikachuReactionObject();
-            sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
             return;
         }
 
