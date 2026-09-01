@@ -1,3 +1,28 @@
+# Pokémon Golden Yellow — Partner Blueprint Status Addendum
+
+**Status date:** September 1, 2026  
+**Current boundary:** **P7 accepted → P8 modern follower coexistence next**
+
+This file began as the source-audit and implementation blueprint for the Yellow Partner portrait/reaction subsystem. The audit and original design language below are intentionally preserved as historical technical rationale.
+
+Where the original blueprint speaks in future tense, the current implementation status is now:
+
+- **P1/P2 — ACCEPTED:** complete portrait catalog and generalized renderer;
+- **P3 — ACCEPTED:** common reaction-program director;
+- **P4 — IMPLEMENTED:** normal canonical Partner A-button routing;
+- **P5 — IMPLEMENTED:** persistent friendship/mood lifecycle; Golden Yellow initializes uninitialized Partner mood to neutral `128` and untouched canonical Partner friendship to `90`;
+- **P6 — IMPLEMENTED:** supported one-shot modifier architecture;
+- **P7A–P7E — ACCEPTED:** Pewter, Bill, Fan Club, Pokémon Tower, and unified Story > Status > Area > One-shot > Mood ownership priority;
+- **final P7 regression closeout — ACCEPTED:** Bill live-follower release and complete Pewter/Bill/Fan Club exit guarding, including lateral side-warp protection;
+- **P8 — NEXT ACTIVE BOUNDARY:** layer existing modern contextual follower behavior underneath the accepted Yellow priority system without contradictory or duplicate reactions;
+- **P9 — FUTURE:** Yellow Pikachu PCM/audio fidelity if pursued.
+
+The original source-audit caveat about the exact **original Pokémon Yellow** mood initialization writer remains unresolved as a source-history question. It no longer blocks Golden Yellow implementation because P5 has an explicit project implementation choice as described above.
+
+For exact acceptance commits, workflow runs, ROM hashes, and final regression evidence, use `Pokemon_Golden_Yellow_Acceptance_Log.md` and the dedicated Bill/Fan Club acceptance records. This addendum supersedes only stale implementation-status statements below; it does not replace the source analysis or architectural rules.
+
+---
+
 # 1. Yellow subsystem source map
 
 The authoritative Yellow implementation is spread across several coordinated files.
