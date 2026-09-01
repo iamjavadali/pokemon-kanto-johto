@@ -6,6 +6,7 @@
 #undef Debug_ShowMainMenu
 
 #include "golden_yellow_debug.h"
+#include "golden_yellow_partner_fan_club.h"
 #include "golden_yellow_partner_reaction.h"
 
 struct GoldenYellowDebugMenuSelection
@@ -20,6 +21,18 @@ static void DebugAction_GoldenYellow_ApplyCheckpoint(u8 taskId, const void *para
 
     Debug_DestroyMenu_Full(taskId);
     GoldenYellowDebug_ApplyCheckpoint(selection->checkpoint, selection->rivalPath);
+    ScriptContext_Stop();
+}
+
+static void DebugAction_GoldenYellow_BeforeFanClub(u8 taskId)
+{
+    Debug_DestroyMenu_Full(taskId);
+
+    // Reuse the existing cumulative post-Bill checkpoint rather than creating
+    // a second story-state reconstruction. P7C only redirects its pending warp
+    // to Vermilion and clears Fan Club-specific state before the map loads.
+    GoldenYellowDebug_ApplyCheckpoint(GY_DEBUG_CP_BULBASAUR_GIFT, GY_DEBUG_RIVAL_JOLTEON);
+    GoldenYellow_DebugPrepareBeforeFanClubCheckpoint();
     ScriptContext_Stop();
 }
 
@@ -154,6 +167,7 @@ static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_CampaignMtMo
 
 static const struct DebugMenuOption sDebugMenu_Actions_GoldenYellow_CampaignVermilion[] =
 {
+    { COMPOUND_STRING("Before Fan Club"), DebugAction_GoldenYellow_BeforeFanClub },
     { COMPOUND_STRING("S.S. Anne Rival"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnne },
     { COMPOUND_STRING("S.S. Anne Captain"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGySSAnneCaptain },
     { COMPOUND_STRING("Before Lt. Surge"), DebugAction_GoldenYellow_ApplyCheckpoint, &sGyBeforeLtSurge },

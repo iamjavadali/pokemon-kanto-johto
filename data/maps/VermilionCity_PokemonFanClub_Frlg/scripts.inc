@@ -2,7 +2,25 @@
 .set SPOKE_TO_FAT_MAN_LAST, FLAG_TEMP_3
 
 VermilionCity_PokemonFanClub_Frlg_MapScripts::
+	map_script MAP_SCRIPT_ON_TRANSITION, VermilionCity_PokemonFanClub_OnTransition
 	.byte 0
+
+VermilionCity_PokemonFanClub_OnTransition::
+	callnative GoldenYellow_RestoreFanClubPartnerOnFollower
+	end
+
+VermilionCity_PokemonFanClub_EventScript_PartnerArrival::
+	lockall
+	setvar VAR_TEMP_4, 1
+	callnative GoldenYellow_StartFanClubPartnerArrival
+	releaseall
+	end
+
+VermilionCity_PokemonFanClub_EventScript_PartnerExitCheck::
+	lockall
+	callnative GoldenYellow_TryReleaseFanClubPartnerOnExit
+	releaseall
+	end
 
 VermilionCity_PokemonFanClub_EventScript_Chairman::
 	lock

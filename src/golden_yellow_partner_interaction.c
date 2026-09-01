@@ -1,6 +1,7 @@
 #include "global.h"
 #include "event_data.h"
 #include "event_object_movement.h"
+#include "golden_yellow_partner_fan_club.h"
 #include "golden_yellow_partner_reaction.h"
 #include "golden_yellow_partner_state.h"
 #include "pokemon.h"
@@ -25,6 +26,15 @@ static bool8 GoldenYellow_WaitForPewterPartnerWake(void)
         return FALSE;
 
     GoldenYellow_CompletePewterPartnerWakeOnFollower();
+    return TRUE;
+}
+
+static bool8 GoldenYellow_WaitForFanClubPartnerRejoin(void)
+{
+    if (GoldenYellow_IsPartnerPikachuReactionActive())
+        return FALSE;
+
+    GoldenYellow_CompleteFanClubPartnerOnFollower();
     return TRUE;
 }
 
@@ -156,6 +166,20 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
         return;
 
     gSpecialVar_Result = TRUE;
+
+    // P7C: while Partner is parked beside the Fan Club Pikachu, direct talk has
+    // authored precedence over P7A/P6/P5. Yellow Emotion30 is the manual release
+    // reaction; only after it finishes does the proven P7A-style lifecycle hand
+    // the same object back to FOLLOW_PLAYER.
+    if (GoldenYellow_IsFanClubPartnerParked(partner))
+    {
+        if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(GY_PARTNER_REACTION_FAN_CLUB_MAX_AFFECTION))
+            return;
+
+        SetupNativeScript(ctx, GoldenYellow_WaitForFanClubPartnerRejoin);
+        ctx->waitAfterCallNative = TRUE;
+        return;
+    }
 
     if (GoldenYellow_IsPewterPartnerSleepActive(partner))
     {
