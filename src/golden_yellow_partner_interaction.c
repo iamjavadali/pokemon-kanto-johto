@@ -57,6 +57,30 @@ static bool32 GoldenYellow_IsBillPartnerInteractionObject(void)
         && selectedObject->graphicsId == OBJ_EVENT_GFX_PIKACHU_FRLG;
 }
 
+static bool32 GoldenYellow_IsPokemonTowerPartnerInteractionMap(void)
+{
+    if (gSaveBlock1Ptr->location.mapGroup != MAP_GROUP(MAP_POKEMON_TOWER_1F))
+        return FALSE;
+
+    // Yellow applies the authored afraid reaction to direct Partner talk on
+    // every Pokemon Tower floor. List each FRLG map explicitly instead of
+    // depending on map-number contiguity so later map-table edits cannot widen
+    // or silently break this story-specific precedence rule.
+    switch (gSaveBlock1Ptr->location.mapNum)
+    {
+    case MAP_NUM(MAP_POKEMON_TOWER_1F):
+    case MAP_NUM(MAP_POKEMON_TOWER_2F):
+    case MAP_NUM(MAP_POKEMON_TOWER_3F):
+    case MAP_NUM(MAP_POKEMON_TOWER_4F):
+    case MAP_NUM(MAP_POKEMON_TOWER_5F):
+    case MAP_NUM(MAP_POKEMON_TOWER_6F):
+    case MAP_NUM(MAP_POKEMON_TOWER_7F):
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
 void GoldenYellow_RestorePewterPartnerSleepNative(struct ScriptContext *ctx)
 {
     (void)ctx;
@@ -184,6 +208,20 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
     if (GoldenYellow_IsPewterPartnerSleepActive(partner))
     {
         GoldenYellow_StartPewterPartnerWake(ctx, partner);
+        return;
+    }
+
+    // P7D: Yellow gives direct Partner talk on Pokemon Tower 1F-7F a repeatable
+    // map-specific override. Emotion22 outranks P6 one-shot modifiers and P5
+    // friendship/mood selection, but it owns no scene state and consumes no
+    // modifier; leaving the Tower naturally returns to normal interaction.
+    if (GoldenYellow_IsPokemonTowerPartnerInteractionMap())
+    {
+        if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(GY_PARTNER_REACTION_TOWER_AFRAID))
+            return;
+
+        SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+        ctx->waitAfterCallNative = TRUE;
         return;
     }
 
