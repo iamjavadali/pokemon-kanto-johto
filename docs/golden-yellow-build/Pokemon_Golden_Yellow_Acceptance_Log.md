@@ -72,6 +72,7 @@ A later branch HEAD does not invalidate an earlier acceptance merely because add
 | Bill / Sea Cottage Partner Pikachu reaction + Yellow portrait slice | ACCEPTED | `Pokemon_Golden_Yellow_Bill_Acceptance_Record.md` |
 | Full Yellow Partner portrait catalog + generalized renderer (P1/P2) | ACCEPTED | This log |
 | Yellow Partner reaction-program director (P3) | ACCEPTED | This log |
+| P7A Pewter Jigglypuff authored Partner integration / sleep lifecycle | ACCEPTED | This log |
 
 ---
 
@@ -506,7 +507,47 @@ This acceptance advances the Partner-reaction reconstruction boundary to P4: nor
 
 ---
 
-# 16. Maintenance Rule
+# 16. Acceptance — P7A Pewter Jigglypuff Authored Partner Integration
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-09-01  
+**Final accepted source tip:** `360470d8f34411b273ac584374c796c4248ef57a`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33469168689`  
+**Manual result:** PASS — user explicitly confirmed P7A is accepted
+
+## Scope
+
+P7A closes the authored Pewter Pokémon Center / Jigglypuff migration onto the common Golden Yellow Partner reaction architecture. It preserves the previously required Yellow sleep/wake story result while integrating its lifecycle with the accepted P3 reaction director and the later P4/P5/P6 Partner systems rather than maintaining a parallel reaction engine.
+
+The accepted source tip includes the cumulative P7A stabilization work through the follower-object handoff, repeat-safe sleep lifecycle, movement cleanup, Pewter blocker behavior, stair-warp behavior, escalator behavior, and final follower event-object constant correction.
+
+## Accepted behavior
+
+- voluntary Jigglypuff interaction still triggers the required Yellow Partner sleep sequence;
+- only canonical Partner Pikachu (`SPECIES_PIKACHU_STARTER`) qualifies for the authored reaction;
+- the P3 reaction director remains the shared reaction backend rather than a duplicated Pewter-specific emotion engine;
+- the sleep lifecycle can be entered, completed, and repeated without deadlocking follower movement;
+- Partner movement state is normalized at the scene boundaries so later following remains usable;
+- Partner Pikachu remains visibly represented through the accepted Pewter blocker behavior;
+- Partner Pikachu remains out through the corrected stair-warp and escalator cases covered by the accepted P7A build;
+- the sleep/wake sequence returns normal follower authority after the authored reaction completes;
+- ordinary Pikachu and unrelated followers do not inherit the canonical Partner-only authored behavior.
+
+## Regression invariants
+
+- preserve `SPECIES_PIKACHU_STARTER` as the canonical Partner gate;
+- do not recreate a second Pewter reaction engine outside the accepted P3 director;
+- do not reintroduce the follower movement deadlock or stale movement state corrected during P7A;
+- preserve the repeat-safe sleep lifecycle and successful restoration of normal following;
+- preserve the accepted visibility behavior at Pewter blockers, stair warps, and escalators;
+- do not let P7B or later authored reactions regress the accepted P7A object/follower lifecycle.
+
+This acceptance closes P7A. It does not accept P7B or any later authored Partner integration merely because those stages build on the same reaction director.
+
+---
+
+# 17. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
