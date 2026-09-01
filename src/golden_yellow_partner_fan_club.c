@@ -8,12 +8,14 @@
 #include "pokemon.h"
 #include "script.h"
 #include "script_movement.h"
+#include "sound.h"
 #include "sprite.h"
 #include "constants/event_object_movement.h"
 #include "constants/event_objects.h"
 #include "constants/flags.h"
 #include "constants/golden_yellow_partner_reactions.h"
 #include "constants/maps.h"
+#include "constants/songs.h"
 #include "constants/species.h"
 #include "constants/vars.h"
 
@@ -169,7 +171,12 @@ static bool32 BuildFanClubApproachMovement(const struct ObjectEvent *follower,
     targetX = clubPikachu->currentCoords.x;
     targetY = clubPikachu->currentCoords.y + 1;
 
+    // Match the standard FRLG attention beat used by authored overworld scenes:
+    // show the ! first, then hold it long enough to read before Partner moves.
+    // SE_PIN is played immediately before this movement script is started.
     if (!AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_EMOTE_EXCLAMATION_MARK)
+     || !AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_DELAY_16)
+     || !AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_DELAY_16)
      || !AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_DELAY_16))
         return FALSE;
 
@@ -303,6 +310,7 @@ void GoldenYellow_StartFanClubPartnerArrival(struct ScriptContext *ctx)
     }
 
     VarSet(VAR_GY_FAN_CLUB_PARTNER_STATE, GY_FAN_CLUB_PARTNER_APPROACHING);
+    PlaySE(SE_PIN);
     if (ScriptMovement_StartObjectMovementScript(OBJ_EVENT_ID_FOLLOWER,
                                                   gSaveBlock1Ptr->location.mapNum,
                                                   gSaveBlock1Ptr->location.mapGroup,
