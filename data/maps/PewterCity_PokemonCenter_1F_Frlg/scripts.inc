@@ -62,23 +62,31 @@ PewterCity_PokemonCenter_1F_EventScript_JigglypuffFinish::
 
 PewterCity_PokemonCenter_1F_EventScript_BlockFrontExit::
 	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	callnative GoldenYellow_RestorePewterPartnerSleepNative
 	applymovement LOCALID_PEWTER_NURSE, PewterCity_PokemonCenter_1F_Movement_NurseStopPlayer
 	waitmovement LOCALID_PEWTER_NURSE
 	msgbox PewterCity_PokemonCenter_1F_Text_NurseDontLeaveSleepingPikachu, MSGBOX_DEFAULT
 	closemessage
 	applymovement LOCALID_PLAYER, PewterCity_PokemonCenter_1F_Movement_PlayerBackFromFrontExit
 	waitmovement 0
+	callnative GoldenYellow_RestorePewterPartnerSleepNative
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
 PewterCity_PokemonCenter_1F_EventScript_BlockUpstairs::
 	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	callnative GoldenYellow_RestorePewterPartnerSleepNative
 	applymovement LOCALID_PEWTER_NURSE, PewterCity_PokemonCenter_1F_Movement_NurseStopPlayer
 	waitmovement LOCALID_PEWTER_NURSE
 	msgbox PewterCity_PokemonCenter_1F_Text_NurseDontLeaveSleepingPikachu, MSGBOX_DEFAULT
 	closemessage
 	applymovement LOCALID_PLAYER, PewterCity_PokemonCenter_1F_Movement_PlayerBackFromUpstairs
 	waitmovement 0
+	callnative GoldenYellow_RestorePewterPartnerSleepNative
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
