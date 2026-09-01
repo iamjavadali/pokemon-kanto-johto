@@ -44,7 +44,7 @@ enum GoldenYellowPartnerInteractionRoute
 
 static EWRAM_DATA u8 sBillPartnerApproachMovement[BILL_PARTNER_APPROACH_MOVEMENT_CAPACITY];
 static u8 sBillPartnerApproachLocalId;
-static u8 sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
+static EWRAM_INIT u8 sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
 
 static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
 {
@@ -437,7 +437,6 @@ void GoldenYellow_StartPewterPartnerSleepReaction(struct ScriptContext *ctx)
     ctx->waitAfterCallNative = TRUE;
     gSpecialVar_Result = TRUE;
 }
-
 static bool32 GoldenYellow_StartPewterPartnerWake(struct ScriptContext *ctx, struct Pokemon *partner)
 {
     if (!GoldenYellow_IsPewterPartnerSleepActive(partner))
