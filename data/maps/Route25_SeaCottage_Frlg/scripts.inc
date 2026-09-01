@@ -87,13 +87,19 @@ Route25_SeaCottage_EventScript_YellowEntryReactionFinish::
 	releaseall
 	end
 
-@ The y=8 inward door row is shared by entry and exit. Only a south-facing
-@ player is attempting to leave. Bill inside the teleporter always blocks exit;
-@ after restoration, canonical Partner Pikachu must be manually released first.
+@ The center-upper doorway guard is shared by entry and exit and therefore
+@ remains south-facing only. The side-warp guards use SideExitCheck so lateral
+@ entry onto either warp tile cannot bypass Bill/Partner exit ownership.
 Route25_SeaCottage_EventScript_ExitCheck::
 	lockall
 	specialvar VAR_RESULT, GetPlayerFacingDirection
 	goto_if_ne VAR_RESULT, DIR_SOUTH, Route25_SeaCottage_EventScript_ExitCheckFinish
+	goto Route25_SeaCottage_EventScript_ExitCheckState
+
+Route25_SeaCottage_EventScript_SideExitCheck::
+	lockall
+
+Route25_SeaCottage_EventScript_ExitCheckState::
 	goto_if_set BILL_IN_TELEPORTER, Route25_SeaCottage_EventScript_BlockExitBillInMachine
 	goto_if_unset FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_SeaCottage_EventScript_ExitCheckFinish
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner

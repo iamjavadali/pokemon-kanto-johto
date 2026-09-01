@@ -37,15 +37,20 @@ VermilionCity_PokemonFanClub_EventScript_PartnerExitCheck::
 	goto_if_ne VAR_RESULT, DIR_SOUTH, VermilionCity_PokemonFanClub_EventScript_PartnerExitCheckFinish
 	goto VermilionCity_PokemonFanClub_EventScript_BlockExit
 
+VermilionCity_PokemonFanClub_EventScript_PartnerSideExitCheck::
+	lockall
+	goto_if_ne YELLOW_FAN_CLUB_PARTNER_STATE, YELLOW_FAN_CLUB_PARTNER_PARKED, VermilionCity_PokemonFanClub_EventScript_PartnerExitCheckFinish
+	goto VermilionCity_PokemonFanClub_EventScript_BlockExit
+
 VermilionCity_PokemonFanClub_EventScript_PartnerExitCheckFinish::
 	releaseall
 	end
 
-@ Mirror the accepted Pewter Jigglypuff exit guard. The y=9 doorway row is used
-@ both when entering and leaving this room, so PARKED state alone is not enough:
-@ only a player actually facing south toward the exit is blocked. During the
-@ corrective backstep, SAFE_FOLLOWER_MOVEMENT plus explicit restore calls keep
-@ the scene-owned Partner visible and parked instead of recalling it to its Ball.
+@ Mirror the accepted Pewter Jigglypuff exit guard. The center-upper doorway
+@ guard remains south-facing only, while the side-warp guards block from any
+@ approach direction whenever Partner is still parked. During the corrective
+@ backstep, SAFE_FOLLOWER_MOVEMENT plus explicit restore calls keep the
+@ scene-owned Partner visible and parked instead of recalling it to its Ball.
 VermilionCity_PokemonFanClub_EventScript_BlockExit::
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	callnative GoldenYellow_RestoreFanClubPartnerOnFollower

@@ -134,7 +134,7 @@
       "elevation": 3,
       "var": "VAR_TEMP_5",
       "var_value": "0",
-      "script": "VermilionCity_PokemonFanClub_EventScript_PartnerExitCheck"
+      "script": "VermilionCity_PokemonFanClub_EventScript_PartnerSideExitCheck"
     },
     {
       "type": "trigger",
@@ -152,7 +152,7 @@
       "elevation": 3,
       "var": "VAR_TEMP_5",
       "var_value": "0",
-      "script": "VermilionCity_PokemonFanClub_EventScript_PartnerExitCheck"
+      "script": "VermilionCity_PokemonFanClub_EventScript_PartnerSideExitCheck"
     }
   ],
   "bg_events": [

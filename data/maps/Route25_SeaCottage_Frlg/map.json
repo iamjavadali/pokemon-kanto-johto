@@ -93,7 +93,7 @@
       "elevation": 3,
       "var": "VAR_TEMP_5",
       "var_value": "0",
-      "script": "Route25_SeaCottage_EventScript_ExitCheck"
+      "script": "Route25_SeaCottage_EventScript_SideExitCheck"
     },
     {
       "type": "trigger",
@@ -111,7 +111,7 @@
       "elevation": 3,
       "var": "VAR_TEMP_5",
       "var_value": "0",
-      "script": "Route25_SeaCottage_EventScript_ExitCheck"
+      "script": "Route25_SeaCottage_EventScript_SideExitCheck"
     }
   ],
   "bg_events": [
