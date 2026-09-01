@@ -130,33 +130,6 @@
     {
       "type": "trigger",
       "x": 4,
-      "y": 8,
-      "elevation": 3,
-      "var": "VAR_TEMP_4",
-      "var_value": "0",
-      "script": "VermilionCity_PokemonFanClub_EventScript_PartnerArrival"
-    },
-    {
-      "type": "trigger",
-      "x": 5,
-      "y": 8,
-      "elevation": 3,
-      "var": "VAR_TEMP_4",
-      "var_value": "0",
-      "script": "VermilionCity_PokemonFanClub_EventScript_PartnerArrival"
-    },
-    {
-      "type": "trigger",
-      "x": 6,
-      "y": 8,
-      "elevation": 3,
-      "var": "VAR_TEMP_4",
-      "var_value": "0",
-      "script": "VermilionCity_PokemonFanClub_EventScript_PartnerArrival"
-    },
-    {
-      "type": "trigger",
-      "x": 4,
       "y": 9,
       "elevation": 3,
       "var": "VAR_TEMP_5",

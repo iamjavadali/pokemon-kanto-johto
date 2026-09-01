@@ -1,17 +1,29 @@
 .set SPOKE_TO_WOMAN_LAST,   FLAG_TEMP_2
 .set SPOKE_TO_FAT_MAN_LAST, FLAG_TEMP_3
+.set YELLOW_FAN_CLUB_ENTRY_PENDING, VAR_TEMP_4
 
 VermilionCity_PokemonFanClub_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, VermilionCity_PokemonFanClub_OnTransition
+	map_script MAP_SCRIPT_ON_FRAME_TABLE, VermilionCity_PokemonFanClub_OnFrame
 	.byte 0
 
 VermilionCity_PokemonFanClub_OnTransition::
 	callnative GoldenYellow_RestoreFanClubPartnerOnFollower
+	setvar YELLOW_FAN_CLUB_ENTRY_PENDING, 1
 	end
 
+VermilionCity_PokemonFanClub_OnFrame::
+	map_script_2 YELLOW_FAN_CLUB_ENTRY_PENDING, 1, VermilionCity_PokemonFanClub_EventScript_PartnerArrival
+	.2byte 0
+
+@ Match the proven Bill-house entry lifecycle: arm during transition and consume
+@ on the first controllable map frame, before the player can walk into the room.
+@ The brief settle delay lets the following-Pokemon object finish map entry;
+@ P7C then stages Partner beside the player, shows !, and owns the authored walk.
 VermilionCity_PokemonFanClub_EventScript_PartnerArrival::
 	lockall
-	setvar VAR_TEMP_4, 1
+	setvar YELLOW_FAN_CLUB_ENTRY_PENDING, 0
+	delay 8
 	callnative GoldenYellow_StartFanClubPartnerArrival
 	releaseall
 	end
