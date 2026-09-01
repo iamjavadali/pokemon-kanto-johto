@@ -52,7 +52,11 @@ static void NormalizePewterPartnerFollower(struct ObjectEvent *follower, bool32 
     if (follower == NULL || !follower->active)
         return;
 
-    ObjectEventClearHeldMovementIfActive(follower);
+    // Scene-end/rollback cleanup must clear the complete movement override,
+    // including both heldMovementActive and singleMovementActive. Clearing only
+    // held movement can strand the follower in an overridden state and prevent
+    // the next P3 ScriptMovement from ever scheduling its first action.
+    ClearObjectEventMovement(follower, &gSprites[follower->spriteId]);
     UnfreezeObjectEvent(follower);
 
     if (reanchorIfDistant)
@@ -80,11 +84,11 @@ static void ParkPewterPartnerFollower(struct ObjectEvent *follower)
     if (follower == NULL || !follower->active)
         return;
 
-    // Match the previously proven P7A sleep-start behavior. Clear only an
-    // ordinary held follow step, then park the existing follower object. Do not
-    // unfreeze/reset it through FOLLOW_PLAYER immediately before P3 takes over:
-    // the reaction director owns the subsequent ScriptMovement choreography.
-    ObjectEventClearHeldMovementIfActive(follower);
+    // Preserve the proven P7A first-cycle startup behavior. Do not clear the
+    // follower's in-flight movement here: doing so can leave singleMovementActive
+    // set while held movement is cleared, causing the upcoming P3 sleepy-sway
+    // ScriptMovement to retry forever. P3 owns movement once the reaction starts;
+    // full movement cleanup belongs only at restore/abort/wake boundaries.
     SetTrainerMovementType(follower, MOVEMENT_TYPE_NONE);
     follower->invisible = FALSE;
     gSprites[follower->spriteId].invisible = FALSE;
@@ -159,7 +163,9 @@ void GoldenYellow_RestorePewterPartnerSleepOnFollower(void)
     x = packedPosition & 0xFF;
     y = packedPosition >> 8;
 
-    ObjectEventClearHeldMovementIfActive(follower);
+    // A map restore is a scene boundary, not the live first-cycle handoff to P3,
+    // so clear every stale movement flag before putting the saved sleeper back.
+    ClearObjectEventMovement(follower, &gSprites[follower->spriteId]);
     UnfreezeObjectEvent(follower);
     MoveObjectEventToMapCoords(follower, x, y);
     ObjectEventTurn(follower, DIR_SOUTH);
