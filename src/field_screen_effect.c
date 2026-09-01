@@ -1688,7 +1688,10 @@ static void Task_StairWarp(u8 taskId)
         LockPlayerFieldControls();
         FreezeObjectEvents();
         CameraObjectFreeze();
-        HideFollowerForFieldEffect();
+        // Yellow's canonical Partner traverses ordinary stairs outside its Poké Ball.
+        // Ordinary Pokémon followers retain the expansion's recall transition.
+        if (!IsCanonicalPartnerPikachuFollower(GetFollowerObject()))
+            HideFollowerForFieldEffect();
         tState++;
         break;
     case 1:
