@@ -151,7 +151,7 @@
     {
       "type": "trigger",
       "x": 6,
-      "y": 7,
+      "y": 8,
       "elevation": 0,
       "var": "VAR_UNUSED_0x40FB",
       "var_value": "1",
@@ -169,7 +169,7 @@
     {
       "type": "trigger",
       "x": 8,
-      "y": 7,
+      "y": 8,
       "elevation": 0,
       "var": "VAR_UNUSED_0x40FB",
       "var_value": "1",
