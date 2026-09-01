@@ -2,6 +2,7 @@
 .equ RETURN_AFTER_SS_TICKET, FLAG_TEMP_3
 .equ YELLOW_BILL_ENTRY_PENDING, VAR_TEMP_0
 .equ YELLOW_BILL_PARTNER_PRESENT, VAR_TEMP_1
+.equ YELLOW_BILL_PARTNER_RELEASED, VAR_TEMP_2
 .equ YELLOW_PIKACHU_PORTRAIT_BILL_CONFUSED, 0
 .equ YELLOW_PIKACHU_PORTRAIT_BILL_SHOCKED,  1
 
@@ -21,15 +22,22 @@ Route25_SeaCottage_OnFrame::
 	map_script_2 YELLOW_BILL_ENTRY_PENDING, 1, Route25_SeaCottage_EventScript_YellowEntryReaction
 	.2byte 0
 
-@ Bill's house owns Partner Pikachu as a normal scripted map object, matching
-@ Yellow's event model. The automatic overworld follower is suppressed for the
-@ entire Sea Cottage map and resumes naturally after the player leaves.
+@ Before Bill is restored, Sea Cottage owns a dedicated visible Partner object
+@ for the Yellow choreography. After the post-restoration manual Partner reaction
+@ releases that ownership, later visits use the normal following-Pokemon object.
 Route25_SeaCottage_EventScript_SetupYellowPartnerObject::
-	setflag FLAG_TEMP_HIDE_FOLLOWER
 	setflag FLAG_TEMP_5
+	setvar YELLOW_BILL_PARTNER_RELEASED, 0
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
 	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_SetupYellowPartnerObjectReturn
+	goto_if_set FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_SeaCottage_EventScript_SetupYellowPartnerFollower
+	setflag FLAG_TEMP_HIDE_FOLLOWER
 	clearflag FLAG_TEMP_5
+	return
+
+Route25_SeaCottage_EventScript_SetupYellowPartnerFollower::
+	clearflag FLAG_TEMP_HIDE_FOLLOWER
+	setvar YELLOW_BILL_PARTNER_RELEASED, 1
 
 Route25_SeaCottage_EventScript_SetupYellowPartnerObjectReturn::
 	return
@@ -48,20 +56,18 @@ Route25_SeaCottage_EventScript_SetReturnedAfterSSTicket::
 	return
 
 @ Yellow opens Bill's house with Partner Pikachu independently noticing the
-@ transformed Bill. Partner is a dedicated scene object and never shadows Red
-@ while the player is inside Sea Cottage.
+@ transformed Bill. The native approach helper stages the dedicated Partner on
+@ the player's right, shows the standard ! + SE_PIN + 48-frame pause, then walks
+@ it to the tile directly below transformed Bill before this reaction continues.
 Route25_SeaCottage_EventScript_YellowEntryReaction::
 	lockall
-	delay 8
 	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
 	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_YellowEntryReactionNoPartner
 	setvar YELLOW_BILL_ENTRY_PENDING, 0
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	applymovement LOCALID_BILL_CLEFAIRY, Common_Movement_FaceDown
 	waitmovement 0
-	applymovement LOCALID_BILL_PARTNER_PIKACHU, Route25_SeaCottage_Movement_PartnerApproachTransformedBill
-	waitmovement LOCALID_BILL_PARTNER_PIKACHU
-	playse SE_PIN
+	callnative GoldenYellow_StartBillPartnerEntryApproach
 	applymovement LOCALID_BILL_PARTNER_PIKACHU, Common_Movement_QuestionMark
 	waitmovement LOCALID_BILL_PARTNER_PIKACHU
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
@@ -81,6 +87,50 @@ Route25_SeaCottage_EventScript_YellowEntryReactionNoPartner::
 Route25_SeaCottage_EventScript_YellowEntryReactionFinish::
 	releaseall
 	end
+
+@ The y=8 inward door row is shared by entry and exit. Only a south-facing
+@ player is attempting to leave. Bill inside the teleporter always blocks exit;
+@ after restoration, canonical Partner Pikachu must be manually released first.
+Route25_SeaCottage_EventScript_ExitCheck::
+	lockall
+	specialvar VAR_RESULT, GetPlayerFacingDirection
+	goto_if_ne VAR_RESULT, DIR_SOUTH, Route25_SeaCottage_EventScript_ExitCheckFinish
+	goto_if_set BILL_IN_TELEPORTER, Route25_SeaCottage_EventScript_BlockExitBillInMachine
+	goto_if_unset FLAG_HELPED_BILL_IN_SEA_COTTAGE, Route25_SeaCottage_EventScript_ExitCheckFinish
+	call Route25_SeaCottage_EventScript_CheckCanonicalPartner
+	goto_if_eq YELLOW_BILL_PARTNER_PRESENT, 0, Route25_SeaCottage_EventScript_ExitCheckFinish
+	goto_if_eq YELLOW_BILL_PARTNER_RELEASED, 1, Route25_SeaCottage_EventScript_ExitCheckFinish
+	goto Route25_SeaCottage_EventScript_BlockExitPartnerWaiting
+
+Route25_SeaCottage_EventScript_ExitCheckFinish::
+	releaseall
+	end
+
+Route25_SeaCottage_EventScript_BlockExitBillInMachine::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	msgbox Route25_SeaCottage_Text_BillStillInsideMachine, MSGBOX_DEFAULT
+	closemessage
+	applymovement LOCALID_PLAYER, Route25_SeaCottage_Movement_PlayerBackFromExit
+	waitmovement 0
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
+	end
+
+Route25_SeaCottage_EventScript_BlockExitPartnerWaiting::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox Route25_SeaCottage_Text_PartnerWaitingDontLeave, MSGBOX_DEFAULT
+	closemessage
+	applymovement LOCALID_PLAYER, Route25_SeaCottage_Movement_PlayerBackFromExit
+	waitmovement 0
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
+	end
+
+Route25_SeaCottage_Movement_PlayerBackFromExit::
+	walk_up
+	step_end
 
 @ Canonical Partner Pikachu is SPECIES_PIKACHU_STARTER. Ordinary Pikachu must
 @ never satisfy Yellow-specific Bill choreography.
@@ -529,7 +579,8 @@ Route25_SeaCottage_Movement_BillExitTeleporter::
 	walk_down
 	step_end
 
-@ Yellow-specific additive Partner and post-restoration movements.
+@ Retained legacy fixed-path movement. Entry now uses the dynamic native helper
+@ above so the visible start pose is correct regardless of the doorway lane.
 Route25_SeaCottage_Movement_PartnerApproachTransformedBill::
 	walk_right
 	walk_right
@@ -687,6 +738,17 @@ Route25_SeaCottage_Text_TeleporterIsDisplayed::
 Route25_SeaCottage_Text_InitiatedTeleportersCellSeparator::
 	.string "{PLAYER} initiated the TELEPORTER's\n"
 	.string "Cell Separator.$"
+
+Route25_SeaCottage_Text_BillStillInsideMachine::
+	.string "BILL is still inside the\n"
+	.string "TELEPORTER!\p"
+	.string "I can't leave now.$"
+
+Route25_SeaCottage_Text_PartnerWaitingDontLeave::
+	.string "PIKACHU is still waiting by\n"
+	.string "BILL's machine.\p"
+	.string "I should check on it before\n"
+	.string "leaving.$"
 
 Route25_SeaCottage_Text_BillsFavoriteMonList::
 	.string "BILL's favorite POKéMON list!$"

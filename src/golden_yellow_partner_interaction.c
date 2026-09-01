@@ -1,16 +1,26 @@
 #include "global.h"
 #include "event_data.h"
 #include "event_object_movement.h"
+#include "field_player_avatar.h"
 #include "golden_yellow_partner_fan_club.h"
 #include "golden_yellow_partner_reaction.h"
 #include "golden_yellow_partner_state.h"
 #include "pokemon.h"
 #include "script.h"
+#include "script_movement.h"
+#include "sound.h"
 #include "constants/battle.h"
+#include "constants/event_object_movement.h"
 #include "constants/event_objects.h"
+#include "constants/flags.h"
 #include "constants/golden_yellow_partner_reactions.h"
 #include "constants/maps.h"
+#include "constants/songs.h"
 #include "constants/species.h"
+#include "constants/vars.h"
+
+#define VAR_GY_BILL_PARTNER_RELEASED VAR_TEMP_2
+#define BILL_PARTNER_APPROACH_MOVEMENT_CAPACITY 32
 
 enum GoldenYellowPartnerInteractionRoute
 {
@@ -31,6 +41,10 @@ enum GoldenYellowPartnerInteractionRoute
     GY_PARTNER_INTERACTION_ONE_SHOT,
     GY_PARTNER_INTERACTION_MOOD,
 };
+
+static EWRAM_DATA u8 sBillPartnerApproachMovement[BILL_PARTNER_APPROACH_MOVEMENT_CAPACITY];
+static u8 sBillPartnerApproachLocalId;
+static u8 sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
 
 static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
 {
@@ -59,21 +73,245 @@ static bool8 GoldenYellow_WaitForFanClubPartnerRejoin(void)
     return TRUE;
 }
 
+static bool32 GoldenYellow_IsInBillSeaCottage(void)
+{
+    return gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(MAP_ROUTE25_SEA_COTTAGE)
+        && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_ROUTE25_SEA_COTTAGE);
+}
+
+static struct ObjectEvent *GoldenYellow_FindBillPartnerSceneObject(void)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+    u32 i;
+
+    if (!GoldenYellow_IsInBillSeaCottage())
+        return NULL;
+
+    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+    {
+        struct ObjectEvent *object = &gObjectEvents[i];
+
+        if (!object->active
+         || object == follower
+         || object->localId == OBJ_EVENT_ID_FOLLOWER
+         || object->graphicsId != OBJ_EVENT_GFX_PIKACHU_FRLG
+         || object->mapGroup != gSaveBlock1Ptr->location.mapGroup
+         || object->mapNum != gSaveBlock1Ptr->location.mapNum)
+            continue;
+
+        return object;
+    }
+
+    return NULL;
+}
+
+static struct ObjectEvent *GoldenYellow_FindTransformedBillObject(void)
+{
+    u32 i;
+
+    if (!GoldenYellow_IsInBillSeaCottage())
+        return NULL;
+
+    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+    {
+        struct ObjectEvent *object = &gObjectEvents[i];
+
+        if (!object->active
+         || object->graphicsId != OBJ_EVENT_GFX_CLEFAIRY
+         || object->mapGroup != gSaveBlock1Ptr->location.mapGroup
+         || object->mapNum != gSaveBlock1Ptr->location.mapNum)
+            continue;
+
+        return object;
+    }
+
+    return NULL;
+}
+
+static bool32 GoldenYellow_AppendBillPartnerApproachMovement(u8 *count, u8 movement)
+{
+    if (*count >= BILL_PARTNER_APPROACH_MOVEMENT_CAPACITY - 1)
+        return FALSE;
+
+    sBillPartnerApproachMovement[(*count)++] = movement;
+    return TRUE;
+}
+
+static bool32 GoldenYellow_BuildBillPartnerApproachMovement(const struct ObjectEvent *partnerObject,
+                                                             const struct ObjectEvent *billObject)
+{
+    s16 x;
+    s16 y;
+    s16 targetX;
+    s16 targetY;
+    u8 count = 0;
+
+    if (partnerObject == NULL || billObject == NULL)
+        return FALSE;
+
+    x = partnerObject->currentCoords.x;
+    y = partnerObject->currentCoords.y;
+    targetX = billObject->currentCoords.x;
+    targetY = billObject->currentCoords.y + 1;
+
+    // Match the accepted Fan Club attention beat: standard SE_PIN, visible !,
+    // then a full 48-frame pause before Partner begins the authored run.
+    if (!GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_EMOTE_EXCLAMATION_MARK)
+     || !GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_DELAY_16)
+     || !GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_DELAY_16)
+     || !GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_DELAY_16))
+        return FALSE;
+
+    while (x < targetX)
+    {
+        if (!GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_WALK_NORMAL_RIGHT))
+            return FALSE;
+        x++;
+    }
+    while (x > targetX)
+    {
+        if (!GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_WALK_NORMAL_LEFT))
+            return FALSE;
+        x--;
+    }
+    while (y < targetY)
+    {
+        if (!GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_WALK_NORMAL_DOWN))
+            return FALSE;
+        y++;
+    }
+    while (y > targetY)
+    {
+        if (!GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_WALK_NORMAL_UP))
+            return FALSE;
+        y--;
+    }
+
+    if (!GoldenYellow_AppendBillPartnerApproachMovement(&count, MOVEMENT_ACTION_FACE_UP))
+        return FALSE;
+
+    sBillPartnerApproachMovement[count] = MOVEMENT_ACTION_STEP_END;
+    return TRUE;
+}
+
+static bool8 GoldenYellow_WaitForBillPartnerEntryApproach(void)
+{
+    struct ObjectEvent *partnerObject;
+
+    if (!GoldenYellow_IsInBillSeaCottage() || sBillPartnerApproachLocalId == 0)
+        return TRUE;
+
+    if (!ScriptMovement_IsObjectMovementFinished(sBillPartnerApproachLocalId,
+                                                  gSaveBlock1Ptr->location.mapNum,
+                                                  gSaveBlock1Ptr->location.mapGroup))
+        return FALSE;
+
+    partnerObject = GoldenYellow_FindBillPartnerSceneObject();
+    if (partnerObject != NULL)
+    {
+        ObjectEventClearHeldMovementIfFinished(partnerObject);
+        UnfreezeObjectEvent(partnerObject);
+    }
+
+    sBillPartnerApproachLocalId = 0;
+    return TRUE;
+}
+
+void GoldenYellow_StartBillPartnerEntryApproach(struct ScriptContext *ctx)
+{
+    struct Pokemon *partner = GetPartnerAwareFollowingMon();
+    struct ObjectEvent *partnerObject;
+    struct ObjectEvent *billObject;
+    struct ObjectEvent *player;
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    if (!GoldenYellow_IsInBillSeaCottage()
+     || partner == NULL
+     || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER)
+        return;
+
+    partnerObject = GoldenYellow_FindBillPartnerSceneObject();
+    billObject = GoldenYellow_FindTransformedBillObject();
+    if (partnerObject == NULL || billObject == NULL)
+        return;
+
+    player = &gObjectEvents[gPlayerAvatar.objectEventId];
+
+    // Reproduce the accepted Fan Club entrance pose: Partner is visibly beside
+    // the player on the player's right before the attention beat begins.
+    ObjectEventClearHeldMovementIfActive(partnerObject);
+    UnfreezeObjectEvent(partnerObject);
+    MoveObjectEventToMapCoords(partnerObject, player->currentCoords.x + 1, player->currentCoords.y);
+    ObjectEventTurn(partnerObject, DIR_NORTH);
+
+    if (!GoldenYellow_BuildBillPartnerApproachMovement(partnerObject, billObject))
+        return;
+
+    sBillPartnerApproachLocalId = partnerObject->localId;
+    PlaySE(SE_PIN);
+    if (ScriptMovement_StartObjectMovementScript(sBillPartnerApproachLocalId,
+                                                  gSaveBlock1Ptr->location.mapNum,
+                                                  gSaveBlock1Ptr->location.mapGroup,
+                                                  sBillPartnerApproachMovement))
+    {
+        sBillPartnerApproachLocalId = 0;
+        return;
+    }
+
+    SetupNativeScript(ctx, GoldenYellow_WaitForBillPartnerEntryApproach);
+    ctx->waitAfterCallNative = TRUE;
+}
+
+static bool8 GoldenYellow_WaitForBillPartnerRejoin(void)
+{
+    if (GoldenYellow_IsPartnerPikachuReactionActive())
+        return FALSE;
+
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+
+    if (!GoldenYellow_IsInBillSeaCottage()
+     || !FlagGet(FLAG_HELPED_BILL_IN_SEA_COTTAGE))
+    {
+        sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
+        return TRUE;
+    }
+
+    // The first post-restoration A-button reaction is the explicit release beat.
+    // Hide/remove the scene-owned Pikachu and hand authority back to the normal
+    // following-Pokemon object. Later visits already use the normal follower, so
+    // this handoff becomes a harmless no-op while Emotion31 remains repeatable.
+    if (FlagGet(FLAG_TEMP_HIDE_FOLLOWER))
+    {
+        if (sBillInteractionObjectEventId < OBJECT_EVENTS_COUNT
+         && gObjectEvents[sBillInteractionObjectEventId].active
+         && gObjectEvents[sBillInteractionObjectEventId].localId != OBJ_EVENT_ID_FOLLOWER)
+            RemoveObjectEvent(&gObjectEvents[sBillInteractionObjectEventId]);
+
+        FlagSet(FLAG_TEMP_5);
+        FlagClear(FLAG_TEMP_HIDE_FOLLOWER);
+        UpdateFollowingPokemon();
+    }
+
+    VarSet(VAR_GY_BILL_PARTNER_RELEASED, 1);
+    sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
+    return TRUE;
+}
+
 static bool32 GoldenYellow_IsBillPartnerInteractionObject(void)
 {
     struct ObjectEvent *selectedObject;
 
-    if (gSaveBlock1Ptr->location.mapGroup != MAP_GROUP(MAP_ROUTE25_SEA_COTTAGE)
-     || gSaveBlock1Ptr->location.mapNum != MAP_NUM(MAP_ROUTE25_SEA_COTTAGE)
+    if (!GoldenYellow_IsInBillSeaCottage()
      || gSelectedObjectEvent >= OBJECT_EVENTS_COUNT)
         return FALSE;
 
     selectedObject = &gObjectEvents[gSelectedObjectEvent];
 
-    // The map/location and selected-object test identify Bill's dedicated
-    // scene object. Canonical Partner identity is still established separately
-    // through GetPartnerAwareFollowingMon() + SPECIES_PIKACHU_STARTER below;
-    // graphics alone never qualifies an ordinary Pikachu as the Partner.
+    // The map/location and selected-object test identifies either the dedicated
+    // pre-release scene object or the normal follower used on later visits.
+    // Canonical identity is still established separately below; graphics alone
+    // never qualifies an ordinary Pikachu as the Partner.
     return selectedObject->active
         && selectedObject->graphicsId == OBJ_EVENT_GFX_PIKACHU_FRLG;
 }
@@ -261,14 +499,19 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
     switch (route)
     {
     case GY_PARTNER_INTERACTION_STORY_BILL:
+        sBillInteractionObjectEventId = gSelectedObjectEvent;
         GoldenYellow_SetPartnerPikachuReactionObject(gSelectedObjectEvent);
         if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(reaction))
         {
             GoldenYellow_ClearPartnerPikachuReactionObject();
+            sBillInteractionObjectEventId = OBJECT_EVENTS_COUNT;
             return;
         }
 
-        SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+        if (FlagGet(FLAG_HELPED_BILL_IN_SEA_COTTAGE))
+            SetupNativeScript(ctx, GoldenYellow_WaitForBillPartnerRejoin);
+        else
+            SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
         ctx->waitAfterCallNative = TRUE;
         return;
 
