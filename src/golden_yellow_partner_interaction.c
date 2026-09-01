@@ -325,8 +325,7 @@ static bool32 GoldenYellow_IsBillPartnerInteractionObject(void)
     // Require that exact object rather than accepting any Pikachu-shaped map NPC.
     return follower != NULL
         && follower->active
-        && selectedObject == follower
-        && selectedObject->graphicsId == OBJ_EVENT_GFX_PIKACHU_FRLG;
+        && selectedObject == follower;
 }
 
 static bool32 GoldenYellow_IsPokemonTowerPartnerInteractionMap(void)
