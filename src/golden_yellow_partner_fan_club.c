@@ -99,6 +99,22 @@ static void ParkFanClubPartnerFollower(struct ObjectEvent *follower)
     gSprites[follower->spriteId].invisible = FALSE;
 }
 
+static void StageFanClubPartnerEntrancePose(struct ObjectEvent *follower)
+{
+    struct ObjectEvent *player;
+
+    if (follower == NULL || !follower->active)
+        return;
+
+    player = &gObjectEvents[gPlayerAvatar.objectEventId];
+
+    // Yellow visibly establishes Pikachu beside the player before the ! bubble
+    // and authored walk begin. The FRLG entrance trigger spans x=4..6 on y=8;
+    // the tile immediately east is clear for each supported entrance position.
+    MoveObjectEventToMapCoords(follower, player->currentCoords.x + 1, player->currentCoords.y);
+    ObjectEventTurn(follower, DIR_NORTH);
+}
+
 static struct ObjectEvent *FindFanClubPikachuObject(void)
 {
     struct ObjectEvent *follower = GetFollowerObject();
@@ -145,8 +161,13 @@ static bool32 BuildFanClubApproachMovement(const struct ObjectEvent *follower,
 
     x = follower->currentCoords.x;
     y = follower->currentCoords.y;
-    targetX = clubPikachu->currentCoords.x - 1;
-    targetY = clubPikachu->currentCoords.y;
+
+    // The first P7C build targeted the tile left of the club Pikachu. In the
+    // FRLG room that visually reads as walking into the table. Yellow instead
+    // stops directly below the admired Pokemon, so translate that visible beat
+    // to the tile immediately south of the existing Fan Club Pikachu.
+    targetX = clubPikachu->currentCoords.x;
+    targetY = clubPikachu->currentCoords.y + 1;
 
     if (!AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_EMOTE_EXCLAMATION_MARK)
      || !AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_DELAY_16))
@@ -177,7 +198,7 @@ static bool32 BuildFanClubApproachMovement(const struct ObjectEvent *follower,
         y--;
     }
 
-    if (!AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_FACE_RIGHT))
+    if (!AppendFanClubApproachMovement(&count, MOVEMENT_ACTION_FACE_UP))
         return FALSE;
 
     sFanClubApproachMovement[count] = MOVEMENT_ACTION_STEP_END;
@@ -235,7 +256,7 @@ static bool8 WaitForFanClubPartnerArrival(void)
         // P3 may finish on a portrait-facing pose. Re-park and face the club's
         // Pikachu so the controllable scene matches Yellow's visible intent.
         ParkFanClubPartnerFollower(follower);
-        ObjectEventTurn(follower, DIR_EAST);
+        ObjectEventTurn(follower, DIR_NORTH);
         StoreFanClubPartnerPosition(follower);
         VarSet(VAR_GY_FAN_CLUB_PARTNER_STATE, GY_FAN_CLUB_PARTNER_PARKED);
         return TRUE;
@@ -271,8 +292,10 @@ void GoldenYellow_StartFanClubPartnerArrival(struct ScriptContext *ctx)
 
     // Transfer movement ownership before scripting the walk. This is the P7A
     // fix that prevents an in-flight FOLLOW_PLAYER step from deadlocking later
-    // ScriptMovement commands.
+    // ScriptMovement commands. Then reproduce Yellow's visible entrance pose by
+    // staging Partner beside the player before the ! emote is shown.
     ParkFanClubPartnerFollower(follower);
+    StageFanClubPartnerEntrancePose(follower);
     if (!BuildFanClubApproachMovement(follower, clubPikachu))
     {
         NormalizeFanClubPartnerFollower(follower, TRUE);
@@ -336,7 +359,7 @@ void GoldenYellow_RestoreFanClubPartnerOnFollower(struct ScriptContext *ctx)
     UnfreezeObjectEvent(follower);
     MoveObjectEventToMapCoords(follower, packedPosition & 0xFF, packedPosition >> 8);
     ParkFanClubPartnerFollower(follower);
-    ObjectEventTurn(follower, DIR_EAST);
+    ObjectEventTurn(follower, DIR_NORTH);
 }
 
 bool8 GoldenYellow_IsFanClubPartnerParked(struct Pokemon *partner)
