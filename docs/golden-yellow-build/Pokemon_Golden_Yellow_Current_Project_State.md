@@ -54,22 +54,23 @@ Broad progression currently stands at:
 → **Viridian / Viridian Forest**  
 → **Pewter / Brock**  
 → **Route 3 / Mt. Moon**  
-→ **Cerulean / Route 24 / Route 25 / Bill — ACCEPTED THROUGH BILL REACTION**  
+→ **Cerulean / Route 24 / Route 25 / Bill**  
 → **Yellow Partner portrait catalog + generalized renderer (P1/P2) — ACCEPTED**  
 → **Yellow Partner reaction-program director (P3) — ACCEPTED**  
 → **Normal A-button Partner interaction (P4) — IMPLEMENTED**  
 → **Yellow Partner friendship/mood selection (P5) — IMPLEMENTED**  
 → **Yellow Partner one-shot reactions (P6) — IMPLEMENTED**  
 → **P7A Pewter/Jigglypuff authored integration — ACCEPTED**  
-→ **P7B Bill authored A-button precedence integration — ACTIVE; BUILD-VALID, MANUAL ACCEPTANCE PENDING**
+→ **P7B Bill authored A-button precedence integration — ACCEPTED**  
+→ **P7C Vermilion Pokémon Fan Club authored Partner integration — NEXT STAGED BOUNDARY**
 
-The accepted gameplay baseline extends through the Yellow Cerulean Rival #3 / Fame Checker integration, Route 24 Charmander rescue / Damian adoption milestone, the required Bill / Sea Cottage transformed/restored Partner reaction, and the P7A Pewter/Jigglypuff authored Partner integration.
+The accepted gameplay baseline extends through the Yellow Cerulean Rival #3 / Fame Checker integration, Route 24 Charmander rescue / Damian adoption milestone, the required Bill / Sea Cottage transformed/restored Partner reaction, P7A Pewter/Jigglypuff authored integration, and P7B Bill manual A-button precedence integration.
 
 The complete directly selectable Yellow portrait-program catalog (`0–28`), reusable native-GBA portrait renderer/presentation layer, unified follower-emote resolver, and reusable Yellow reaction-program director (`0–32`) remain manually accepted foundations.
 
 P4, P5, and P6 are implemented layers above that accepted foundation. Their presence in the live repository does not by itself create separate manual acceptances.
 
-The immediate engineering boundary is P7B: add Yellow's Bill-house authored **A-button reaction precedence** around the already accepted Bill transformation scene without rewriting that scene.
+The immediate Partner-system engineering boundary is now the next required authored Yellow reaction integration. In campaign order, the next staged target is the Vermilion Pokémon Fan Club reaction, followed later by the Pokémon Tower fear/unease reaction.
 
 ---
 
@@ -81,9 +82,9 @@ The immediate engineering boundary is P7B: add Yellow's Bill-house authored **A-
 | Viridian / early Route 2 / Viridian Forest | Implemented for current approved scope |
 | Pewter / Brock / post-Brock progression | Implemented and accepted for current approved scope; P7A authored Partner integration accepted |
 | Route 3 / Mt. Moon | Implemented and accepted |
-| Cerulean / Route 24 / Route 25 / Bill | Active — Rival/Fame Checker, Charmander rescue, required Bill cutscene reaction accepted; P7B Bill A-button precedence build-valid and awaiting manual acceptance; Bulbasaur/Misty remain |
-| Vermilion / S.S. Anne / Lt. Surge | Pending staged audit and Yellow integration |
-| Lavender / Pokémon Tower | Pending staged audit and Yellow integration |
+| Cerulean / Route 24 / Route 25 / Bill | Rival/Fame Checker, Charmander rescue, required Bill cutscene reactions, and P7B Bill A-button precedence accepted; Bulbasaur/Misty remain |
+| Vermilion / S.S. Anne / Lt. Surge | Next staged audit/integration area; required Fan Club Partner reaction remains |
+| Lavender / Pokémon Tower | Pending staged audit and required Partner fear/unease integration |
 | Celadon / Rocket Hideout | Pending staged audit and Yellow integration |
 | Fuchsia / Saffron / Cinnabar / Viridian Gym | Pending staged audit and Yellow integration |
 | Victory Road / Indigo Plateau | Pending staged audit and Yellow integration |
@@ -118,9 +119,11 @@ Battle-opening follower integration also uses actual resolved follower Pokémon 
 
 Accepted Cerulean scenes demonstrate lane-aware, scene-local Partner staging across multi-actor choreography without replacing the generic follower engine.
 
-P3 additionally established native `ScriptMovement` sequencing as the accepted reusable body-language backend for Partner reactions. Reusable reaction choreography stays on the follower's current map tile and restores normal follower authority after each sequence.
+P3 established native `ScriptMovement` sequencing as the accepted reusable body-language backend for Partner reactions. Reusable reaction choreography stays on the follower's current map tile and restores normal follower authority after each sequence.
 
-P7A further established that authored Partner lifecycle work must preserve normal follower authority across scene boundaries, blocker interactions, stair warps, and escalator transitions.
+P7A established repeat-safe authored Partner lifecycle handling across the Pewter Jigglypuff sleep reaction, follower-object handoff, blocker behavior, stair warps, and escalator transitions.
+
+P7B additionally proves that the common P3 director can target a scene-owned visible Partner object when a map intentionally suppresses the generic follower, without creating a second reaction engine.
 
 ## 5.3 Yellow Rival Eevee State
 
@@ -172,7 +175,7 @@ The established portrait foundation includes:
 - centered portrait presentation;
 - a tightened approximately 64×64 visible outer box with 48×48 white interior;
 - a dedicated warm Pikachu-yellow/gold portrait-frame treatment that restores the player's normal configured window frame after dismissal;
-- preserved compatibility with the already-accepted Bill transformed/restored portrait reactions.
+- preserved compatibility with the accepted Bill transformed/restored portrait reactions.
 
 This foundation is accepted and must not be reimplemented.
 
@@ -194,27 +197,36 @@ The established reaction foundation includes:
 - clean restoration of follower authority after reaction movement;
 - a debug reaction browser with deterministic player-facing reset and manual pre-portrait inspection hold;
 - production/one-shot reaction execution that remains automatic and independent from the debug-only portrait gate;
-- semantic story callbacks kept inert until later authored integration explicitly owns their story effects.
+- semantic story callbacks kept inert until an authored integration explicitly proves ownership of a story effect.
 
 P4/P5/P6/P7 extend this common director rather than creating parallel Partner interaction, mood, modifier, or authored-reaction engines.
 
 ## 5.9 Implemented P4/P5/P6 Partner Layers
 
-The live implementation now includes:
+The live implementation includes:
 
 - P4 routing of canonical Partner Pikachu A-button field interaction through the P3 director;
 - P5 integration of Yellow-style friendship/mood-based normal talk selection;
 - P6 integration of supported one-shot Yellow Partner reaction modifiers.
 
-These implemented layers are active infrastructure for P7 authored precedence work. They must not be treated as separately manually accepted merely because they compile or are present in the repository.
+These implemented layers are infrastructure for authored P7 precedence work. They must not be treated as separately manually accepted merely because they compile or are present in the repository.
 
-## 5.10 Authored P7 Integration Foundation
+## 5.10 Accepted P7 Authored Integration Foundation
 
-P7A is manually accepted and establishes the first completed migration of a required authored Yellow reaction onto the common Partner architecture.
+P7A and P7B are manually accepted.
 
-P7B now extends the same precedence model to Bill's House. The accepted Bill transformation choreography remains unchanged; P7B only controls which existing P3 reaction is selected when the player manually presses A on the visible Partner in the Sea Cottage state.
+P7A proves that a required Yellow authored scene can migrate onto the common Partner architecture while preserving repeat-safe scene lifecycle and normal following.
 
-Because Sea Cottage intentionally renders Partner Pikachu as a scene-owned object while the generic follower is suppressed, P7B includes a narrowly scoped P3 target-object override. This selects the visible authored Partner object without changing P3 reaction programs, movement data, emotes, portraits, or story callbacks.
+P7B proves authored A-button precedence around an already accepted scene without rewriting that scene. Its accepted behavior is:
+
+- pre-restoration manual Sea Cottage Partner interaction → Yellow Emotion `32` through P3;
+- post-restoration manual Sea Cottage Partner interaction → Yellow Emotion `31` through P3;
+- automatic Bill cutscene reactions remain owned by the accepted scene;
+- canonical Partner identity remains mandatory;
+- the scene-owned visible Partner object can be targeted through a narrow P3 object override;
+- the Bill semantic callback remains non-authoritative and manual Partner reactions do not mutate Bill story state.
+
+Later authored P7 work must extend these accepted precedence/ownership patterns rather than fork them.
 
 ---
 
@@ -263,68 +275,46 @@ The currently accepted Yellow story/engine boundary reaches through:
 - Damian return and approved adoption/gift resolution;
 - Partner-safe Route 24/Damian choreography and associated revisit/decline state handling;
 - Route 25 / Sea Cottage Bill progression for the current approved scope;
-- required Partner Pikachu reaction to transformed Bill;
-- required Partner Pikachu reaction when Bill returns to human form;
+- required automatic Partner Pikachu reactions to transformed and restored Bill;
 - accepted original-Yellow confused/questioning and shocked/surprised Bill portrait presentation;
+- P7B Bill authored manual A-button precedence before and after restoration;
 - complete Yellow portrait-program catalog `0–28` and generalized GBA portrait renderer/presentation foundation;
 - complete reusable P3 Partner reaction-program director for Yellow Emotion IDs `0–32`;
 - accepted standard/special Partner emote resolver;
 - accepted tile-safe native follower reaction movement executor and deterministic portrait-pose synchronization.
 
-P7B is not part of this accepted boundary until its new A-button behavior is manually validated and explicitly accepted.
+P7B is now part of the regression baseline following explicit manual PASS.
 
 The details, commits, workflow runs, ROM hashes, and manual-validation notes for accepted milestones are maintained in `Pokemon_Golden_Yellow_Acceptance_Log.md` and any linked dedicated acceptance record.
 
 ---
 
-# 8. Current Active Development Boundary — P7B Bill Authored A-Button Precedence
+# 8. Current Active Development Boundary — P7C Vermilion Pokémon Fan Club Authored Reaction
 
-P7A is accepted. The immediate Partner-system engineering boundary is P7B.
+P7A and P7B are accepted. The next staged Partner-system boundary is the required Yellow Pokémon Fan Club authored reaction in Vermilion City.
 
-P7B is **not a Bill scene rewrite**.
+This stage should follow the same architectural rules established by P7A/P7B:
 
-Its purpose is to reproduce Yellow's authored Bill-house A-button precedence around the already accepted Golden Yellow Bill transformation scene.
+1. Re-audit the exact Pokémon Yellow Fan Club trigger, state selector, emotion/reaction ID, and any one-time or repeatable behavior before changing code.
+2. Identify the Golden Yellow / FRLG equivalent map, object, flags, and existing Fan Club progression.
+3. Preserve compatible FireRed map/event behavior unless Yellow canon requires an override.
+4. Route the authored Partner response through `GoldenYellow_TryPartnerPikachuFieldInteraction` / the existing P3 director where the source behavior is an A-button precedence case.
+5. Keep canonical `SPECIES_PIKACHU_STARTER` identity mandatory; ordinary Pikachu must never inherit Partner-only behavior.
+6. Reuse the accepted P1/P2 portrait renderer, P3 reaction programs, P4 interaction routing, P5 mood system, and P6 one-shot infrastructure rather than creating a second path.
+7. Keep semantic callbacks non-authoritative unless source evidence proves the Partner reaction itself changes persistent story state.
+8. Protect P7A and P7B as regression baselines.
+9. Treat CI/build success as implementation validation only; manual gameplay acceptance remains required.
 
-The source-exact Yellow selector is:
-
-- Bill-house script 0 → Emotion `23`;
-- Bill-house script 5 → Emotion `27`;
-- otherwise before `EVENT_MET_BILL_2` → Emotion `32`;
-- otherwise after `EVENT_MET_BILL_2` → Emotion `31`.
-
-Golden Yellow already owns the automatic transformed/restored cutscene beats corresponding to Emotion `23` and Emotion `27`. P7B therefore keeps those accepted cutscene reactions unchanged and adds only the manually reachable A-button states:
-
-- before the completed Bill restoration state → Emotion `32`;
-- after the completed Bill restoration state → Emotion `31`.
-
-Golden Yellow's persistent `FLAG_HELPED_BILL_IN_SEA_COTTAGE` is the equivalent manual-interaction boundary because player input is unavailable while the separator/restoration transition is in progress.
-
-P7B implementation rules are:
-
-1. Preserve the accepted Bill transformation cutscene unchanged.
-2. Keep the existing Bill machine choreography, map geometry, field-effect layer, portrait renderer, and reaction movement data unchanged.
-3. Add the Bill authored override inside `GoldenYellow_TryPartnerPikachuFieldInteraction` ahead of generic P6/P5 selection.
-4. Require the canonical Partner identity; ordinary Pikachu must never qualify merely because the visible object uses Pikachu graphics.
-5. Dispatch Emotion `31`/`32` through the existing P3 reaction director.
-6. Allow P3 to target the existing visible Sea Cottage Partner scene object without creating a second reaction engine.
-7. Keep P3's Bill semantic callback non-authoritative; an A-button Partner reaction must not independently advance Bill's story flags or machine state.
-8. Preserve the existing automatic transformed/restored Bill reactions corresponding to Yellow Emotion `23` and `27`.
-9. Treat successful compilation/build as implementation validation only; P7B remains unaccepted until manual gameplay confirms the precedence behavior and no Bill-scene regression.
-
-The P7B source implementation has passed the strict FireRed build and ROM-validation workflow. Manual gameplay acceptance is the remaining boundary.
-
-After P7B closes, remaining authored P7 work includes the required Vermilion Pokémon Fan Club reaction and Pokémon Tower fear/unease integration, staged separately so each accepted scene remains protected.
+The Pokémon Tower fear/unease authored reaction remains required after the Fan Club stage and should be integrated separately.
 
 ---
 
 # 9. Major Yellow Requirements Still Ahead
 
-The following are examples of required Yellow content that remains ahead of the current accepted boundary.
-
 ## Partner Pikachu system
 
-- P7B Bill authored A-button precedence — implemented/build-valid, manual acceptance pending;
-- remaining P7 authored reaction integration, including Pokémon Fan Club and Pokémon Tower;
+- P7C Vermilion Pokémon Fan Club authored reaction;
+- Pokémon Tower fear/unease authored reaction;
 - Partner evolution-refusal presentation where further authored integration is required;
 - later audio fidelity work where Yellow-specific PCM/cry behavior is required and feasible.
 
@@ -340,9 +330,10 @@ The following are examples of required Yellow content that remains ahead of the 
 - Lt. Surge Yellow battle identity audit;
 - Officer Jenny's Squirtle gift after Lt. Surge / Thunder Badge.
 
-## Later mandatory Partner reaction
+## Lavender / Pokémon Tower
 
-- Pokémon Tower fear/unease reaction.
+- required Partner fear/unease reaction;
+- Jessie & James Pokémon Tower encounter integration.
 
 ## Remaining Jessie & James encounters
 
@@ -394,7 +385,7 @@ The rules are:
 - dedicated acceptance records may preserve detailed choreography or implementation history for complex milestones;
 - Current Project State should not duplicate that detailed evidence.
 
-The accepted Bill transformation behavior, P1/P2 portrait renderer/presentation, P3 Partner reaction director, and P7A Pewter authored integration are regression targets for P7B and later Partner-system work.
+The accepted Bill transformation behavior, P1/P2 portrait renderer/presentation, P3 Partner reaction director, P7A Pewter authored integration, and P7B Bill authored precedence are regression targets for all later Partner-system work.
 
 ---
 
@@ -402,11 +393,9 @@ The accepted Bill transformation behavior, P1/P2 portrait renderer/presentation,
 
 **No confirmed blocking regression is open at this snapshot.**
 
-P7A has passed manual acceptance.
+P7A and P7B have both passed manual acceptance.
 
-P7B has passed source sanity checks, strict changed-source preflight, the full strict FireRed build, ROM validation, and artifact generation. It remains an active validation boundary because its new Bill-house A-button precedence has not yet received manual gameplay acceptance.
-
-If manual P7B testing passes, record the acceptance and continue to the next authored P7 reaction integration. If testing exposes a regression, correct only the narrow interaction/target-selection layer before advancing.
+The Partner reaction architecture is therefore clear to advance to the next authored reaction stage. Any new work must first re-resolve live `prototype/v0.1` HEAD and audit the exact current Fan Club implementation/source behavior before code changes, per the project Hard Rules.
 
 ---
 
