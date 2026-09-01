@@ -510,12 +510,8 @@ void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
     switch (route)
     {
     case GY_PARTNER_INTERACTION_STORY_BILL:
-        GoldenYellow_SetPartnerPikachuReactionObject(gSelectedObjectEvent);
         if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(reaction))
-        {
-            GoldenYellow_ClearPartnerPikachuReactionObject();
             return;
-        }
 
         if (FlagGet(FLAG_HELPED_BILL_IN_SEA_COTTAGE))
             SetupNativeScript(ctx, GoldenYellow_WaitForBillPartnerRejoin);
