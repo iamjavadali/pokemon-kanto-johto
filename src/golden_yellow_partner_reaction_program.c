@@ -21,6 +21,46 @@
 #define PARTNER_REACTION_POSE_HOLD_FRAMES 6
 #define PARTNER_REACTION_FIELD_TALK_POSE_HOLD_FRAMES 24
 
+// Authored maps such as Bill's Sea Cottage can intentionally suppress the
+// generic overworld follower and render canonical Partner Pikachu as a normal
+// scene-owned object. P7 integration must still use the single P3 director, so
+// keep a narrowly scoped target override rather than duplicating reaction logic.
+static bool8 sPartnerReactionObjectOverrideActive;
+static u8 sPartnerReactionObjectEventId;
+
+void GoldenYellow_SetPartnerPikachuReactionObject(u8 objectEventId)
+{
+    if (objectEventId >= OBJECT_EVENTS_COUNT || !gObjectEvents[objectEventId].active)
+    {
+        GoldenYellow_ClearPartnerPikachuReactionObject();
+        return;
+    }
+
+    sPartnerReactionObjectEventId = objectEventId;
+    sPartnerReactionObjectOverrideActive = TRUE;
+}
+
+void GoldenYellow_ClearPartnerPikachuReactionObject(void)
+{
+    sPartnerReactionObjectOverrideActive = FALSE;
+    sPartnerReactionObjectEventId = 0;
+}
+
+static struct ObjectEvent *GoldenYellow_GetPartnerReactionObject(void)
+{
+    if (sPartnerReactionObjectOverrideActive
+     && sPartnerReactionObjectEventId < OBJECT_EVENTS_COUNT
+     && gObjectEvents[sPartnerReactionObjectEventId].active)
+        return &gObjectEvents[sPartnerReactionObjectEventId];
+
+    return GetFollowerObject();
+}
+
+// From this point forward, all existing P3 object operations use the selected
+// visible Partner object. With no authored override this resolves exactly to
+// GetFollowerObject(), preserving the accepted P3/P4/P7A behavior unchanged.
+#define GetFollowerObject() GoldenYellow_GetPartnerReactionObject()
+
 enum GoldenYellowPartnerReactionTaskMode
 {
     GY_PARTNER_REACTION_MODE_ONESHOT,
@@ -861,6 +901,7 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
     return TRUE;
 }
 
+#undef GetFollowerObject
 #undef rReactionId
 #undef rCommandIndex
 #undef rState

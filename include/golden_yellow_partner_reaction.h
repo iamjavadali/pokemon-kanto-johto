@@ -17,6 +17,14 @@ bool32 GoldenYellow_StartPartnerPikachuFieldTalkReaction(u8 reactionId);
 bool32 GoldenYellow_IsPartnerPikachuReactionActive(void);
 bool32 GoldenYellow_DebugStartPikachuReactionBrowser(void);
 
+// Authored maps may temporarily render canonical Partner Pikachu as a normal
+// scene-owned object while the generic follower is deliberately suppressed.
+// These helpers change only which visible object the existing P3 director
+// targets; they do not replace its reaction programs, movement, emotes, or
+// portrait renderer.
+void GoldenYellow_SetPartnerPikachuReactionObject(u8 objectEventId);
+void GoldenYellow_ClearPartnerPikachuReactionObject(void);
+
 // P4 field-interaction adapter. EventScript_Follower calls this before the
 // expansion's generic follower cry/action path. VAR_RESULT is TRUE only when
 // the interaction belongs to canonical Partner Pikachu.

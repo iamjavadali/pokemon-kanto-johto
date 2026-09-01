@@ -5,12 +5,18 @@
 #include "golden_yellow_partner_state.h"
 #include "pokemon.h"
 #include "script.h"
+#include "constants/event_objects.h"
 #include "constants/golden_yellow_partner_reactions.h"
+#include "constants/maps.h"
 #include "constants/species.h"
 
 static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
 {
-    return !GoldenYellow_IsPartnerPikachuReactionActive();
+    if (GoldenYellow_IsPartnerPikachuReactionActive())
+        return FALSE;
+
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+    return TRUE;
 }
 
 static bool8 GoldenYellow_WaitForPewterPartnerWake(void)
@@ -20,6 +26,25 @@ static bool8 GoldenYellow_WaitForPewterPartnerWake(void)
 
     GoldenYellow_CompletePewterPartnerWakeOnFollower();
     return TRUE;
+}
+
+static bool32 GoldenYellow_IsBillPartnerInteractionObject(void)
+{
+    struct ObjectEvent *selectedObject;
+
+    if (gSaveBlock1Ptr->location.mapGroup != MAP_GROUP(MAP_ROUTE25_SEA_COTTAGE)
+     || gSaveBlock1Ptr->location.mapNum != MAP_NUM(MAP_ROUTE25_SEA_COTTAGE)
+     || gSelectedObjectEvent >= OBJECT_EVENTS_COUNT)
+        return FALSE;
+
+    selectedObject = &gObjectEvents[gSelectedObjectEvent];
+
+    // The map/location and selected-object test identify Bill's dedicated
+    // scene object. Canonical Partner identity is still established separately
+    // through GetPartnerAwareFollowingMon() + SPECIES_PIKACHU_STARTER below;
+    // graphics alone never qualifies an ordinary Pikachu as the Partner.
+    return selectedObject->active
+        && selectedObject->graphicsId == OBJ_EVENT_GFX_PIKACHU_FRLG;
 }
 
 void GoldenYellow_RestorePewterPartnerSleepNative(struct ScriptContext *ctx)
@@ -88,17 +113,46 @@ void GoldenYellow_ResumePendingPewterPartnerWake(struct ScriptContext *ctx)
 void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx)
 {
     struct Pokemon *partner = GetPartnerAwareFollowingMon();
-    struct ObjectEvent *follower = GetFollowerObject();
+    struct ObjectEvent *follower;
     u8 reaction;
     bool8 hasOneShotReaction;
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
     gSpecialVar_Result = FALSE;
+    GoldenYellow_ClearPartnerPikachuReactionObject();
 
     if (partner == NULL
-     || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER
-     || follower == NULL
-     || !follower->active)
+     || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER)
+        return;
+
+    // P7B: Yellow's Bill-house direct-talk selector is an authored map
+    // precedence override, not a rewrite of the already accepted Bill scene.
+    // Yellow SCRIPT0/Emotion23 and SCRIPT5/Emotion27 remain owned by the
+    // automatic transformed/restored cutscene. Manual A-button interaction is:
+    //   before EVENT_MET_BILL_2 equivalent -> Emotion32
+    //   after  EVENT_MET_BILL_2 equivalent -> Emotion31
+    // Golden Yellow's persistent equivalent is FLAG_HELPED_BILL_IN_SEA_COTTAGE.
+    if (GoldenYellow_IsBillPartnerInteractionObject())
+    {
+        gSpecialVar_Result = TRUE;
+        reaction = FlagGet(FLAG_HELPED_BILL_IN_SEA_COTTAGE)
+                 ? GY_PARTNER_REACTION_BILL_POST_STATE
+                 : GY_PARTNER_REACTION_BILL_INTERMEDIATE;
+
+        GoldenYellow_SetPartnerPikachuReactionObject(gSelectedObjectEvent);
+        if (!GoldenYellow_StartPartnerPikachuFieldTalkReaction(reaction))
+        {
+            GoldenYellow_ClearPartnerPikachuReactionObject();
+            return;
+        }
+
+        SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+        ctx->waitAfterCallNative = TRUE;
+        return;
+    }
+
+    follower = GetFollowerObject();
+    if (follower == NULL || !follower->active)
         return;
 
     gSpecialVar_Result = TRUE;
