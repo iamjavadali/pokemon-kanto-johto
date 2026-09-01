@@ -73,6 +73,7 @@ A later branch HEAD does not invalidate an earlier acceptance merely because add
 | Full Yellow Partner portrait catalog + generalized renderer (P1/P2) | ACCEPTED | This log |
 | Yellow Partner reaction-program director (P3) | ACCEPTED | This log |
 | P7A Pewter Jigglypuff authored Partner integration / sleep lifecycle | ACCEPTED | This log |
+| P7B Bill authored A-button precedence integration | ACCEPTED | This log |
 
 ---
 
@@ -547,7 +548,53 @@ This acceptance closes P7A. It does not accept P7B or any later authored Partner
 
 ---
 
-# 17. Maintenance Rule
+# 17. Acceptance — P7B Bill Authored A-Button Precedence Integration
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-09-01  
+**Accepted source commit:** `29347ce1cfeb769cbf4fd900471742c6e00ff79b`  
+**Accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33473081407`  
+**Accepted artifact ID:** `9787289350`  
+**Accepted ROM SHA-256:** `2fdb95915613c665ccdd5f380ad771ab63dd191c4197ca21e6d7f75e1c61374e`  
+**Manual result:** PASS — user explicitly confirmed the P7B manual test passed
+
+## Scope
+
+P7B closes Yellow's authored Bill-house **manual A-button reaction precedence** around the already accepted Golden Yellow Sea Cottage transformation scene. It is an authored interaction integration, not a rewrite of Bill's transformation, Cell Separator sequence, machine choreography, map geometry, field-effect behavior, portrait rendering, or P3 reaction data.
+
+The source-exact Yellow state selector distinguishes the automatic cutscene-owned Emotion `23` and Emotion `27` states from the manually reachable pre-/post-restoration A-button states. Golden Yellow preserves the accepted automatic cutscene reactions and maps the manual states through the existing P3 director as Emotion `32` before Bill's completed restoration and Emotion `31` after restoration.
+
+## Accepted behavior
+
+- the already accepted transformed-Bill and restored-Bill automatic scene choreography remains unchanged;
+- before Bill has been helped/restored, pressing A on the visible Sea Cottage Partner Pikachu dispatches the existing P3 Emotion `32` reaction;
+- after Bill has been helped/restored, pressing A on the visible Sea Cottage Partner Pikachu dispatches the existing P3 Emotion `31` reaction;
+- the manual state boundary uses Golden Yellow's existing `FLAG_HELPED_BILL_IN_SEA_COTTAGE` state without changing the Bill machine sequence;
+- only the canonical Partner Pikachu qualifies for the authored Bill override; ordinary Pikachu cannot qualify merely because an overworld object uses Pikachu graphics;
+- the Sea Cottage scene-owned visible Partner object is routed through the same P3 reaction director rather than a second Bill-specific reaction engine;
+- P3 reaction programs, emotes, movement data, portrait programs, and the portrait renderer remain shared and unchanged for this integration;
+- the Bill semantic callback remains non-authoritative and the Partner A-button reaction does not advance or mutate Bill story flags, machine state, dialogue progression, or ticket state;
+- repeated manual Partner interactions do not consume or alter Bill progression;
+- leaving Sea Cottage restores normal Partner A-button interaction behavior outside the authored Bill override;
+- the accepted P7A Pewter/Jigglypuff reaction and follower lifecycle remain intact as a regression baseline.
+
+## Regression invariants
+
+- preserve Yellow's manual Bill-state mapping: pre-restoration manual interaction → Emotion `32`; post-restoration manual interaction → Emotion `31`;
+- preserve the existing automatic Bill cutscene-owned reactions corresponding to Yellow Emotion `23` and Emotion `27`;
+- do not rewrite the accepted Bill transformation / Cell Separator choreography as part of later Partner interaction work;
+- do not bind the P3 Bill semantic callback to story progression unless direct source evidence proves that the reaction itself must mutate story state;
+- preserve canonical Partner identity through `SPECIES_PIKACHU_STARTER`; graphics identity alone must never authorize Partner-only behavior;
+- keep the P7B scene-object target override narrowly scoped to authored reaction targeting and do not turn it into a parallel follower or movement system;
+- preserve the accepted P1/P2 portrait renderer and P3 reaction director as the common backend;
+- later P7 integrations must not regress P7A sleep/follower lifecycle or P7B Bill precedence behavior.
+
+This acceptance closes P7B. The next authored P7 integrations are the required Vermilion Pokémon Fan Club reaction and Pokémon Tower fear/unease reaction, to be staged separately.
+
+---
+
+# 18. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
