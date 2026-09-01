@@ -1,6 +1,8 @@
 .set SPOKE_TO_WOMAN_LAST,   FLAG_TEMP_2
 .set SPOKE_TO_FAT_MAN_LAST, FLAG_TEMP_3
 .set YELLOW_FAN_CLUB_ENTRY_PENDING, VAR_TEMP_4
+.set YELLOW_FAN_CLUB_PARTNER_STATE, VAR_UNUSED_0x40FE
+.set YELLOW_FAN_CLUB_PARTNER_PARKED, 3
 
 VermilionCity_PokemonFanClub_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, VermilionCity_PokemonFanClub_OnTransition
@@ -30,9 +32,28 @@ VermilionCity_PokemonFanClub_EventScript_PartnerArrival::
 
 VermilionCity_PokemonFanClub_EventScript_PartnerExitCheck::
 	lockall
+	goto_if_eq YELLOW_FAN_CLUB_PARTNER_STATE, YELLOW_FAN_CLUB_PARTNER_PARKED, VermilionCity_PokemonFanClub_EventScript_BlockExit
 	callnative GoldenYellow_TryReleaseFanClubPartnerOnExit
 	releaseall
 	end
+
+@ Mirror the accepted Pewter Jigglypuff exit guard: while the authored scene owns
+@ Partner, the player may not cross a room exit and leave Pikachu behind. Once
+@ Emotion 30 returns Partner to FOLLOW_PLAYER, the saved state clears and this
+@ same exit row falls through to normal room departure.
+VermilionCity_PokemonFanClub_EventScript_BlockExit::
+	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
+	waitmoncry
+	msgbox VermilionCity_PokemonFanClub_Text_PartnerBusyDontLeave, MSGBOX_DEFAULT
+	closemessage
+	applymovement LOCALID_PLAYER, VermilionCity_PokemonFanClub_Movement_PlayerBackFromExit
+	waitmovement 0
+	releaseall
+	end
+
+VermilionCity_PokemonFanClub_Movement_PlayerBackFromExit::
+	walk_up
+	step_end
 
 VermilionCity_PokemonFanClub_EventScript_Chairman::
 	lock
@@ -173,6 +194,11 @@ VermilionCity_PokemonFanClub_Text_Pikachu::
 
 VermilionCity_PokemonFanClub_Text_Seel::
 	.string "SEEL: Kyuoo!$"
+
+VermilionCity_PokemonFanClub_Text_PartnerBusyDontLeave::
+	.string "PIKACHU is still busy with the\n"
+	.string "other PIKACHU.\p"
+	.string "You shouldn't leave it behind.$"
 
 VermilionCity_PokemonFanClub_Text_DidYouComeToHearAboutMyMons::
 	.string "I chair the POKéMON Fan Club!\p"
