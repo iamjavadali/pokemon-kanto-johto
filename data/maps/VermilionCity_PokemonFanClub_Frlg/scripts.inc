@@ -32,22 +32,31 @@ VermilionCity_PokemonFanClub_EventScript_PartnerArrival::
 
 VermilionCity_PokemonFanClub_EventScript_PartnerExitCheck::
 	lockall
-	goto_if_eq YELLOW_FAN_CLUB_PARTNER_STATE, YELLOW_FAN_CLUB_PARTNER_PARKED, VermilionCity_PokemonFanClub_EventScript_BlockExit
-	callnative GoldenYellow_TryReleaseFanClubPartnerOnExit
+	goto_if_ne YELLOW_FAN_CLUB_PARTNER_STATE, YELLOW_FAN_CLUB_PARTNER_PARKED, VermilionCity_PokemonFanClub_EventScript_PartnerExitCheckFinish
+	specialvar VAR_RESULT, GetPlayerFacingDirection
+	goto_if_ne VAR_RESULT, DIR_SOUTH, VermilionCity_PokemonFanClub_EventScript_PartnerExitCheckFinish
+	goto VermilionCity_PokemonFanClub_EventScript_BlockExit
+
+VermilionCity_PokemonFanClub_EventScript_PartnerExitCheckFinish::
 	releaseall
 	end
 
-@ Mirror the accepted Pewter Jigglypuff exit guard: while the authored scene owns
-@ Partner, the player may not cross a room exit and leave Pikachu behind. Once
-@ Emotion 30 returns Partner to FOLLOW_PLAYER, the saved state clears and this
-@ same exit row falls through to normal room departure.
+@ Mirror the accepted Pewter Jigglypuff exit guard. The y=9 doorway row is used
+@ both when entering and leaving this room, so PARKED state alone is not enough:
+@ only a player actually facing south toward the exit is blocked. During the
+@ corrective backstep, SAFE_FOLLOWER_MOVEMENT plus explicit restore calls keep
+@ the scene-owned Partner visible and parked instead of recalling it to its Ball.
 VermilionCity_PokemonFanClub_EventScript_BlockExit::
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	callnative GoldenYellow_RestoreFanClubPartnerOnFollower
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
 	msgbox VermilionCity_PokemonFanClub_Text_PartnerBusyDontLeave, MSGBOX_DEFAULT
 	closemessage
 	applymovement LOCALID_PLAYER, VermilionCity_PokemonFanClub_Movement_PlayerBackFromExit
 	waitmovement 0
+	callnative GoldenYellow_RestoreFanClubPartnerOnFollower
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
 
