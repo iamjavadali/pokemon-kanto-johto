@@ -1,12 +1,17 @@
 #include "global.h"
+#include "event_object_movement.h"
 #include "field_camera.h"
 #include "field_player_avatar.h"
 #include "fieldmap.h"
 #include "fldeff.h"
+#include "golden_yellow_partner_state.h"
+#include "palette.h"
+#include "sprite.h"
 #include "task.h"
 #include "constants/metatile_labels.h"
 
 static EWRAM_DATA u8 sEscalatorAnim_TaskId = 0;
+static EWRAM_DATA struct ObjectEvent *sPartnerFollowerToRestore = NULL;
 
 static void SetEscalatorMetatile(u8 taskId, const s16 *metatileIds, u16 metatileMasks);
 static void Task_DrawEscalator(u8 taskId);
@@ -163,6 +168,21 @@ static void Task_DrawEscalator(u8 taskId)
 {
     s16 *data = gTasks[taskId].data;
 
+    // CreateEscalatorTask draws state 0 synchronously. On an outbound ordinary
+    // escalator, StartEscalator has temporarily marked the canonical Partner as
+    // non-recallable so HideFollowerForFieldEffect immediately after this call
+    // takes its existing invisible-object early return. Restore the object on
+    // the first asynchronous escalator tick, before normal field rendering.
+    if (sPartnerFollowerToRestore != NULL && tState != 0)
+    {
+        if (sPartnerFollowerToRestore->active)
+        {
+            sPartnerFollowerToRestore->invisible = FALSE;
+            gSprites[sPartnerFollowerToRestore->spriteId].invisible = FALSE;
+        }
+        sPartnerFollowerToRestore = NULL;
+    }
+
     tDrawingEscalator = TRUE;
 
     // Set tile for each section of the escalator in sequence for current transition stage
@@ -217,11 +237,38 @@ static u8 CreateEscalatorTask(bool16 goingUp)
 
 void StartEscalator(bool8 goingUp)
 {
+    struct ObjectEvent *follower = GetFollowerObject();
+
+    sPartnerFollowerToRestore = NULL;
+
+    // The ordinary escalator warp calls StartEscalator immediately before the
+    // generic field-effect recall. Yellow's canonical Partner stays outside its
+    // Poké Ball for this traversal. The fade guard keeps the destination-side
+    // escalator animation out of this outbound-only recall bypass.
+    if (!gPaletteFade.active
+     && GoldenYellow_IsCanonicalPartnerPikachuFollower(follower)
+     && !follower->invisible)
+    {
+        follower->invisible = TRUE;
+        gSprites[follower->spriteId].invisible = FALSE;
+        sPartnerFollowerToRestore = follower;
+    }
+
     sEscalatorAnim_TaskId = CreateEscalatorTask(goingUp);
 }
 
 void StopEscalator(void)
 {
+    if (sPartnerFollowerToRestore != NULL)
+    {
+        if (sPartnerFollowerToRestore->active)
+        {
+            sPartnerFollowerToRestore->invisible = FALSE;
+            gSprites[sPartnerFollowerToRestore->spriteId].invisible = FALSE;
+        }
+        sPartnerFollowerToRestore = NULL;
+    }
+
     DestroyTask(sEscalatorAnim_TaskId);
 }
 

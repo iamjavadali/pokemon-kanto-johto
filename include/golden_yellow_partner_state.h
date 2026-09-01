@@ -4,7 +4,13 @@
 #include "global.h"
 #include "pokemon.h"
 
+struct ObjectEvent;
 struct ScriptContext;
+
+// Shared canonical identity predicate for the Yellow starter's active
+// following-Pokemon object. Traversal code uses this instead of treating every
+// ordinary Pikachu or generic follower as the authored Partner.
+bool8 GoldenYellow_IsCanonicalPartnerPikachuFollower(const struct ObjectEvent *followerObject);
 
 // P5 keeps pokeemerald-expansion's MON_DATA_FRIENDSHIP as the single long-term
 // relationship value and layers Yellow's short-term Partner mood on top.

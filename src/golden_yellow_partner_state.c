@@ -13,6 +13,7 @@
 #include "pokemon.h"
 #include "script.h"
 #include "constants/battle.h"
+#include "constants/flags.h"
 #include "constants/game_stat.h"
 #include "constants/golden_yellow_partner_reactions.h"
 #include "constants/item_effects.h"
@@ -87,6 +88,20 @@ static const u8 sPartnerTalkReactionMatrix[7][5] =
     {GY_PARTNER_REACTION_UNHAPPY,            GY_PARTNER_REACTION_UNHAPPY,            GY_PARTNER_REACTION_STRONG_HAPPINESS, GY_PARTNER_REACTION_AFFECTION,       GY_PARTNER_REACTION_AFFECTION},
     {GY_PARTNER_REACTION_UNHAPPY,            GY_PARTNER_REACTION_UNHAPPY,            GY_PARTNER_REACTION_STRONG_AFFECTION, GY_PARTNER_REACTION_MAX_AFFECTION,   GY_PARTNER_REACTION_MAX_AFFECTION},
 };
+
+bool8 GoldenYellow_IsCanonicalPartnerPikachuFollower(const struct ObjectEvent *followerObject)
+{
+    struct Pokemon *followingMon;
+
+    if (followerObject == NULL
+     || followerObject->localId != OBJ_EVENT_ID_FOLLOWER
+     || !FlagGet(FLAG_PARTNER_PIKACHU_FOLLOWING))
+        return FALSE;
+
+    followingMon = GetPartnerAwareFollowingMon();
+    return followingMon != NULL
+        && GetMonData(followingMon, MON_DATA_SPECIES) == SPECIES_PIKACHU_STARTER;
+}
 
 static bool32 IsPlayerPartnerPikachu(struct Pokemon *mon)
 {
