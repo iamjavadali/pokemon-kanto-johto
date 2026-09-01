@@ -3,6 +3,7 @@
 
 #include "global.h"
 #include "pokemon.h"
+#include "constants/event_objects.h"
 
 struct ObjectEvent;
 struct ScriptContext;
