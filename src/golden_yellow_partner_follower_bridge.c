@@ -20,6 +20,7 @@
 #include "constants/battle.h"
 #include "constants/event_objects.h"
 #include "constants/field_effects.h"
+#include "constants/layouts.h"
 #include "constants/maps.h"
 #include "constants/pokemon.h"
 #include "constants/region_map_sections.h"
@@ -35,6 +36,13 @@ struct GoldenYellowFollowerSpecialEmote
 {
     u16 index;
     u8 emotion;
+};
+
+enum GoldenYellowFollowerContextPriority
+{
+    GY_FOLLOWER_CONTEXT_AMBIENT,
+    GY_FOLLOWER_CONTEXT_NEARBY,
+    GY_FOLLOWER_CONTEXT_DIRECT,
 };
 
 static EWRAM_DATA struct ScriptContext *sPartnerContextScript = NULL;
@@ -77,6 +85,94 @@ static void GoldenYellow_DispatchFollowerCCondition(struct ScriptContext *ctx, u
     ScriptCall(ctx, gFollowerBasicMessages[emotion].messages[index].script
                   ? gFollowerBasicMessages[emotion].messages[index].script
                   : gFollowerBasicMessages[emotion].script);
+}
+
+static u8 GoldenYellow_GetFollowerContextPriority(u32 index)
+{
+    switch (index)
+    {
+    // These react to nearby scenery rather than the tile/location Pikachu is
+    // actually occupying. They should yield to direct environmental context.
+    case COND_MSG_SEASIDE:
+    case COND_MSG_WATERFALL:
+    case COND_MSG_REFLECTION:
+    case COND_MSG_LEAVES:
+        return GY_FOLLOWER_CONTEXT_NEARBY;
+
+    // Weather and time of day are intentionally broad. They remain useful on
+    // ordinary streets/routes, but must not drown out grass, shops, or other
+    // concrete local context.
+    case COND_MSG_FIRE_RAIN:
+    case COND_MSG_RAIN:
+    case COND_MSG_DAY:
+    case COND_MSG_NIGHT:
+    case COND_MSG_ABNORMAL_WEATHER:
+        return GY_FOLLOWER_CONTEXT_AMBIENT;
+
+    default:
+        return GY_FOLLOWER_CONTEXT_DIRECT;
+    }
+}
+
+static bool32 GoldenYellow_CheckFollowerContextMatch(
+    u32 index,
+    const struct FollowerMsgInfoExtended *info,
+    struct Pokemon *mon,
+    enum Species species,
+    struct ObjectEvent *objEvent)
+{
+    // Expansion Marts normally match MUS_POKE_MART. Golden Yellow's retained
+    // FRLG Kanto Marts use the shared FRLG Pokemon Center BGM instead, so music
+    // cannot distinguish them safely. Their dedicated layout can.
+    if (index == COND_MSG_MART && gMapHeader.mapLayoutId == LAYOUT_MART_FRLG)
+        return TRUE;
+
+    return CheckMsgInfo(info, mon, species, objEvent);
+}
+
+static bool32 GoldenYellow_TrySelectFollowerTableContext(
+    struct Pokemon *mon,
+    enum Species species,
+    struct ObjectEvent *objEvent,
+    s32 *selectedIndex)
+{
+    s32 priority;
+    u32 i, j;
+
+    // Retain the expansion's independent 50% table-condition gate. Once the
+    // gate opens, search from most-specific to least-specific context and use
+    // the existing weighted reservoir semantics within the winning tier.
+    if (Random() & 1)
+        return FALSE;
+
+    for (priority = GY_FOLLOWER_CONTEXT_DIRECT; priority >= GY_FOLLOWER_CONTEXT_AMBIENT; priority--)
+    {
+        bool32 foundMatch = FALSE;
+        bool32 pickedCondition = FALSE;
+
+        for (i = 0, j = 1; i < COND_MSG_COUNT; i++)
+        {
+            const struct FollowerMsgInfoExtended *info = &gFollowerConditionalMessages[i];
+
+            if (GoldenYellow_GetFollowerContextPriority(i) != priority)
+                continue;
+
+            if (!GoldenYellow_CheckFollowerContextMatch(i, info, mon, species, objEvent))
+                continue;
+
+            foundMatch = TRUE;
+            if (Random() < (0x10000 / (j++)) * (info->weight ? info->weight : 1))
+            {
+                *selectedIndex = i;
+                pickedCondition = TRUE;
+            }
+        }
+
+        if (foundMatch)
+            return pickedCondition;
+    }
+
+    return FALSE;
 }
 
 void GetFollowerContextAction(struct ScriptContext *ctx)
@@ -222,21 +318,9 @@ void GetFollowerContextAction(struct ScriptContext *ctx)
         }
     }
 
-    // Existing independent 50% table-condition gate and weighted reservoir
-    // sampling. A table winner retains precedence over a C-based winner.
-    for (i = (Random() & 1) ? COND_MSG_COUNT : 0, j = 1; i < COND_MSG_COUNT; i++)
-    {
-        const struct FollowerMsgInfoExtended *info = &gFollowerConditionalMessages[i];
-
-        if (!CheckMsgInfo(info, mon, species, objEvent))
-            continue;
-
-        if (Random() < (0x10000 / (j++)) * (info->weight ? info->weight : 1))
-        {
-            multi = i;
-            pickedTableCondition = TRUE;
-        }
-    }
+    // Keep the expansion's 50% table gate and weighted reservoir behavior, but
+    // resolve concrete local context before nearby scenery and broad ambience.
+    pickedTableCondition = GoldenYellow_TrySelectFollowerTableContext(mon, species, objEvent, &multi);
 
     if (pickedTableCondition)
     {
