@@ -6,6 +6,7 @@
 #include "palette.h"
 #include "script.h"
 #include "script_menu.h"
+#include "sound.h"
 #include "sprite.h"
 #include "task.h"
 #include "text_window.h"
@@ -162,6 +163,7 @@ static bool8 GoldenYellow_WaitForPartnerPikachuPortrait(void);
 static bool32 StartPartnerPortrait(u8 programId, enum YellowPikaPicTaskMode mode, struct ScriptContext *ctx);
 static void ResetPartnerPortraitProgram(u8 taskId, u8 programId);
 static void RenderPartnerPortraitFrame(u8 taskId);
+static void PlayPartnerPortraitCry(u8 programId);
 static void BuildPartnerPortraitBase(u8 programId);
 static const u8 *GetPartnerPortraitPatchTile(const struct YellowPikaPicProgram *program, u16 tileIndex);
 static bool32 GetPartnerPortraitTilemapSource(u8 tilemapId, u8 row, u8 col, u16 *sourceIndex);
@@ -338,6 +340,31 @@ static void RenderPartnerPortraitFrame(u8 taskId)
         sizeof(sPikaPicFrameCarrier));
 }
 
+static void PlayPartnerPortraitCry(u8 programId)
+{
+    // These cries belong to Yellow's PikaPic scripts, independently of the
+    // outer Emotion command that may have opened the portrait.
+    switch (programId)
+    {
+    case 0:
+    case 1:
+        PlayYellowPikachuCry(YELLOW_PIKACHU_CRY_03);
+        break;
+    case 6:
+        PlayYellowPikachuCry(YELLOW_PIKACHU_CRY_38);
+        break;
+    case 12:
+        PlayYellowPikachuCry(YELLOW_PIKACHU_CRY_25);
+        break;
+    case 18:
+        PlayYellowPikachuCry(YELLOW_PIKACHU_CRY_18);
+        break;
+    case 21:
+        PlayYellowPikachuCry(YELLOW_PIKACHU_CRY_20);
+        break;
+    }
+}
+
 static void ResetPartnerPortraitProgram(u8 taskId, u8 programId)
 {
     struct Task *task = &gTasks[taskId];
@@ -351,6 +378,7 @@ static void ResetPartnerPortraitProgram(u8 taskId, u8 programId)
 
     BuildPartnerPortraitBase(programId);
     RenderPartnerPortraitFrame(taskId);
+    PlayPartnerPortraitCry(programId);
 }
 
 static bool32 StartPartnerPortrait(u8 programId, enum YellowPikaPicTaskMode mode, struct ScriptContext *ctx)

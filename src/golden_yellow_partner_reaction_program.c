@@ -527,11 +527,12 @@ static void ExecutePartnerReactionCommand(u8 taskId)
         break;
 
     case GY_PARTNER_REACTION_CMD_CRY:
-        // P3 preserves each Yellow semantic cry ID in the command data. Until
-        // the dedicated audio pass, every requested clip uses the modern
-        // Partner Pikachu cry as the approved fallback.
-        PlayCry_Normal(SPECIES_PIKACHU_STARTER, 0);
-        task->rState = GY_PARTNER_REACTION_STATE_WAIT_CRY;
+        // Yellow $FF is true silence. Required semantic IDs use the dedicated
+        // PCM table; unavailable IDs advance without synthesizing a fallback.
+        if (PlayYellowPikachuCry(command->arg))
+            task->rState = GY_PARTNER_REACTION_STATE_WAIT_CRY;
+        else
+            task->rCommandIndex++;
         break;
 
     case GY_PARTNER_REACTION_CMD_BUBBLE:

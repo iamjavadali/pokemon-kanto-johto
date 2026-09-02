@@ -2,6 +2,7 @@
 #define GUARD_SOUND_H
 
 #include "constants/sound.h"
+#include "constants/golden_yellow_pikachu_cries.h"
 
 void InitMapMusic(void);
 void MapMusicMain(void);
@@ -25,6 +26,7 @@ void FadeInBGM(u8 speed);
 void FadeOutBGM(u8 speed);
 bool8 IsBGMStopped(void);
 void PlayCry_Normal(enum Species species, s8 pan);
+bool8 PlayYellowPikachuCry(u8 cryId);
 void PlayCry_NormalNoDucking(enum Species species, s8 pan, s8 volume, u8 priority);
 void PlayCry_ByMode(enum Species species, s8 pan, u8 mode);
 void PlayCry_ReleaseDouble(enum Species species, s8 pan, u8 mode);

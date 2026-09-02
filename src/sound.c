@@ -7,6 +7,7 @@
 #include "overworld.h"
 #include "pokemon.h"
 #include "constants/cries.h"
+#include "constants/golden_yellow_pikachu_cries.h"
 #include "constants/songs.h"
 #include "task.h"
 #include "test_runner.h"
@@ -32,6 +33,7 @@ COMMON_DATA bool8 gDisableMusic = 0;
 
 extern struct ToneData gCryTable[];
 extern struct ToneData gCryTable_Reverse[];
+extern struct ToneData gYellowPikachuCryTable[];
 
 static void Task_Fanfare(u8 taskId);
 static void CreateFanfareTask(void);
@@ -308,6 +310,59 @@ bool8 IsBGMStopped(void)
     if (!(gMPlayInfo_BGM.status & MUSICPLAYER_STATUS_TRACK))
         return TRUE;
     return FALSE;
+}
+
+bool8 PlayYellowPikachuCry(u8 cryId)
+{
+    // A Yellow $FF command is silence. Sparse IDs are likewise unavailable
+    // until their P9A reachability classification explicitly changes.
+    switch (cryId)
+    {
+    case YELLOW_PIKACHU_CRY_01:
+    case YELLOW_PIKACHU_CRY_02:
+    case YELLOW_PIKACHU_CRY_03:
+    case YELLOW_PIKACHU_CRY_04:
+    case YELLOW_PIKACHU_CRY_05:
+    case YELLOW_PIKACHU_CRY_06:
+    case YELLOW_PIKACHU_CRY_09:
+    case YELLOW_PIKACHU_CRY_10:
+    case YELLOW_PIKACHU_CRY_11:
+    case YELLOW_PIKACHU_CRY_13:
+    case YELLOW_PIKACHU_CRY_15:
+    case YELLOW_PIKACHU_CRY_17:
+    case YELLOW_PIKACHU_CRY_18:
+    case YELLOW_PIKACHU_CRY_19:
+    case YELLOW_PIKACHU_CRY_20:
+    case YELLOW_PIKACHU_CRY_25:
+    case YELLOW_PIKACHU_CRY_26:
+    case YELLOW_PIKACHU_CRY_28:
+    case YELLOW_PIKACHU_CRY_29:
+    case YELLOW_PIKACHU_CRY_31:
+    case YELLOW_PIKACHU_CRY_33:
+    case YELLOW_PIKACHU_CRY_34:
+    case YELLOW_PIKACHU_CRY_35:
+    case YELLOW_PIKACHU_CRY_37:
+    case YELLOW_PIKACHU_CRY_38:
+    case YELLOW_PIKACHU_CRY_39:
+    case YELLOW_PIKACHU_CRY_40:
+        break;
+    default:
+        return FALSE;
+    }
+
+    m4aMPlayVolumeControl(&gMPlayInfo_BGM, TRACKS_ALL, 85);
+    SetPokemonCryVolume(CRY_VOLUME);
+    SetPokemonCryPanpot(0);
+    SetPokemonCryPitch(15360);
+    SetPokemonCryLength(210);
+    SetPokemonCryProgress(0);
+    SetPokemonCryRelease(0);
+    SetPokemonCryChorus(0);
+    SetPokemonCryPriority(CRY_PRIORITY_NORMAL);
+    gMPlay_PokemonCry = SetPokemonCryTone(&gYellowPikachuCryTable[cryId - 1]);
+    gPokemonCryBGMDuckingCounter = 2;
+    RestoreBGMVolumeAfterPokemonCry();
+    return TRUE;
 }
 
 void PlayCry_Normal(enum Species species, s8 pan)

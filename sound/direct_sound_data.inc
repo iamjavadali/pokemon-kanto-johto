@@ -9041,3 +9041,167 @@ DirectSoundWaveData_sd90_classical_whistle::
 	.align 2
 DirectSoundWaveData_sd90_enhanced_delay_shaku::
 	.incbin "sound/direct_sound_samples/sd90_enhanced_delay_shaku.bin"
+
+// Pokemon Yellow Partner Pikachu PCM selected by the locked P9A reachability audit.
+
+	.align 2
+Cry_YellowPikachu01::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_01.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu02::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_02.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu03::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_03.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu04::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_04.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu05::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_05.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu06::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_06.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu09::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_09.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu10::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_10.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu11::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_11.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu13::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_13.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu15::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_15.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu17::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_17.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu18::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_18.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu19::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_19.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu20::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_20.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu25::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_25.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu26::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_26.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu28::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_28.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu29::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_29.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu31::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_31.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu33::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_33.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu34::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_34.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu35::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_35.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu37::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_37.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu38::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_38.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu39::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_39.bin"
+.endif
+
+	.align 2
+Cry_YellowPikachu40::
+.if TESTING == FALSE
+	.incbin "sound/direct_sound_samples/cries/yellow_pikachu_40.bin"
+.endif
