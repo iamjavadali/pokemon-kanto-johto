@@ -12,7 +12,9 @@
 #include "task.h"
 #include "test_runner.h"
 
-#define YELLOW_PIKACHU_CRY_VOLUME 40
+#define YELLOW_PIKACHU_CRY_VOLUME_QUIET    50
+#define YELLOW_PIKACHU_CRY_VOLUME_BALANCED 40
+#define YELLOW_PIKACHU_CRY_VOLUME_LOUD     32
 
 struct Fanfare
 {
@@ -316,44 +318,52 @@ bool8 IsBGMStopped(void)
 
 bool8 PlayYellowPikachuCry(u8 cryId)
 {
-    // A Yellow $FF command is silence. Sparse IDs are likewise unavailable
-    // until their P9A reachability classification explicitly changes.
+    u8 volume;
+
+    // P9B filtered-PCM RMS measurements group each reachable clip by average
+    // energy. Per-clip gain keeps low-energy cries audible without restoring
+    // the harshness of the strongest clips. Yellow $FF remains true silence.
     switch (cryId)
     {
+    case YELLOW_PIKACHU_CRY_17:
+    case YELLOW_PIKACHU_CRY_18:
+    case YELLOW_PIKACHU_CRY_19:
+    case YELLOW_PIKACHU_CRY_28:
+    case YELLOW_PIKACHU_CRY_29:
+    case YELLOW_PIKACHU_CRY_33:
+    case YELLOW_PIKACHU_CRY_35:
+    case YELLOW_PIKACHU_CRY_38:
+    case YELLOW_PIKACHU_CRY_39:
+    case YELLOW_PIKACHU_CRY_40:
+        volume = YELLOW_PIKACHU_CRY_VOLUME_QUIET;
+        break;
+    case YELLOW_PIKACHU_CRY_06:
+    case YELLOW_PIKACHU_CRY_10:
+    case YELLOW_PIKACHU_CRY_20:
+    case YELLOW_PIKACHU_CRY_25:
+    case YELLOW_PIKACHU_CRY_31:
+    case YELLOW_PIKACHU_CRY_34:
+        volume = YELLOW_PIKACHU_CRY_VOLUME_BALANCED;
+        break;
     case YELLOW_PIKACHU_CRY_01:
     case YELLOW_PIKACHU_CRY_02:
     case YELLOW_PIKACHU_CRY_03:
     case YELLOW_PIKACHU_CRY_04:
     case YELLOW_PIKACHU_CRY_05:
-    case YELLOW_PIKACHU_CRY_06:
     case YELLOW_PIKACHU_CRY_09:
-    case YELLOW_PIKACHU_CRY_10:
     case YELLOW_PIKACHU_CRY_11:
     case YELLOW_PIKACHU_CRY_13:
     case YELLOW_PIKACHU_CRY_15:
-    case YELLOW_PIKACHU_CRY_17:
-    case YELLOW_PIKACHU_CRY_18:
-    case YELLOW_PIKACHU_CRY_19:
-    case YELLOW_PIKACHU_CRY_20:
-    case YELLOW_PIKACHU_CRY_25:
     case YELLOW_PIKACHU_CRY_26:
-    case YELLOW_PIKACHU_CRY_28:
-    case YELLOW_PIKACHU_CRY_29:
-    case YELLOW_PIKACHU_CRY_31:
-    case YELLOW_PIKACHU_CRY_33:
-    case YELLOW_PIKACHU_CRY_34:
-    case YELLOW_PIKACHU_CRY_35:
     case YELLOW_PIKACHU_CRY_37:
-    case YELLOW_PIKACHU_CRY_38:
-    case YELLOW_PIKACHU_CRY_39:
-    case YELLOW_PIKACHU_CRY_40:
+        volume = YELLOW_PIKACHU_CRY_VOLUME_LOUD;
         break;
     default:
         return FALSE;
     }
 
     m4aMPlayVolumeControl(&gMPlayInfo_BGM, TRACKS_ALL, 85);
-    SetPokemonCryVolume(YELLOW_PIKACHU_CRY_VOLUME);
+    SetPokemonCryVolume(volume);
     SetPokemonCryPanpot(0);
     SetPokemonCryPitch(15360);
     SetPokemonCryLength(210);
