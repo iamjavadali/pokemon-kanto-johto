@@ -12,6 +12,8 @@
 #include "task.h"
 #include "test_runner.h"
 
+#define YELLOW_PIKACHU_CRY_VOLUME 90
+
 struct Fanfare
 {
     u16 songNum;
@@ -351,7 +353,7 @@ bool8 PlayYellowPikachuCry(u8 cryId)
     }
 
     m4aMPlayVolumeControl(&gMPlayInfo_BGM, TRACKS_ALL, 85);
-    SetPokemonCryVolume(CRY_VOLUME);
+    SetPokemonCryVolume(YELLOW_PIKACHU_CRY_VOLUME);
     SetPokemonCryPanpot(0);
     SetPokemonCryPitch(15360);
     SetPokemonCryLength(210);
