@@ -12,7 +12,7 @@
 #include "task.h"
 #include "test_runner.h"
 
-#define YELLOW_PIKACHU_CRY_VOLUME 60
+#define YELLOW_PIKACHU_CRY_VOLUME 40
 
 struct Fanfare
 {
