@@ -1,7 +1,12 @@
 #ifndef GUARD_FOLLOWER_HELPER_H
 #define GUARD_FOLLOWER_HELPER_H
 
+#include "global.h"
 #include "data.h"
+
+struct ObjectEvent;
+struct Pokemon;
+struct ScriptContext;
 
 enum FollowerEmotion
 {
@@ -13,7 +18,7 @@ enum FollowerEmotion
     FOLLOWER_EMOTION_PENSIVE,
     FOLLOWER_EMOTION_LOVE,
     FOLLOWER_EMOTION_SURPRISE,
-    FOLLOWER_EMOTION_CURIOUS,
+ FOLLOWER_EMOTION_CURIOUS,
     FOLLOWER_EMOTION_MUSIC,
     FOLLOWER_EMOTION_POISONED,
     FOLLOWER_EMOTION_LENGTH,
@@ -127,5 +132,14 @@ enum ConditionalMessage
 
 extern const struct FollowerMsgInfoExtended gFollowerConditionalMessages[COND_MSG_COUNT];
 extern const struct FollowerMessagePool gFollowerBasicMessages[FOLLOWER_EMOTION_LENGTH];
+
+// Shared predicate from the expansion follower selector. P8 reuses it rather
+// than duplicating the table-driven condition language.
+bool32 CheckMsgInfo(const struct FollowerMsgInfoExtended *info, struct Pokemon *mon, enum Species species, struct ObjectEvent *obj);
+
+// P8 context-only sibling of GetFollowerAction. It preserves the expansion's
+// C-based/table conditional selection probabilities but has no basic/random
+// fallback, so Partner Pikachu never receives duplicate generic chatter.
+void GetFollowerContextAction(struct ScriptContext *ctx);
 
 #endif //GUARD_FOLLOWER_HELPER_H

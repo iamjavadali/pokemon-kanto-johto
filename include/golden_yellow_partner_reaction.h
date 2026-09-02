@@ -25,10 +25,27 @@ bool32 GoldenYellow_DebugStartPikachuReactionBrowser(void);
 void GoldenYellow_SetPartnerPikachuReactionObject(u8 objectEventId);
 void GoldenYellow_ClearPartnerPikachuReactionObject(void);
 
-// P4 field-interaction adapter. EventScript_Follower calls this before the
-// expansion's generic follower cry/action path. VAR_RESULT is TRUE only when
-// the interaction belongs to canonical Partner Pikachu.
+// P8 field bridge result. The script-visible wrapper keeps ordinary followers on
+// the expansion path, keeps authored/status/area/one-shot Partner reactions
+// exclusive, and permits modern context only after a successful normal mood talk.
+enum GoldenYellowPartnerFieldResult
+{
+    GY_PARTNER_FIELD_NOT_HANDLED = 0,
+    GY_PARTNER_FIELD_EXCLUSIVE,
+    GY_PARTNER_FIELD_CONTEXT_ELIGIBLE,
+};
+
+// P7's accepted interaction implementation is retained as the base seam. P8
+// exports the original symbol as a wrapper so existing scripts need no rewrite.
+void GoldenYellow_TryPartnerPikachuFieldInteractionBase(struct ScriptContext *ctx);
 void GoldenYellow_TryPartnerPikachuFieldInteraction(struct ScriptContext *ctx);
+
+// Every translation unit except the P8 bridge continues to resolve direct C
+// references to the accepted P7 implementation. The field script still links to
+// the unaliased symbol, which is provided by the P8 wrapper.
+#ifndef GOLDEN_YELLOW_PARTNER_P8_BRIDGE_IMPLEMENTATION
+#define GoldenYellow_TryPartnerPikachuFieldInteraction GoldenYellow_TryPartnerPikachuFieldInteractionBase
+#endif
 
 // Internal bridge used by the P3 director to reuse the accepted P2 renderer
 // without attaching a second native wait to the active field script.
