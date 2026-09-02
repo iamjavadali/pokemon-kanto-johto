@@ -4,7 +4,7 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot date:** September 1, 2026
+**Snapshot date:** September 2, 2026
 
 ---
 
@@ -63,9 +63,15 @@ Broad progression currently stands at:
 → **P7C Vermilion Pokémon Fan Club authored integration — ACCEPTED**  
 → **P7D Pokémon Tower fear/unease authored area reaction — ACCEPTED**  
 → **P7E unified Yellow Partner interaction priority / P7 closeout — ACCEPTED**  
-→ **P8 Modern follower coexistence — NEXT ACTIVE BOUNDARY**
+→ **P8 Modern follower coexistence — ACCEPTED**  
+→ **P9A Yellow Pikachu PCM reachability audit — LOCKED**  
+→ **P9B Yellow Pikachu PCM runtime implementation — NEXT ACTIVE BOUNDARY**
 
-The P7 authored-reaction phase is now closed as an accepted regression baseline.
+The P7 authored-reaction phase remains an accepted regression baseline.
+
+P8 modern follower coexistence is now accepted. Canonical Partner Pikachu retains the Yellow ownership/priority system, and compatible modern contextual follower behavior may run only after a successful normal Yellow mood interaction. Concrete local context outranks nearby scenery and broad ambient context, while ordinary followers remain on the existing expansion path.
+
+P9A is locked under the approved reachability policy. P9B is the next active Partner-system boundary.
 
 The final P7 closeout also validates the corrected exit-ownership behavior for the three scene-owned Partner states that can temporarily prevent room exit:
 
@@ -205,6 +211,28 @@ Accepted authored ownership includes:
 
 The final accepted P7 regression build also includes the stabilized Bill follower lifecycle and the corrected side-warp exit guards for Bill and Fan Club.
 
+## 5.11 P8 Accepted Modern Follower Coexistence
+
+P8 is accepted.
+
+The established coexistence layer:
+
+- leaves ordinary followers on the existing expansion interaction path;
+- keeps authored story, actual status, authored area, and one-shot Partner reactions exclusive;
+- allows modern contextual follower behavior only after a successful normal Partner mood reaction;
+- uses context-only selection with no duplicate basic/random chatter fallback;
+- prioritizes direct local context over nearby scenery and broad ambient conditions;
+- recognizes retained FRLG Mart layouts without weakening the common context selector;
+- preserves `SPECIES_PIKACHU_STARTER` as the only canonical Partner identity.
+
+## 5.12 P9A Locked Audio Reachability Policy
+
+P9A is a locked audit/policy milestone, not runtime audio acceptance.
+
+The approved baseline preserves all 42 semantic Yellow Pikachu PCM IDs while initially authorizing only 27 Required clips for P9B. One clip is Deferred and 14 are Not Applicable under the reachability policy. Yellow source `$FF` means true `NO_PCM`, not a synthetic default cry.
+
+Detailed mappings, classifications, and ROM-cost evidence are authoritative in `Pokemon_Golden_Yellow_P9A_Audio_Reachability_Audit.md`.
+
 ---
 
 # 6. Established Design Decisions
@@ -222,6 +250,8 @@ The final accepted P7 regression build also includes the stabilized Bill followe
 - P4 and later Partner work must reuse the P1/P2/P3 foundation rather than create parallel reaction systems.
 - P7 semantic precedence is single-owner: higher-priority story/status/area states cannot be silently overridden by one-shot or normal mood selection.
 - Scene-owned Partner exit prevention must protect every traversable exit lane; a guard placed on a side warp must not be defeated merely by entering it laterally.
+- P8 modern follower context remains subordinate to Yellow-owned Partner reactions and must not add duplicate basic/random chatter.
+- P9 uses the locked reachability policy: stable IDs `01–42`, 27 initially Required clips, one Deferred clip, 14 Not Applicable clips, and true `NO_PCM` semantics for Yellow `$FF`.
 
 ---
 
@@ -244,41 +274,40 @@ The current accepted regression baseline reaches through:
 - P7D Pokémon Tower fear/unease direct-talk override on 1F–7F;
 - P7E unified Partner interaction priority;
 - final accepted Pewter/Bill/Fan Club exit-guard coverage and Bill follower release lifecycle;
-- P1/P2 portrait catalog/renderer and P3 reaction director.
+- P1/P2 portrait catalog/renderer and P3 reaction director;
+- P8 modern follower coexistence, including specific-context priority and ordinary-follower preservation.
+
+P9A is a locked implementation policy and does not itself extend the accepted gameplay boundary.
 
 Detailed commits, workflow runs, ROM hashes, and manual-validation notes belong in the Acceptance Log and dedicated acceptance records.
 
 ---
 
-# 8. Current Active Development Boundary — P8 Modern Follower Coexistence
+# 8. Current Active Development Boundary — P9B Yellow Pikachu PCM Runtime
 
-P7 is accepted. The next Partner-system boundary is **P8 — Modern follower coexistence** from the `Yellow-portrait.md` reconstruction plan.
+P8 modern follower coexistence is accepted. P9A has locked the source/call-site reachability policy. The next Partner-system implementation boundary is **P9B — Yellow Pikachu PCM runtime implementation**.
 
-P8 must layer the existing modern contextual follower behavior underneath the accepted Yellow ownership/priority system without creating contradictory or duplicate reactions.
+P9B must begin from the authoritative `Pokemon_Golden_Yellow_P9A_Audio_Reachability_Audit.md` baseline and must:
 
-The next pass should begin by resolving live `prototype/v0.1` HEAD and inspecting the exact current follower interaction/message path before changing code.
+1. preserve semantic IDs `YELLOW_PIKACHU_CRY_01` through `YELLOW_PIKACHU_CRY_42`;
+2. initially import only the 27 clips classified Required;
+3. keep Cry23 deferred until its Celadon Mansion call site becomes active or a later explicit decision advances it;
+4. keep the 14 Not Applicable clips out of the ROM unless a newly verified Yellow call site changes their classification;
+5. implement true `NO_PCM` behavior for Yellow `$FF`;
+6. keep ordinary `SPECIES_PIKACHU` cry behavior unchanged;
+7. apply Yellow PCM overrides only to canonical `SPECIES_PIKACHU_STARTER` or explicitly Yellow-owned Partner events;
+8. preserve separate outer-Emotion and portrait-internal cry timing;
+9. protect the complete accepted P1–P8 Partner regression baseline;
+10. complete build validation followed by manual gameplay/audio validation before P9 is accepted.
 
-P8 objectives are:
-
-1. preserve the accepted P7 priority resolver as authoritative for Yellow-owned Partner reactions;
-2. preserve ordinary follower interaction behavior unchanged;
-3. ensure canonical Partner Pikachu can still receive compatible modern contextual follower behavior when no Yellow-owned reaction forbids it;
-4. prevent modern contextual text/choreography from replacing or visually colliding with authored Yellow story/status/area reactions;
-5. avoid a second Partner interaction engine;
-6. keep `SPECIES_PIKACHU_STARTER` as the only canonical Partner identity;
-7. protect P7A–P7E and final exit/follower lifecycle behavior as regression baselines;
-8. require manual gameplay validation before P8 is accepted.
-
-P9 Yellow audio fidelity remains a later stage after P8.
-
----
+The approved initial aligned PCM budget is **446,892 bytes (approximately 436.42 KiB)**.
 
 # 9. Major Yellow Campaign Requirements Still Ahead
 
 ## Partner system
 
-- P8 modern follower coexistence;
-- P9 audio fidelity if/when the project proceeds with original Yellow Pikachu PCM coverage;
+- P9B import and runtime wiring for the 27 Required Yellow Pikachu PCM clips;
+- P9 build and manual gameplay/audio validation;
 - any remaining Partner evolution-refusal presentation or one-shot integration not already completed under P6.
 
 ## Cerulean era
@@ -343,7 +372,7 @@ Rules:
 - accepted behavior remains a regression baseline unless a defect is found or redesign is approved;
 - Current Project State stays broad and does not duplicate detailed evidence.
 
-The accepted P1/P2/P3 foundation and P7 authored-reaction phase are protected regression targets for P8.
+The complete accepted P1–P8 Partner subsystem is the protected regression baseline for P9B.
 
 ---
 
@@ -351,7 +380,7 @@ The accepted P1/P2/P3 foundation and P7 authored-reaction phase are protected re
 
 **No confirmed blocking regression is open at this snapshot.**
 
-The final P7 exit-guard/lifecycle correction passed manual testing, and the project is clear to begin the P8 audit/implementation boundary.
+P8 passed its build and manual gameplay validation. P9A is locked, and the project is clear to begin P9B from the approved 27-clip reachability baseline.
 
 ---
 

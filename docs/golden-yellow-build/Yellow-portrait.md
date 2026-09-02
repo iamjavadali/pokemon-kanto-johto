@@ -1,7 +1,7 @@
 # Pokémon Golden Yellow — Partner Blueprint Status Addendum
 
-**Status date:** September 1, 2026  
-**Current boundary:** **P7 accepted → P8 modern follower coexistence next**
+**Status date:** September 2, 2026  
+**Current boundary:** **P8 accepted → P9A locked → P9B audio runtime next**
 
 This file began as the source-audit and implementation blueprint for the Yellow Partner portrait/reaction subsystem. The audit and original design language below are intentionally preserved as historical technical rationale.
 
@@ -14,12 +14,13 @@ Where the original blueprint speaks in future tense, the current implementation 
 - **P6 — IMPLEMENTED:** supported one-shot modifier architecture;
 - **P7A–P7E — ACCEPTED:** Pewter, Bill, Fan Club, Pokémon Tower, and unified Story > Status > Area > One-shot > Mood ownership priority;
 - **final P7 regression closeout — ACCEPTED:** Bill live-follower release and complete Pewter/Bill/Fan Club exit guarding, including lateral side-warp protection;
-- **P8 — NEXT ACTIVE BOUNDARY:** layer existing modern contextual follower behavior underneath the accepted Yellow priority system without contradictory or duplicate reactions;
-- **P9 — FUTURE:** Yellow Pikachu PCM/audio fidelity if pursued.
+- **P8 — ACCEPTED:** modern contextual follower behavior is layered underneath the accepted Yellow priority system; ordinary followers remain unchanged, Yellow-owned Partner reactions remain exclusive, and direct local context outranks nearby/ambient context;
+- **P9A — LOCKED:** Option B reachability policy preserves IDs `01–42`, authorizes 27 Required clips for initial import, defers one clip, excludes 14 Not Applicable clips, and defines Yellow `$FF` as true `NO_PCM`;
+- **P9B — NEXT ACTIVE BOUNDARY:** import and wire the 27 Required Yellow Pikachu PCM clips while preserving the accepted P1–P8 ownership, timing, and regression baseline.
 
 The original source-audit caveat about the exact **original Pokémon Yellow** mood initialization writer remains unresolved as a source-history question. It no longer blocks Golden Yellow implementation because P5 has an explicit project implementation choice as described above.
 
-For exact acceptance commits, workflow runs, ROM hashes, and final regression evidence, use `Pokemon_Golden_Yellow_Acceptance_Log.md` and the dedicated Bill/Fan Club acceptance records. This addendum supersedes only stale implementation-status statements below; it does not replace the source analysis or architectural rules.
+For exact acceptance commits, workflow runs, ROM hashes, and final regression evidence, use `Pokemon_Golden_Yellow_Acceptance_Log.md` and the dedicated acceptance records. For the authoritative P9 audio classifications, timing distinctions, and ROM budget, use `Pokemon_Golden_Yellow_P9A_Audio_Reachability_Audit.md`. This addendum supersedes only stale implementation-status statements below; it does not replace the source analysis or architectural rules.
 
 ---
 
@@ -709,7 +710,9 @@ For Phase 1 of the system:
 * build the reaction engine so a reaction can request a semantic Yellow cry ID;
 * import the actual Yellow PCM clips in a separate controlled audio pass.
 
-This prevents audio conversion from blocking the graphics/reaction architecture.
+This prevented audio conversion from blocking the P1–P8 graphics/reaction architecture.
+
+**Current P9 policy:** the earlier generic-fallback recommendation is superseded for Yellow-owned commands by the locked P9A reachability audit. P9B preserves stable IDs `01–42`, imports only the 27 Required clips initially, treats Yellow `$FF` as true `NO_PCM`, keeps ordinary Pikachu behavior unchanged, and preserves separate outer-Emotion and portrait-internal cry timing.
 
 ---
 
@@ -1195,13 +1198,21 @@ Integrate/upgrade:
 
 Layer existing contextual follower messages underneath the Yellow priority system.
 
+**Status:** ACCEPTED on the `4da0f138` implementation plus `298dd506` specific-context fix.
+
 **Acceptance:** ordinary followers remain unchanged and Partner receives both systems without contradictory reactions.
 
 ### Stage P9 — Audio fidelity
 
-Import/convert Yellow Pikachu PCM clips if we decide to reproduce every original voiced reaction.
+P9 is split into controlled subpasses:
 
-**Acceptance:** appropriate audio IDs match the source reaction table.
+- **P9A — LOCKED:** source/call-site reachability audit and Option B inclusion policy;
+- **P9B — NEXT:** import and wire the 27 Required clips;
+- later P9 validation/extension passes may wire deferred system-specific call sites only when their corresponding gameplay becomes applicable.
+
+Do not import all 42 clips merely because the canonical namespace contains 42 IDs.
+
+**Acceptance:** appropriate audio IDs and `NO_PCM` behavior match the locked source/call-site table without regressing ordinary Pikachu or P1–P8 Partner behavior.
 
 ---
 

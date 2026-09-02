@@ -473,7 +473,49 @@ The next Partner-system development boundary is P8 modern follower coexistence. 
 
 ---
 
-# 22. Maintenance Rule
+# 22. Acceptance — P8 Modern Follower Coexistence
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-09-02  
+**Implementation commits:** `4da0f1382df64aa3d63cd1001e774a327aed399d`, `298dd506bc510fc8f1e0a2e1c004a37609218ff1`  
+**Final accepted source tip:** `298dd506bc510fc8f1e0a2e1c004a37609218ff1`  
+**Final accepted workflow:** `Prototype FireRed Development`  
+**Workflow run:** `33583597535`  
+**Artifact ID:** `9829356860`  
+**Artifact name:** `pokemon-kanto-johto-firered-298dd506bc510fc8f1e0a2e1c004a37609218ff1`  
+**Manual result:** PASS — user confirmed the P8 ROM passed manual gameplay testing and authorized documentation closeout before P9B.
+
+## 22.1 Accepted scope
+
+P8 layers compatible modern contextual follower behavior underneath the accepted Yellow Partner interaction priority.
+
+Accepted behavior includes:
+
+- ordinary followers remain on the existing expansion interaction path;
+- canonical Partner Pikachu first completes the applicable Yellow mood reaction;
+- modern context may follow only when the Yellow resolver reaches a successful normal mood interaction;
+- authored story, actual status, authored area, and one-shot reactions remain exclusive;
+- the Partner context selector has no basic/random fallback that would duplicate generic chatter;
+- direct local conditions outrank nearby scenery and broad ambient conditions;
+- retained FRLG Mart layouts can resolve Mart-specific context without changing the ordinary follower selector;
+- `SPECIES_PIKACHU_STARTER` remains the sole canonical Partner identity.
+
+## 22.2 Implementation lineage
+
+- `4da0f1382df64aa3d63cd1001e774a327aed399d` — `feat: bridge Partner mood into follower context`
+- `298dd506bc510fc8f1e0a2e1c004a37609218ff1` — `fix: prioritize specific Partner follower context`
+
+The final fix establishes context tiers so direct local context is considered before nearby scenery and ambient weather/time conditions.
+
+## 22.3 P8 closeout boundary
+
+P8 closes the planned Partner interaction/follower-coexistence layer as a protected regression baseline.
+
+P9A subsequently locked the Yellow Pikachu PCM reachability policy in `Pokemon_Golden_Yellow_P9A_Audio_Reachability_Audit.md`. The next implementation boundary is P9B audio runtime work.
+
+---
+
+# 23. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
