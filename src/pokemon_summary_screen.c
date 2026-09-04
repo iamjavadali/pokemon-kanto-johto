@@ -102,8 +102,11 @@
 #define PSS_DATA_WINDOW_SKILLS_STATS_RIGHT 3 // Sp. Attack, Sp. Defense, Speed
 #define PSS_DATA_WINDOW_EXP 4 // Exp, next level
 
-// Dynamic field for the Bond page.
-#define PSS_DATA_WINDOW_BOND 0
+// Dynamic fields for the Bond page.
+#define PSS_DATA_WINDOW_BOND_LABELS 0
+#define PSS_DATA_WINDOW_BOND_VALUES 1
+#define PSS_DATA_WINDOW_BOND_DESCRIPTION 2
+#define PSS_DATA_WINDOW_BOND_HEADER 3
 
 // Dynamic fields for the Battle Moves and Contest Moves pages.
 #define PSS_DATA_WINDOW_MOVE_NAMES 0
@@ -187,6 +190,7 @@ static EWRAM_DATA struct PokemonSummaryScreenData
     u16 newMove;
     u8 firstMoveIndex;
     u8 secondMoveIndex;
+    u8 bondRowIndex;
     bool8 lockMovesFlag; // This is used to prevent the player from changing position of moves in a battle or when trading.
     u8 bgDisplayOrder; // Determines the order page backgrounds are loaded while scrolling between them
     bool8 hasRelearnableMoves;
@@ -294,6 +298,10 @@ static void PrintContestMoves(void);
 static void Task_PrintContestMoves(u8);
 static void PrintBondPageText(void);
 static void Task_PrintBondPage(u8);
+static void SwitchToBondInfo(u8);
+static void Task_HandleInput_BondInfo(u8);
+static void CloseBondInfo(u8);
+static void PrintBondDescription(void);
 static void PrintContestMoveDescription(u8);
 static void PrintMoveDetails(enum Move move);
 static void PrintNewMoveDetailsOrCancelText(void);
@@ -443,7 +451,7 @@ static const struct WindowTemplate sSummaryTemplate[] =
         .bg = 0,
         .tilemapLeft = 0,
         .tilemapTop = 0,
-        .width = 11,
+        .width = 10,
         .height = 2,
         .paletteNum = 6,
         .baseBlock = 1,
@@ -452,7 +460,7 @@ static const struct WindowTemplate sSummaryTemplate[] =
         .bg = 0,
         .tilemapLeft = 0,
         .tilemapTop = 0,
-        .width = 11,
+        .width = 10,
         .height = 2,
         .paletteNum = 6,
         .baseBlock = 23,
@@ -461,7 +469,7 @@ static const struct WindowTemplate sSummaryTemplate[] =
         .bg = 0,
         .tilemapLeft = 0,
         .tilemapTop = 0,
-        .width = 11,
+        .width = 10,
         .height = 2,
         .paletteNum = 6,
         .baseBlock = 45,
@@ -470,7 +478,7 @@ static const struct WindowTemplate sSummaryTemplate[] =
         .bg = 0,
         .tilemapLeft = 0,
         .tilemapTop = 0,
-        .width = 11,
+        .width = 10,
         .height = 2,
         .paletteNum = 6,
         .baseBlock = 67,
@@ -488,7 +496,7 @@ static const struct WindowTemplate sSummaryTemplate[] =
         .bg = 0,
         .tilemapLeft = 0,
         .tilemapTop = 0,
-        .width = 11,
+        .width = 10,
         .height = 2,
         .paletteNum = 6,
         .baseBlock = 105,
@@ -740,14 +748,41 @@ static const struct WindowTemplate sPageMovesTemplate[] = // This is used for bo
 };
 static const struct WindowTemplate sPageBondTemplate[] =
 {
-    [PSS_DATA_WINDOW_BOND] = {
+    [PSS_DATA_WINDOW_BOND_LABELS] = {
+        .bg = 0,
+        .tilemapLeft = 10,
+        .tilemapTop = 4,
+        .width = 5,
+        .height = 10,
+        .paletteNum = 6,
+        .baseBlock = 467,
+    },
+    [PSS_DATA_WINDOW_BOND_VALUES] = {
+        .bg = 0,
+        .tilemapLeft = 15,
+        .tilemapTop = 4,
+        .width = 15,
+        .height = 10,
+        .paletteNum = 6,
+        .baseBlock = 517,
+    },
+    [PSS_DATA_WINDOW_BOND_DESCRIPTION] = {
+        .bg = 0,
+        .tilemapLeft = 10,
+        .tilemapTop = 15,
+        .width = 20,
+        .height = 4,
+        .paletteNum = 6,
+        .baseBlock = 667,
+    },
+    [PSS_DATA_WINDOW_BOND_HEADER] = {
         .bg = 0,
         .tilemapLeft = 10,
         .tilemapTop = 3,
         .width = 20,
-        .height = 16,
+        .height = 1,
         .paletteNum = 6,
-        .baseBlock = 467,
+        .baseBlock = 747,
     },
 };
 
@@ -792,22 +827,19 @@ static const TaskFunc sTextPrinterTasks[] =
 };
 
 static const u8 sText_Bond[] = _("BOND");
-static const u8 sText_BondFriendship[] = _("FRIENDSHIP {STR_VAR_1}/255");
-static const u8 sText_BondTier[] = _("Tier: {STR_VAR_1}");
-static const u8 sText_BondNext[] = _("Next tier in: {STR_VAR_1}");
-static const u8 sText_BondHighestTier[] = _("Next tier: Highest");
-static const u8 sText_BondFollower[] = _("FOLLOWER");
-static const u8 sText_BondStatus[] = _("Status: {STR_VAR_1}");
-static const u8 sText_BondStyle[] = _("Style: {STR_VAR_1}");
-static const u8 sText_BondState[] = _("State: {STR_VAR_1}");
-static const u8 sText_BondPartnerMood[] = _("PARTNER MOOD {STR_VAR_1}/255");
-static const u8 sText_BondPartnerMoodHeading[] = _("PARTNER MOOD");
-static const u8 sText_BondMoodAbove[] = _("{STR_VAR_1} above 128 / {STR_VAR_2} steps");
-static const u8 sText_BondMoodBelow[] = _("{STR_VAR_1} below 128 / {STR_VAR_2} steps");
-static const u8 sText_BondMoodNeutral[] = _("Neutral 128 / 0 steps");
-static const u8 sText_BondBase[] = _("Base: {STR_VAR_1}");
-static const u8 sText_BondPending[] = _("Pending: {STR_VAR_1}");
-static const u8 sText_BondPartnerOnly[] = _("Only Partner Pikachu has mood.");
+static const u8 sText_BondStatusHeader[] = _("BOND STATUS");
+static const u8 sText_BondValue[] = _("{STR_VAR_1}/255");
+static const u8 sText_BondFriendshipDescription[] = _("Friendship: {STR_VAR_1}/255.\n{STR_VAR_2}");
+static const u8 sText_BondNextTierDescription[] = _("Next follower tier in {STR_VAR_1}.");
+static const u8 sText_BondHighestTierDescription[] = _("Highest follower tier reached.");
+static const u8 sText_BondTierDescription[] = _("Current follower tier: {STR_VAR_1}.\n0-80 Cautious; 81-170 Friendly;\n171-255 Very close.");
+static const u8 sText_BondFollowingDescription[] = _("This Pokémon is currently following\nyou in the overworld.");
+static const u8 sText_BondNotFollowingDescription[] = _("This Pokémon is not the active\nfollowing Pokémon.");
+static const u8 sText_BondStyleDescription[] = _("General follower response style:\n{STR_VAR_1}.\nArea and condition reactions may vary.");
+static const u8 sText_BondPartnerFollowerDescription[] = _("Status: {STR_VAR_1}.\nStyle: Yellow Partner.\nState: {STR_VAR_2}.");
+static const u8 sText_BondMoodNeutralDescription[] = _("Mood is neutral at 128.\nIt needs 0 steps to return to neutral.");
+static const u8 sText_BondMoodDescription[] = _("Mood is {STR_VAR_1} {STR_VAR_2} neutral.\nIt returns in {STR_VAR_1} player steps.");
+static const u8 sText_BondFeelingDescription[] = _("Base feeling: {STR_VAR_1}.\nPending special feeling: {STR_VAR_2}.\nStory or location can override it.");
 
 static const u8 sText_Relearn[] = _("{START_BUTTON} RELEARN"); // future note: don't decap this, because it mimics the summary screen BG graphics which will not get decapped
 
@@ -1853,6 +1885,11 @@ static void Task_HandleInput(u8 taskId)
                     PlaySE(SE_SELECT);
                     SwitchToMoveSelection(taskId);
                 }
+                else if (sMonSummaryScreen->currPageIndex == PSS_PAGE_BOND)
+                {
+                    PlaySE(SE_SELECT);
+                    SwitchToBondInfo(taskId);
+                }
             }
             if (sMonSummaryScreen->currPageIndex == PSS_PAGE_SKILLS)
             {
@@ -2885,7 +2922,7 @@ static void DrawPagination(void) // Updates the pagination dots at the top of th
             tilemap[j + 2 * PSS_PAGE_COUNT + 1] = 0x59;
         }
     }
-    CopyToBgTilemapBufferRect_ChangePalette(3, tilemap, 11, 0, PSS_PAGE_COUNT * 2, 2, 16);
+    CopyToBgTilemapBufferRect_ChangePalette(3, tilemap, 10, 0, PSS_PAGE_COUNT * 2, 2, 16);
     ScheduleBgCopyTilemapToVram(3);
     Free(tilemap);
 }
@@ -3336,11 +3373,11 @@ static void PrintPageNamesAndStats(void)
 {
     int statsXPos;
 
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_INFO_TITLE, gText_PkmnInfo, 2, 1, 0, 1);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_TITLE, gText_PkmnSkills, 2, 1, 0, 1);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_BATTLE_MOVES_TITLE, gText_BattleMoves, 2, 1, 0, 1);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE, gText_ContestMoves, 2, 1, 0, 1);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_BOND_TITLE, sText_Bond, 2, 1, 0, 1);
+    PrintTextOnWindowToFitPx(PSS_LABEL_WINDOW_POKEMON_INFO_TITLE, gText_PkmnInfo, 2, 1, 0, 1, 76);
+    PrintTextOnWindowToFitPx(PSS_LABEL_WINDOW_POKEMON_SKILLS_TITLE, gText_PkmnSkills, 2, 1, 0, 1, 76);
+    PrintTextOnWindowToFitPx(PSS_LABEL_WINDOW_BATTLE_MOVES_TITLE, gText_BattleMoves, 2, 1, 0, 1, 76);
+    PrintTextOnWindowToFitPx(PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE, gText_ContestMoves, 2, 1, 0, 1, 76);
+    PrintTextOnWindowToFitPx(PSS_LABEL_WINDOW_BOND_TITLE, sText_Bond, 2, 1, 0, 1, 76);
 
     ShowUtilityPrompt(SUMMARY_MODE_NORMAL);
 
@@ -3410,6 +3447,7 @@ static void PutPageWindowTilemaps(u8 page)
         break;
     case PSS_PAGE_BOND:
         PutWindowTilemap(PSS_LABEL_WINDOW_BOND_TITLE);
+        PutWindowTilemap(PSS_LABEL_WINDOW_PROMPT_UTILITY);
         break;
     case PSS_PAGE_CONTEST_MOVES:
         PutWindowTilemap(PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE);
@@ -3465,6 +3503,9 @@ static void ClearPageWindowTilemaps(u8 page)
         }
 
         ClearWindowTilemap(PSS_LABEL_WINDOW_PROMPT_RELEARN);
+        break;
+    case PSS_PAGE_BOND:
+        ClearWindowTilemap(PSS_LABEL_WINDOW_PROMPT_UTILITY);
         break;
     case PSS_PAGE_CONTEST_MOVES:
         if (sMonSummaryScreen->mode == SUMMARY_MODE_SELECT_MOVE)
@@ -3640,109 +3681,87 @@ static const u8 *GetBondPartnerStateName(u8 state)
     return sStateNormal;
 }
 
-static void DrawBondMeter(u8 windowId, u8 value, u8 y, bool8 showCenter)
+struct BondPageSnapshot
 {
-    u8 width = (value * 148) / 255;
+    struct GoldenYellowPartnerSummarySnapshot partner;
+    bool8 isPartner;
+    bool8 isFollowing;
+    u16 friendship;
+};
 
-    FillWindowPixelRect(windowId, PIXEL_FILL(2), 4, y, 150, 5);
-    if (width != 0)
-        FillWindowPixelRect(windowId, PIXEL_FILL(7), 5, y + 1, width, 3);
-    if (showCenter)
-        FillWindowPixelRect(windowId, PIXEL_FILL(1), 78, y, 2, 5);
+static void GetBondPageSnapshot(struct BondPageSnapshot *snapshot)
+{
+    struct Pokemon *partyMon = GetBondPagePartyMon();
+
+    *snapshot = (struct BondPageSnapshot){0};
+    snapshot->isPartner = GoldenYellow_GetPartnerPikachuSummarySnapshot(partyMon, &snapshot->partner);
+    snapshot->isFollowing = partyMon != NULL
+                         && PlayerHasFollowerNPC()
+                         && GetPartnerAwareFollowingMon() == partyMon;
+    snapshot->friendship = snapshot->isPartner
+                         ? snapshot->partner.friendship
+                         : sMonSummaryScreen->summary.friendship;
+}
+
+static void PrintBondRow(u8 labelWindowId, u8 valueWindowId, u8 row, const u8 *label, const u8 *value)
+{
+    u8 y = row * 16 + 1;
+    u8 labelX = 2 + GetStringCenterAlignXOffset(FONT_SMALL, label, 36);
+
+    PrintTextOnWindowWithFont(labelWindowId, label, labelX, y + 3, 0, 0, FONT_SMALL);
+    PrintTextOnWindowToFitPx(valueWindowId, value, 2, y, 0, 1, 112);
+}
+
+static void BufferBondFraction(u8 value)
+{
+    ConvertIntToDecimalStringN(gStringVar1, value, STR_CONV_MODE_LEFT_ALIGN, 3);
+    StringExpandPlaceholders(gStringVar2, sText_BondValue);
 }
 
 static void PrintBondPageText(void)
 {
+    static const u8 sLabelFriend[] = _("FRIEND");
+    static const u8 sLabelTier[] = _("TIER");
+    static const u8 sLabelFollow[] = _("FOLLOW");
+    static const u8 sLabelStyle[] = _("STYLE");
+    static const u8 sLabelMood[] = _("MOOD");
+    static const u8 sLabelFeel[] = _("FEEL");
     static const u8 sFollowing[] = _("Following");
     static const u8 sNotFollowing[] = _("Not following");
-    static const u8 sYellowPartner[] = _("Yellow Partner");
-    struct GoldenYellowPartnerSummarySnapshot partnerSnapshot;
-    struct Pokemon *partyMon = GetBondPagePartyMon();
-    bool8 isPartner = GoldenYellow_GetPartnerPikachuSummarySnapshot(partyMon, &partnerSnapshot);
-    bool8 isFollowing = partyMon != NULL
-                     && PlayerHasFollowerNPC()
-                     && GetPartnerAwareFollowingMon() == partyMon;
-    u16 friendship = isPartner ? partnerSnapshot.friendship : sMonSummaryScreen->summary.friendship;
-    u8 windowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND);
-    u16 nextTier;
+    struct BondPageSnapshot snapshot;
+    u8 labelWindowId;
+    u8 valueWindowId;
+    u8 descriptionWindowId;
+    u8 headerWindowId;
 
-    FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
-    DrawBondMeter(windowId, friendship, 13, FALSE);
+    GetBondPageSnapshot(&snapshot);
+    labelWindowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND_LABELS);
+    valueWindowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND_VALUES);
+    descriptionWindowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND_DESCRIPTION);
+    headerWindowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND_HEADER);
 
-    ConvertIntToDecimalStringN(gStringVar1, friendship, STR_CONV_MODE_LEFT_ALIGN, 3);
-    StringExpandPlaceholders(gStringVar2, sText_BondFriendship);
-    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 0, 0, 1, FONT_SMALL);
+    FillWindowPixelBuffer(labelWindowId, PIXEL_FILL(0));
+    FillWindowPixelBuffer(valueWindowId, PIXEL_FILL(0));
+    FillWindowPixelBuffer(descriptionWindowId, PIXEL_FILL(0));
+    FillWindowPixelBuffer(headerWindowId, PIXEL_FILL(0));
+    PrintTextOnWindowWithFont(headerWindowId, sText_BondStatusHeader, 6, 0, 0, 0, FONT_SMALL);
 
-    StringCopy(gStringVar1, GetBondFollowerTier(friendship));
-    StringExpandPlaceholders(gStringVar2, sText_BondTier);
-    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 19, 0, 1, FONT_SMALL);
+    BufferBondFraction(snapshot.friendship);
+    PrintBondRow(labelWindowId, valueWindowId, 0, sLabelFriend, gStringVar2);
 
-    if (friendship <= 170)
+    if (snapshot.isPartner)
     {
-        nextTier = friendship <= 80 ? 81 : 171;
-        ConvertIntToDecimalStringN(gStringVar1, nextTier - friendship, STR_CONV_MODE_LEFT_ALIGN, 3);
-        StringExpandPlaceholders(gStringVar2, sText_BondNext);
-        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 29, 0, 1, FONT_SMALL);
+        PrintBondRow(labelWindowId, valueWindowId, 1, sLabelFollow, snapshot.isFollowing ? sFollowing : sNotFollowing);
+        BufferBondFraction(snapshot.partner.mood);
+        PrintBondRow(labelWindowId, valueWindowId, 2, sLabelMood, gStringVar2);
+        PrintBondRow(labelWindowId, valueWindowId, 3, sLabelFeel, GetBondReactionName(snapshot.partner.baseReaction));
     }
     else
     {
-        PrintTextOnWindowWithFont(windowId, sText_BondHighestTier, 2, 29, 0, 1, FONT_SMALL);
+        PrintBondRow(labelWindowId, valueWindowId, 1, sLabelTier, GetBondFollowerTier(snapshot.friendship));
+        PrintBondRow(labelWindowId, valueWindowId, 2, sLabelFollow, snapshot.isFollowing ? sFollowing : sNotFollowing);
+        PrintBondRow(labelWindowId, valueWindowId, 3, sLabelStyle, GetBondFollowerStyle(snapshot.friendship));
     }
-
-    PrintTextOnWindowWithFont(windowId, sText_BondFollower, 2, 40, 0, 1, FONT_SMALL);
-    StringCopy(gStringVar1, isFollowing ? sFollowing : sNotFollowing);
-    StringExpandPlaceholders(gStringVar2, sText_BondStatus);
-    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 51, 0, 1, FONT_SMALL);
-
-    StringCopy(gStringVar1, isPartner ? sYellowPartner : GetBondFollowerStyle(friendship));
-    StringExpandPlaceholders(gStringVar2, sText_BondStyle);
-    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 62, 0, 1, FONT_SMALL);
-
-    if (isPartner)
-    {
-        StringCopy(gStringVar1, GetBondPartnerStateName(partnerSnapshot.state));
-        StringExpandPlaceholders(gStringVar2, sText_BondState);
-        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 72, 0, 1, FONT_SMALL);
-
-        ConvertIntToDecimalStringN(gStringVar1, partnerSnapshot.mood, STR_CONV_MODE_LEFT_ALIGN, 3);
-        StringExpandPlaceholders(gStringVar2, sText_BondPartnerMood);
-        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 82, 0, 1, FONT_SMALL);
-        DrawBondMeter(windowId, partnerSnapshot.mood, 94, TRUE);
-
-        if (partnerSnapshot.mood == 128)
-        {
-            PrintTextOnWindowWithFont(windowId, sText_BondMoodNeutral, 2, 100, 0, 1, FONT_SMALL);
-        }
-        else
-        {
-            u8 distance = partnerSnapshot.mood > 128
-                        ? partnerSnapshot.mood - 128
-                        : 128 - partnerSnapshot.mood;
-
-            ConvertIntToDecimalStringN(gStringVar1, distance, STR_CONV_MODE_LEFT_ALIGN, 3);
-            ConvertIntToDecimalStringN(gStringVar2, distance, STR_CONV_MODE_LEFT_ALIGN, 3);
-            StringExpandPlaceholders(gStringVar3, partnerSnapshot.mood > 128 ? sText_BondMoodAbove : sText_BondMoodBelow);
-            PrintTextOnWindowWithFont(windowId, gStringVar3, 2, 100, 0, 1, FONT_SMALL);
-        }
-
-        StringCopy(gStringVar1, GetBondReactionName(partnerSnapshot.baseReaction));
-        StringExpandPlaceholders(gStringVar2, sText_BondBase);
-        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 110, 0, 1, FONT_SMALL);
-
-        StringCopy(gStringVar1, partnerSnapshot.hasPendingReaction
-                              ? GetBondReactionName(partnerSnapshot.pendingReaction)
-                              : GetBondReactionName(GY_PARTNER_REACTION_EMPTY));
-        StringExpandPlaceholders(gStringVar2, sText_BondPending);
-        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 120, 0, 1, FONT_SMALL);
-    }
-    else
-    {
-        PrintTextOnWindowWithFont(windowId, sText_BondPartnerMoodHeading, 2, 82, 0, 1, FONT_SMALL);
-        PrintTextOnWindowWithFont(windowId, sText_BondPartnerOnly, 2, 100, 0, 1, FONT_SMALL);
-    }
-
-    PutWindowTilemap(windowId);
-    CopyWindowToVram(windowId, COPYWIN_FULL);
 }
 
 static void Task_PrintBondPage(u8 taskId)
@@ -3756,6 +3775,157 @@ static void Task_PrintBondPage(u8 taskId)
     {
         DestroyTask(taskId);
     }
+}
+
+static void PrintBondFriendshipDescription(const struct BondPageSnapshot *snapshot, u8 windowId)
+{
+    u16 nextTier;
+
+    if (snapshot->friendship <= 170)
+    {
+        nextTier = snapshot->friendship <= 80 ? 81 : 171;
+        ConvertIntToDecimalStringN(gStringVar1, nextTier - snapshot->friendship, STR_CONV_MODE_LEFT_ALIGN, 3);
+        StringExpandPlaceholders(gStringVar2, sText_BondNextTierDescription);
+    }
+    else
+    {
+        StringCopy(gStringVar2, sText_BondHighestTierDescription);
+    }
+
+    ConvertIntToDecimalStringN(gStringVar1, snapshot->friendship, STR_CONV_MODE_LEFT_ALIGN, 3);
+    StringExpandPlaceholders(gStringVar4, sText_BondFriendshipDescription);
+    PrintTextOnWindowWithFont(windowId, gStringVar4, 6, 1, 0, 0, FONT_SMALL);
+}
+
+static void PrintBondDescription(void)
+{
+    static const u8 sFollowing[] = _("Following");
+    static const u8 sNotFollowing[] = _("Not following");
+    static const u8 sAbove[] = _("above");
+    static const u8 sBelow[] = _("below");
+    struct BondPageSnapshot snapshot;
+    u8 windowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND_DESCRIPTION);
+
+    GetBondPageSnapshot(&snapshot);
+    FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
+
+    if (sMonSummaryScreen->bondRowIndex == 0)
+    {
+        PrintBondFriendshipDescription(&snapshot, windowId);
+    }
+    else if (snapshot.isPartner)
+    {
+        switch (sMonSummaryScreen->bondRowIndex)
+        {
+        case 1:
+            StringCopy(gStringVar1, snapshot.isFollowing ? sFollowing : sNotFollowing);
+            StringCopy(gStringVar2, GetBondPartnerStateName(snapshot.partner.state));
+            StringExpandPlaceholders(gStringVar4, sText_BondPartnerFollowerDescription);
+            PrintTextOnWindowWithFont(windowId, gStringVar4, 6, 1, 0, 0, FONT_SMALL);
+            break;
+        case 2:
+            if (snapshot.partner.mood == 128)
+            {
+                PrintTextOnWindowWithFont(windowId, sText_BondMoodNeutralDescription, 6, 1, 0, 0, FONT_SMALL);
+            }
+            else
+            {
+                u8 distance = snapshot.partner.mood > 128
+                            ? snapshot.partner.mood - 128
+                            : 128 - snapshot.partner.mood;
+
+                ConvertIntToDecimalStringN(gStringVar1, distance, STR_CONV_MODE_LEFT_ALIGN, 3);
+                StringCopy(gStringVar2, snapshot.partner.mood > 128 ? sAbove : sBelow);
+                StringExpandPlaceholders(gStringVar4, sText_BondMoodDescription);
+                PrintTextOnWindowWithFont(windowId, gStringVar4, 6, 1, 0, 0, FONT_SMALL);
+            }
+            break;
+        case 3:
+            StringCopy(gStringVar1, GetBondReactionName(snapshot.partner.baseReaction));
+            StringCopy(gStringVar2, snapshot.partner.hasPendingReaction
+                                   ? GetBondReactionName(snapshot.partner.pendingReaction)
+                                   : GetBondReactionName(GY_PARTNER_REACTION_EMPTY));
+            StringExpandPlaceholders(gStringVar4, sText_BondFeelingDescription);
+            PrintTextOnWindowWithFont(windowId, gStringVar4, 6, 1, 0, 0, FONT_SMALL);
+            break;
+        }
+    }
+    else
+    {
+        switch (sMonSummaryScreen->bondRowIndex)
+        {
+        case 1:
+            StringCopy(gStringVar1, GetBondFollowerTier(snapshot.friendship));
+            StringExpandPlaceholders(gStringVar4, sText_BondTierDescription);
+            PrintTextOnWindowWithFont(windowId, gStringVar4, 6, 1, 0, 0, FONT_SMALL);
+            break;
+        case 2:
+            PrintTextOnWindowWithFont(windowId,
+                                      snapshot.isFollowing ? sText_BondFollowingDescription : sText_BondNotFollowingDescription,
+                                      6, 1, 0, 0, FONT_SMALL);
+            break;
+        case 3:
+            StringCopy(gStringVar1, GetBondFollowerStyle(snapshot.friendship));
+            StringExpandPlaceholders(gStringVar4, sText_BondStyleDescription);
+            PrintTextOnWindowWithFont(windowId, gStringVar4, 6, 1, 0, 0, FONT_SMALL);
+            break;
+        }
+    }
+
+    PutWindowTilemap(windowId);
+    CopyWindowToVram(windowId, COPYWIN_FULL);
+    ScheduleBgCopyTilemapToVram(0);
+}
+
+static void SwitchToBondInfo(u8 taskId)
+{
+    sMonSummaryScreen->bondRowIndex = 0;
+    ShowUtilityPrompt(SUMMARY_MODE_SELECT_MOVE);
+    PrintBondDescription();
+    CreateMoveSelectorSprites(SPRITE_ARR_ID_MOVE_SELECTOR1);
+    gTasks[taskId].func = Task_HandleInput_BondInfo;
+}
+
+static void Task_HandleInput_BondInfo(u8 taskId)
+{
+    if (MenuHelpers_ShouldWaitForLinkRecv() != TRUE && !gPaletteFade.active)
+    {
+        if (JOY_NEW(DPAD_UP))
+        {
+            PlaySE(SE_SELECT);
+            if (sMonSummaryScreen->bondRowIndex == 0)
+                sMonSummaryScreen->bondRowIndex = 3;
+            else
+                sMonSummaryScreen->bondRowIndex--;
+            KeepMoveSelectorVisible(SPRITE_ARR_ID_MOVE_SELECTOR1);
+            PrintBondDescription();
+        }
+        else if (JOY_NEW(DPAD_DOWN))
+        {
+            PlaySE(SE_SELECT);
+            sMonSummaryScreen->bondRowIndex = (sMonSummaryScreen->bondRowIndex + 1) % 4;
+            KeepMoveSelectorVisible(SPRITE_ARR_ID_MOVE_SELECTOR1);
+            PrintBondDescription();
+        }
+        else if (JOY_NEW(B_BUTTON))
+        {
+            PlaySE(SE_SELECT);
+            CloseBondInfo(taskId);
+        }
+    }
+}
+
+static void CloseBondInfo(u8 taskId)
+{
+    u8 windowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND_DESCRIPTION);
+
+    DestroyMoveSelectorSprites(SPRITE_ARR_ID_MOVE_SELECTOR1);
+    FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
+    ClearWindowTilemap(windowId);
+    CopyWindowToVram(windowId, COPYWIN_GFX);
+    ShowUtilityPrompt(SUMMARY_MODE_NORMAL);
+    ScheduleBgCopyTilemapToVram(0);
+    gTasks[taskId].func = Task_HandleInput;
 }
 
 static void PrintInfoPageText(void)
@@ -5006,7 +5176,12 @@ static void SpriteCB_MoveSelector(struct Sprite *sprite)
     }
 
     if (sprite->data[0] == SPRITE_ARR_ID_MOVE_SELECTOR1)
-        sprite->y2 = sMonSummaryScreen->firstMoveIndex * 16;
+    {
+        if (sMonSummaryScreen->currPageIndex == PSS_PAGE_BOND)
+            sprite->y2 = sMonSummaryScreen->bondRowIndex * 16;
+        else
+            sprite->y2 = sMonSummaryScreen->firstMoveIndex * 16;
+    }
     else
         sprite->y2 = sMonSummaryScreen->secondMoveIndex * 16;
 }
@@ -5085,6 +5260,7 @@ static inline bool32 ShouldShowIvEvPrompt(void)
 static inline void ShowUtilityPrompt(s16 mode)
 {
     const u8* promptText = NULL;
+    bool8 useBButton = FALSE;
     const u8* gText_SkillPageIvs = COMPOUND_STRING("IVs");
     const u8* gText_SkillPageEvs = COMPOUND_STRING("EVs");
     const u8* gText_SkillPageStats = COMPOUND_STRING("STATS");
@@ -5129,6 +5305,18 @@ static inline void ShowUtilityPrompt(s16 mode)
         else
             promptText = gText_Info;
     }
+    else if (sMonSummaryScreen->currPageIndex == PSS_PAGE_BOND)
+    {
+        if (mode == SUMMARY_MODE_SELECT_MOVE)
+        {
+            promptText = gText_Cancel2;
+            useBButton = TRUE;
+        }
+        else
+        {
+            promptText = gText_Info;
+        }
+    }
 
     if (promptText == NULL)
     {
@@ -5145,7 +5333,7 @@ static inline void ShowUtilityPrompt(s16 mode)
     if (iconXPos < 0)
         iconXPos = 0;
 
-    PrintAOrBButtonIcon(PSS_LABEL_WINDOW_PROMPT_UTILITY, FALSE, iconXPos);
+    PrintAOrBButtonIcon(PSS_LABEL_WINDOW_PROMPT_UTILITY, useBButton, iconXPos);
     PrintTextOnWindow(PSS_LABEL_WINDOW_PROMPT_UTILITY, promptText, stringXPos, 1, 0, 0);
 }
 
