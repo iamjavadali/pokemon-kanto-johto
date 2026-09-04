@@ -441,7 +441,7 @@ static void Task_PartnerReaction(u8 taskId)
         break;
 
     case GY_PARTNER_REACTION_STATE_WAIT_CRY:
-        if (IsCryFinished())
+        if (IsYellowPikachuCryFinished())
         {
             task->rCommandIndex++;
             task->rState = GY_PARTNER_REACTION_STATE_RUN_COMMAND;

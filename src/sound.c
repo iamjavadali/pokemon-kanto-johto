@@ -362,7 +362,6 @@ bool8 PlayYellowPikachuCry(u8 cryId)
         return FALSE;
     }
 
-    m4aMPlayVolumeControl(&gMPlayInfo_BGM, TRACKS_ALL, 85);
     SetPokemonCryVolume(volume);
     SetPokemonCryPanpot(0);
     SetPokemonCryPitch(15360);
@@ -372,8 +371,15 @@ bool8 PlayYellowPikachuCry(u8 cryId)
     SetPokemonCryChorus(0);
     SetPokemonCryPriority(CRY_PRIORITY_NORMAL);
     gMPlay_PokemonCry = SetPokemonCryTone(&gYellowPikachuCryTable[cryId - 1]);
-    gPokemonCryBGMDuckingCounter = 2;
-    RestoreBGMVolumeAfterPokemonCry();
+    return TRUE;
+}
+
+bool8 IsYellowPikachuCryFinished(void)
+{
+    if (gMPlay_PokemonCry != NULL && IsPokemonCryPlaying(gMPlay_PokemonCry))
+        return FALSE;
+
+    ClearPokemonCrySongs();
     return TRUE;
 }
 
