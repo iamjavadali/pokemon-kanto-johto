@@ -240,6 +240,7 @@ static bool32 StartPartnerReactionTask(u8 reactionId, enum GoldenYellowPartnerRe
 static bool32 HasFreePartnerReactionTaskSlot(void);
 static bool32 IsCanonicalPartnerFollowerReady(struct ObjectEvent **follower);
 static void BeginPartnerReaction(u8 taskId, u8 reactionId);
+static void NormalizePartnerReactionFacing(void);
 static void FinishPartnerReaction(u8 taskId);
 static void ClosePartnerReactionBrowser(u8 taskId);
 static void ExecutePartnerReactionCommand(u8 taskId);
@@ -353,25 +354,29 @@ static void BeginPartnerReaction(u8 taskId, u8 reactionId)
     task->rDebugPortraitReady = FALSE;
 }
 
+static void NormalizePartnerReactionFacing(void)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+
+    if (follower != NULL && follower->active)
+    {
+        ObjectEventClearHeldMovementIfActive(follower);
+        UnfreezeObjectEvent(follower);
+        ObjectEventTurn(follower, GetFollowerDirectionTowardPlayer(follower));
+    }
+}
+
 static void FinishPartnerReaction(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];
 
+    // Expressive movement and portrait poses may face sideways or away during
+    // a reaction, but every completed reaction returns to the player-facing
+    // overworld baseline before follower control resumes.
+    NormalizePartnerReactionFacing();
+
     if (task->rMode == GY_PARTNER_REACTION_MODE_DEBUG_BROWSER)
     {
-        struct ObjectEvent *follower = GetFollowerObject();
-
-        // Debug-browser normalization only: each Emotion must begin from the
-        // same player-facing baseline so its body-language choreography can be
-        // evaluated independently. Authored one-shot reactions intentionally
-        // retain their story/portrait-synchronized final pose.
-        if (follower != NULL && follower->active)
-        {
-            ObjectEventClearHeldMovementIfActive(follower);
-            UnfreezeObjectEvent(follower);
-            ObjectEventTurn(follower, GetFollowerDirectionTowardPlayer(follower));
-        }
-
         task->rState = GY_PARTNER_REACTION_STATE_BROWSER_IDLE;
         task->rInputCooldown = 2;
     }
@@ -383,13 +388,7 @@ static void FinishPartnerReaction(u8 taskId)
 
 static void ClosePartnerReactionBrowser(u8 taskId)
 {
-    struct ObjectEvent *follower = GetFollowerObject();
-
-    if (follower != NULL && follower->active)
-    {
-        ObjectEventClearHeldMovementIfActive(follower);
-        UnfreezeObjectEvent(follower);
-    }
+    NormalizePartnerReactionFacing();
 
     DestroyTask(taskId);
     UnlockPlayerFieldControls();
