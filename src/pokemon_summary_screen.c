@@ -14,6 +14,9 @@
 #include "decompress.h"
 #include "dynamic_placeholder_text_util.h"
 #include "event_data.h"
+#include "event_object_movement.h"
+#include "follower_npc.h"
+#include "golden_yellow_partner_state.h"
 #include "gpu_regs.h"
 #include "graphics.h"
 #include "international_string_util.h"
@@ -45,6 +48,7 @@
 #include "tv.h"
 #include "window.h"
 #include "constants/battle_move_effects.h"
+#include "constants/golden_yellow_partner_reactions.h"
 #include "constants/items.h"
 #include "constants/moves.h"
 #include "constants/party_menu.h"
@@ -60,7 +64,7 @@
 
 // Button control text (upper right)
 #define PSS_LABEL_WINDOW_PROMPT_UTILITY 4 // Handles "Switch", "Info", and "Cancel" prompts. Also handles the "Rename" and "IVs"/"EVs"/"STATS" prompts if P_SUMMARY_SCREEN_RENAME and P_SUMMARY_SCREEN_IV_EV_INFO are true, respectively
-#define PSS_LABEL_WINDOW_PROMPT_INFO 5 // unused
+#define PSS_LABEL_WINDOW_BOND_TITLE 5
 #define PSS_LABEL_WINDOW_PROMPT_SWITCH 6 // unused
 #define PSS_LABEL_WINDOW_UNUSED1 7
 
@@ -97,6 +101,9 @@
 #define PSS_DATA_WINDOW_SKILLS_STATS_LEFT 2 // HP, Attack, Defense
 #define PSS_DATA_WINDOW_SKILLS_STATS_RIGHT 3 // Sp. Attack, Sp. Defense, Speed
 #define PSS_DATA_WINDOW_EXP 4 // Exp, next level
+
+// Dynamic field for the Bond page.
+#define PSS_DATA_WINDOW_BOND 0
 
 // Dynamic fields for the Battle Moves and Contest Moves pages.
 #define PSS_DATA_WINDOW_MOVE_NAMES 0
@@ -285,6 +292,8 @@ static void Task_PrintBattleMoves(u8);
 static void PrintMoveNameAndPP(u8);
 static void PrintContestMoves(void);
 static void Task_PrintContestMoves(u8);
+static void PrintBondPageText(void);
+static void Task_PrintBondPage(u8);
 static void PrintContestMoveDescription(u8);
 static void PrintMoveDetails(enum Move move);
 static void PrintNewMoveDetailsOrCancelText(void);
@@ -475,13 +484,13 @@ static const struct WindowTemplate sSummaryTemplate[] =
         .paletteNum = 7,
         .baseBlock = 89,
     },
-    [PSS_LABEL_WINDOW_PROMPT_INFO] = {
+    [PSS_LABEL_WINDOW_BOND_TITLE] = {
         .bg = 0,
-        .tilemapLeft = 22,
+        .tilemapLeft = 0,
         .tilemapTop = 0,
-        .width = 8,
+        .width = 11,
         .height = 2,
-        .paletteNum = 7,
+        .paletteNum = 6,
         .baseBlock = 105,
     },
     [PSS_LABEL_WINDOW_PROMPT_SWITCH] = {
@@ -729,6 +738,19 @@ static const struct WindowTemplate sPageMovesTemplate[] = // This is used for bo
         .baseBlock = 617,
     },
 };
+static const struct WindowTemplate sPageBondTemplate[] =
+{
+    [PSS_DATA_WINDOW_BOND] = {
+        .bg = 0,
+        .tilemapLeft = 10,
+        .tilemapTop = 3,
+        .width = 20,
+        .height = 16,
+        .paletteNum = 6,
+        .baseBlock = 467,
+    },
+};
+
 static const u8 sTextColors[][3] =
 {
     {0, 1, 2},
@@ -756,7 +778,8 @@ static void (*const sTextPrinterFunctions[])(void) =
     [PSS_PAGE_INFO] = PrintInfoPageText,
     [PSS_PAGE_SKILLS] = PrintSkillsPageText,
     [PSS_PAGE_BATTLE_MOVES] = PrintBattleMoves,
-    [PSS_PAGE_CONTEST_MOVES] = PrintContestMoves
+    [PSS_PAGE_CONTEST_MOVES] = PrintContestMoves,
+    [PSS_PAGE_BOND] = PrintBondPageText,
 };
 
 static const TaskFunc sTextPrinterTasks[] =
@@ -764,8 +787,27 @@ static const TaskFunc sTextPrinterTasks[] =
     [PSS_PAGE_INFO] = Task_PrintInfoPage,
     [PSS_PAGE_SKILLS] = Task_PrintSkillsPage,
     [PSS_PAGE_BATTLE_MOVES] = Task_PrintBattleMoves,
-    [PSS_PAGE_CONTEST_MOVES] = Task_PrintContestMoves
+    [PSS_PAGE_CONTEST_MOVES] = Task_PrintContestMoves,
+    [PSS_PAGE_BOND] = Task_PrintBondPage,
 };
+
+static const u8 sText_Bond[] = _("BOND");
+static const u8 sText_BondFriendship[] = _("FRIENDSHIP {STR_VAR_1}/255");
+static const u8 sText_BondTier[] = _("Tier: {STR_VAR_1}");
+static const u8 sText_BondNext[] = _("Next tier in: {STR_VAR_1}");
+static const u8 sText_BondHighestTier[] = _("Next tier: Highest");
+static const u8 sText_BondFollower[] = _("FOLLOWER");
+static const u8 sText_BondStatus[] = _("Status: {STR_VAR_1}");
+static const u8 sText_BondStyle[] = _("Style: {STR_VAR_1}");
+static const u8 sText_BondState[] = _("State: {STR_VAR_1}");
+static const u8 sText_BondPartnerMood[] = _("PARTNER MOOD {STR_VAR_1}/255");
+static const u8 sText_BondPartnerMoodHeading[] = _("PARTNER MOOD");
+static const u8 sText_BondMoodAbove[] = _("{STR_VAR_1} above 128 / {STR_VAR_2} steps");
+static const u8 sText_BondMoodBelow[] = _("{STR_VAR_1} below 128 / {STR_VAR_2} steps");
+static const u8 sText_BondMoodNeutral[] = _("Neutral 128 / 0 steps");
+static const u8 sText_BondBase[] = _("Base: {STR_VAR_1}");
+static const u8 sText_BondPending[] = _("Pending: {STR_VAR_1}");
+static const u8 sText_BondPartnerOnly[] = _("Only Partner Pikachu has mood.");
 
 static const u8 sText_Relearn[] = _("{START_BUTTON} RELEARN"); // future note: don't decap this, because it mimics the summary screen BG graphics which will not get decapped
 
@@ -1226,10 +1268,13 @@ void ShowPokemonSummaryScreen(u8 mode, void *mons, u8 monIndex, u8 maxMonIndex, 
     case SUMMARY_MODE_NORMAL:
     case SUMMARY_MODE_BOX:
     case SUMMARY_MODE_BOX_CURSOR:
+        sMonSummaryScreen->minPageIndex = 0;
+        sMonSummaryScreen->maxPageIndex = PSS_PAGE_COUNT - 1;
+        break;
     case SUMMARY_MODE_RELEARNER_BATTLE:
     case SUMMARY_MODE_RELEARNER_CONTEST:
         sMonSummaryScreen->minPageIndex = 0;
-        sMonSummaryScreen->maxPageIndex = PSS_PAGE_COUNT - 1;
+        sMonSummaryScreen->maxPageIndex = PSS_PAGE_CONTEST_MOVES;
         break;
     case SUMMARY_MODE_LOCK_MOVES:
         sMonSummaryScreen->minPageIndex = 0;
@@ -1238,7 +1283,7 @@ void ShowPokemonSummaryScreen(u8 mode, void *mons, u8 monIndex, u8 maxMonIndex, 
         break;
     case SUMMARY_MODE_SELECT_MOVE:
         sMonSummaryScreen->minPageIndex = PSS_PAGE_BATTLE_MOVES;
-        sMonSummaryScreen->maxPageIndex = PSS_PAGE_COUNT - 1;
+        sMonSummaryScreen->maxPageIndex = PSS_PAGE_CONTEST_MOVES;
         sMonSummaryScreen->lockMonFlag = TRUE;
         break;
     }
@@ -1469,31 +1514,35 @@ static bool8 DecompressGraphics(void)
         sMonSummaryScreen->switchCounter++;
         break;
     case 6:
+        DecompressDataWithHeaderWram(gSummaryPage_Bond_Tilemap, sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_BOND][1]);
+        sMonSummaryScreen->switchCounter++;
+        break;
+    case 7:
         LoadPalette(gSummaryScreen_Pal, BG_PLTT_ID(0), 8 * PLTT_SIZE_4BPP);
         LoadPalette(&gPPTextPalette, BG_PLTT_ID(8) + 1, PLTT_SIZEOF(16 - 1));
         sMonSummaryScreen->switchCounter++;
         break;
-    case 7:
+    case 8:
         LoadCompressedSpriteSheet(&gSpriteSheet_MoveTypes);
         sMonSummaryScreen->switchCounter++;
         break;
-    case 8:
+    case 9:
         LoadCompressedSpriteSheet(&sMoveSelectorSpriteSheet);
         sMonSummaryScreen->switchCounter++;
         break;
-    case 9:
+    case 10:
         LoadCompressedSpriteSheet(&sStatusIconsSpriteSheet);
         sMonSummaryScreen->switchCounter++;
         break;
-    case 10:
+    case 11:
         LoadSpritePalette(&sStatusIconsSpritePalette);
         sMonSummaryScreen->switchCounter++;
         break;
-    case 11:
+    case 12:
         LoadSpritePalette(&sMoveSelectorSpritePal);
         sMonSummaryScreen->switchCounter++;
         break;
-    case 12:
+    case 13:
         LoadPalette(gMoveTypes_Pal, OBJ_PLTT_ID(13), 3 * PLTT_SIZE_4BPP);
         LoadCompressedSpriteSheet(&gSpriteSheet_CategoryIcons);
         LoadSpritePalette(&gSpritePal_CategoryIcons);
@@ -3291,6 +3340,7 @@ static void PrintPageNamesAndStats(void)
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_TITLE, gText_PkmnSkills, 2, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_BATTLE_MOVES_TITLE, gText_BattleMoves, 2, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE, gText_ContestMoves, 2, 1, 0, 1);
+    PrintTextOnWindow(PSS_LABEL_WINDOW_BOND_TITLE, sText_Bond, 2, 1, 0, 1);
 
     ShowUtilityPrompt(SUMMARY_MODE_NORMAL);
 
@@ -3325,6 +3375,7 @@ static void PutPageWindowTilemaps(u8 page)
     ClearWindowTilemap(PSS_LABEL_WINDOW_POKEMON_SKILLS_TITLE);
     ClearWindowTilemap(PSS_LABEL_WINDOW_BATTLE_MOVES_TITLE);
     ClearWindowTilemap(PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE);
+    ClearWindowTilemap(PSS_LABEL_WINDOW_BOND_TITLE);
 
     switch (page)
     {
@@ -3356,6 +3407,9 @@ static void PutPageWindowTilemaps(u8 page)
             if (ShouldShowMoveRelearner())
                 PutWindowTilemap(PSS_LABEL_WINDOW_PROMPT_RELEARN);
         }
+        break;
+    case PSS_PAGE_BOND:
+        PutWindowTilemap(PSS_LABEL_WINDOW_BOND_TITLE);
         break;
     case PSS_PAGE_CONTEST_MOVES:
         PutWindowTilemap(PSS_LABEL_WINDOW_CONTEST_MOVES_TITLE);
@@ -3465,6 +3519,243 @@ static void PrintPageSpecificText(u8 pageIndex)
 static void CreateTextPrinterTask(u8 pageIndex)
 {
     CreateTask(sTextPrinterTasks[pageIndex], 16);
+}
+
+
+static struct Pokemon *GetBondPagePartyMon(void)
+{
+    if (sMonSummaryScreen->isBoxMon)
+        return NULL;
+
+    return &sMonSummaryScreen->monList.mons[sMonSummaryScreen->curMonIndex];
+}
+
+static const u8 *GetBondFollowerTier(u16 friendship)
+{
+    static const u8 sTierCautious[] = _("Cautious");
+    static const u8 sTierFriendly[] = _("Friendly");
+    static const u8 sTierVeryClose[] = _("Very close");
+
+    if (friendship <= 80)
+        return sTierCautious;
+    if (friendship <= 170)
+        return sTierFriendly;
+    return sTierVeryClose;
+}
+
+static const u8 *GetBondFollowerStyle(u16 friendship)
+{
+    static const u8 sStyleReserved[] = _("Reserved");
+    static const u8 sStyleWarm[] = _("Warm");
+    static const u8 sStyleAffectionate[] = _("Affectionate");
+
+    if (friendship <= 80)
+        return sStyleReserved;
+    if (friendship <= 170)
+        return sStyleWarm;
+    return sStyleAffectionate;
+}
+
+static const u8 *GetBondReactionName(u8 reaction)
+{
+    static const u8 sReactionNone[] = _("None");
+    static const u8 sReactionNeutral[] = _("Neutral");
+    static const u8 sReactionHappy[] = _("Happy");
+    static const u8 sReactionSubdued[] = _("Subdued");
+    static const u8 sReactionPlayful[] = _("Playful");
+    static const u8 sReactionDispleased[] = _("Displeased");
+    static const u8 sReactionIrritated[] = _("Irritated");
+    static const u8 sReactionEnergetic[] = _("Energetic");
+    static const u8 sReactionCheerful[] = _("Cheerful");
+    static const u8 sReactionVeryUpset[] = _("Very upset");
+    static const u8 sReactionAffectionate[] = _("Affectionate");
+    static const u8 sReactionSleeping[] = _("Sleeping");
+    static const u8 sReactionFrowning[] = _("Frowning");
+    static const u8 sReactionAloof[] = _("Aloof");
+    static const u8 sReactionVeryAngry[] = _("Very angry");
+    static const u8 sReactionContent[] = _("Content");
+    static const u8 sReactionVeryHappy[] = _("Very happy");
+    static const u8 sReactionUnhappy[] = _("Unhappy");
+    static const u8 sReactionProud[] = _("Proud");
+    static const u8 sReactionLoving[] = _("Loving");
+    static const u8 sReactionDevoted[] = _("Devoted");
+    static const u8 sReactionCurious[] = _("Curious");
+    static const u8 sReactionAfraid[] = _("Afraid");
+    static const u8 sReactionConfused[] = _("Confused");
+    static const u8 sReactionRefusing[] = _("Refusing");
+    static const u8 sReactionEnergized[] = _("Energized");
+    static const u8 sReactionWaking[] = _("Waking up");
+    static const u8 sReactionShocked[] = _("Shocked");
+    static const u8 sReactionSick[] = _("Feeling sick");
+    static const u8 sReactionSurprised[] = _("Surprised");
+
+    switch (reaction)
+    {
+    case GY_PARTNER_REACTION_NEUTRAL: return sReactionNeutral;
+    case GY_PARTNER_REACTION_HAPPY: return sReactionHappy;
+    case GY_PARTNER_REACTION_SUBDUED: return sReactionSubdued;
+    case GY_PARTNER_REACTION_PLAYFUL: return sReactionPlayful;
+    case GY_PARTNER_REACTION_DISPLEASED: return sReactionDispleased;
+    case GY_PARTNER_REACTION_IRRITATED: return sReactionIrritated;
+    case GY_PARTNER_REACTION_ENERGETIC_HAPPY: return sReactionEnergetic;
+    case GY_PARTNER_REACTION_HAPPY_GRIN: return sReactionCheerful;
+    case GY_PARTNER_REACTION_STRONG_DISPLEASURE: return sReactionVeryUpset;
+    case GY_PARTNER_REACTION_AFFECTION: return sReactionAffectionate;
+    case GY_PARTNER_REACTION_SLEEPING: return sReactionSleeping;
+    case GY_PARTNER_REACTION_FROWNING: return sReactionFrowning;
+    case GY_PARTNER_REACTION_ALOOF: return sReactionAloof;
+    case GY_PARTNER_REACTION_VERY_ANGRY: return sReactionVeryAngry;
+    case GY_PARTNER_REACTION_CONTENT: return sReactionContent;
+    case GY_PARTNER_REACTION_STRONG_HAPPINESS: return sReactionVeryHappy;
+    case GY_PARTNER_REACTION_UNHAPPY: return sReactionUnhappy;
+    case GY_PARTNER_REACTION_CAPTURE_SUCCESS: return sReactionProud;
+    case GY_PARTNER_REACTION_STRONG_AFFECTION: return sReactionLoving;
+    case GY_PARTNER_REACTION_MAX_AFFECTION: return sReactionDevoted;
+    case GY_PARTNER_REACTION_FISHING: return sReactionCurious;
+    case GY_PARTNER_REACTION_TOWER_AFRAID: return sReactionAfraid;
+    case GY_PARTNER_REACTION_BILL_CONFUSED: return sReactionConfused;
+    case GY_PARTNER_REACTION_THUNDER_STONE_REFUSAL: return sReactionRefusing;
+    case GY_PARTNER_REACTION_ELECTRIC_POWER: return sReactionEnergized;
+    case GY_PARTNER_REACTION_PEWTER_JIGGLYPUFF: return sReactionWaking;
+    case GY_PARTNER_REACTION_BILL_SHOCKED: return sReactionShocked;
+    case GY_PARTNER_REACTION_STATUS_SICK: return sReactionSick;
+    case GY_PARTNER_REACTION_FAN_CLUB_AFFECTION: return sReactionAffectionate;
+    case GY_PARTNER_REACTION_FAN_CLUB_MAX_AFFECTION: return sReactionDevoted;
+    case GY_PARTNER_REACTION_BILL_POST_STATE: return sReactionHappy;
+    case GY_PARTNER_REACTION_BILL_INTERMEDIATE: return sReactionSurprised;
+    default: return sReactionNone;
+    }
+}
+
+static const u8 *GetBondPartnerStateName(u8 state)
+{
+    static const u8 sStateNormal[] = _("Normal");
+    static const u8 sStateSleeping[] = _("Sleeping");
+    static const u8 sStateWakePending[] = _("Wake pending");
+
+    if (state == GY_PARTNER_SUMMARY_STATE_SLEEPING)
+        return sStateSleeping;
+    if (state == GY_PARTNER_SUMMARY_STATE_WAKE_PENDING)
+        return sStateWakePending;
+    return sStateNormal;
+}
+
+static void DrawBondMeter(u8 windowId, u8 value, u8 y, bool8 showCenter)
+{
+    u8 width = (value * 148) / 255;
+
+    FillWindowPixelRect(windowId, PIXEL_FILL(2), 4, y, 150, 5);
+    if (width != 0)
+        FillWindowPixelRect(windowId, PIXEL_FILL(7), 5, y + 1, width, 3);
+    if (showCenter)
+        FillWindowPixelRect(windowId, PIXEL_FILL(1), 78, y, 2, 5);
+}
+
+static void PrintBondPageText(void)
+{
+    static const u8 sFollowing[] = _("Following");
+    static const u8 sNotFollowing[] = _("Not following");
+    static const u8 sYellowPartner[] = _("Yellow Partner");
+    struct GoldenYellowPartnerSummarySnapshot partnerSnapshot;
+    struct Pokemon *partyMon = GetBondPagePartyMon();
+    bool8 isPartner = GoldenYellow_GetPartnerPikachuSummarySnapshot(partyMon, &partnerSnapshot);
+    bool8 isFollowing = partyMon != NULL
+                     && PlayerHasFollowerNPC()
+                     && GetPartnerAwareFollowingMon() == partyMon;
+    u16 friendship = isPartner ? partnerSnapshot.friendship : sMonSummaryScreen->summary.friendship;
+    u8 windowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND);
+    u16 nextTier;
+
+    FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
+    DrawBondMeter(windowId, friendship, 13, FALSE);
+
+    ConvertIntToDecimalStringN(gStringVar1, friendship, STR_CONV_MODE_LEFT_ALIGN, 3);
+    StringExpandPlaceholders(gStringVar2, sText_BondFriendship);
+    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 0, 0, 1, FONT_SMALL);
+
+    StringCopy(gStringVar1, GetBondFollowerTier(friendship));
+    StringExpandPlaceholders(gStringVar2, sText_BondTier);
+    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 19, 0, 1, FONT_SMALL);
+
+    if (friendship <= 170)
+    {
+        nextTier = friendship <= 80 ? 81 : 171;
+        ConvertIntToDecimalStringN(gStringVar1, nextTier - friendship, STR_CONV_MODE_LEFT_ALIGN, 3);
+        StringExpandPlaceholders(gStringVar2, sText_BondNext);
+        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 29, 0, 1, FONT_SMALL);
+    }
+    else
+    {
+        PrintTextOnWindowWithFont(windowId, sText_BondHighestTier, 2, 29, 0, 1, FONT_SMALL);
+    }
+
+    PrintTextOnWindowWithFont(windowId, sText_BondFollower, 2, 40, 0, 1, FONT_SMALL);
+    StringCopy(gStringVar1, isFollowing ? sFollowing : sNotFollowing);
+    StringExpandPlaceholders(gStringVar2, sText_BondStatus);
+    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 51, 0, 1, FONT_SMALL);
+
+    StringCopy(gStringVar1, isPartner ? sYellowPartner : GetBondFollowerStyle(friendship));
+    StringExpandPlaceholders(gStringVar2, sText_BondStyle);
+    PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 62, 0, 1, FONT_SMALL);
+
+    if (isPartner)
+    {
+        StringCopy(gStringVar1, GetBondPartnerStateName(partnerSnapshot.state));
+        StringExpandPlaceholders(gStringVar2, sText_BondState);
+        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 72, 0, 1, FONT_SMALL);
+
+        ConvertIntToDecimalStringN(gStringVar1, partnerSnapshot.mood, STR_CONV_MODE_LEFT_ALIGN, 3);
+        StringExpandPlaceholders(gStringVar2, sText_BondPartnerMood);
+        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 82, 0, 1, FONT_SMALL);
+        DrawBondMeter(windowId, partnerSnapshot.mood, 94, TRUE);
+
+        if (partnerSnapshot.mood == 128)
+        {
+            PrintTextOnWindowWithFont(windowId, sText_BondMoodNeutral, 2, 100, 0, 1, FONT_SMALL);
+        }
+        else
+        {
+            u8 distance = partnerSnapshot.mood > 128
+                        ? partnerSnapshot.mood - 128
+                        : 128 - partnerSnapshot.mood;
+
+            ConvertIntToDecimalStringN(gStringVar1, distance, STR_CONV_MODE_LEFT_ALIGN, 3);
+            ConvertIntToDecimalStringN(gStringVar2, distance, STR_CONV_MODE_LEFT_ALIGN, 3);
+            StringExpandPlaceholders(gStringVar3, partnerSnapshot.mood > 128 ? sText_BondMoodAbove : sText_BondMoodBelow);
+            PrintTextOnWindowWithFont(windowId, gStringVar3, 2, 100, 0, 1, FONT_SMALL);
+        }
+
+        StringCopy(gStringVar1, GetBondReactionName(partnerSnapshot.baseReaction));
+        StringExpandPlaceholders(gStringVar2, sText_BondBase);
+        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 110, 0, 1, FONT_SMALL);
+
+        StringCopy(gStringVar1, partnerSnapshot.hasPendingReaction
+                              ? GetBondReactionName(partnerSnapshot.pendingReaction)
+                              : GetBondReactionName(GY_PARTNER_REACTION_EMPTY));
+        StringExpandPlaceholders(gStringVar2, sText_BondPending);
+        PrintTextOnWindowWithFont(windowId, gStringVar2, 2, 120, 0, 1, FONT_SMALL);
+    }
+    else
+    {
+        PrintTextOnWindowWithFont(windowId, sText_BondPartnerMoodHeading, 2, 82, 0, 1, FONT_SMALL);
+        PrintTextOnWindowWithFont(windowId, sText_BondPartnerOnly, 2, 100, 0, 1, FONT_SMALL);
+    }
+
+    PutWindowTilemap(windowId);
+    CopyWindowToVram(windowId, COPYWIN_FULL);
+}
+
+static void Task_PrintBondPage(u8 taskId)
+{
+    if (gTasks[taskId].data[0] == 0)
+    {
+        PrintBondPageText();
+        gTasks[taskId].data[0]++;
+    }
+    else
+    {
+        DestroyTask(taskId);
+    }
 }
 
 static void PrintInfoPageText(void)

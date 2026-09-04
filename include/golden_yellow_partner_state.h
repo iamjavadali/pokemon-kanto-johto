@@ -15,9 +15,30 @@ bool8 GoldenYellow_IsCanonicalPartnerPikachuFollower(const struct ObjectEvent *f
 
 // P5 keeps pokeemerald-expansion's MON_DATA_FRIENDSHIP as the single long-term
 // relationship value and layers Yellow's short-term Partner mood on top.
+enum GoldenYellowPartnerSummaryState
+{
+    GY_PARTNER_SUMMARY_STATE_NORMAL,
+    GY_PARTNER_SUMMARY_STATE_SLEEPING,
+    GY_PARTNER_SUMMARY_STATE_WAKE_PENDING,
+};
+
+struct GoldenYellowPartnerSummarySnapshot
+{
+    u8 friendship;
+    u8 mood;
+    u8 baseReaction;
+    u8 pendingReaction;
+    u8 state;
+    bool8 hasPendingReaction;
+};
+
 u8 GoldenYellow_GetPartnerPikachuMood(struct Pokemon *partner);
 u8 GoldenYellow_SelectPartnerTalkReaction(struct Pokemon *partner);
 u8 GoldenYellow_SelectPartnerTalkReactionForState(u8 friendship, u8 mood);
+
+// Supplies Summary Screen data without consuming a pending one-shot reaction.
+// Reading mood applies its existing lazy, step-based return toward neutral.
+bool8 GoldenYellow_GetPartnerPikachuSummarySnapshot(struct Pokemon *partner, struct GoldenYellowPartnerSummarySnapshot *snapshot);
 
 // P6 stores Yellow's one-byte transient emotion modifier separately from mood.
 // The modifier is only consumed after its field-talk reaction successfully starts.

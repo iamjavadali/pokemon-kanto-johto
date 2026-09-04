@@ -527,6 +527,29 @@ u8 GoldenYellow_SelectPartnerTalkReaction(struct Pokemon *partner)
     return GoldenYellow_SelectPartnerTalkReactionForState(friendship, mood);
 }
 
+bool8 GoldenYellow_GetPartnerPikachuSummarySnapshot(struct Pokemon *partner, struct GoldenYellowPartnerSummarySnapshot *snapshot)
+{
+    u8 friendship;
+
+    if (!IsPlayerPartnerPikachu(partner) || snapshot == NULL)
+        return FALSE;
+
+    snapshot->mood = GoldenYellow_GetPartnerPikachuMood(partner);
+    friendship = GetMonData(partner, MON_DATA_FRIENDSHIP);
+    snapshot->friendship = friendship;
+    snapshot->baseReaction = GoldenYellow_SelectPartnerTalkReactionForState(friendship, snapshot->mood);
+    snapshot->hasPendingReaction = GoldenYellow_TryGetPartnerPikachuOneShotReaction(partner, &snapshot->pendingReaction);
+
+    if (GoldenYellow_IsPewterPartnerWakePending())
+        snapshot->state = GY_PARTNER_SUMMARY_STATE_WAKE_PENDING;
+    else if (GoldenYellow_IsPewterPartnerSleepActive(partner))
+        snapshot->state = GY_PARTNER_SUMMARY_STATE_SLEEPING;
+    else
+        snapshot->state = GY_PARTNER_SUMMARY_STATE_NORMAL;
+
+    return TRUE;
+}
+
 bool8 GoldenYellow_TryGetPartnerPikachuOneShotReaction(struct Pokemon *partner, u8 *reaction)
 {
     if (!IsPlayerPartnerPikachu(partner) || reaction == NULL)
