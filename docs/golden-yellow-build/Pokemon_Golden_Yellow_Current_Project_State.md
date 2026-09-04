@@ -4,7 +4,7 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot date:** September 2, 2026
+**Snapshot date:** September 4, 2026
 
 ---
 
@@ -65,13 +65,14 @@ Broad progression currently stands at:
 → **P7E unified Yellow Partner interaction priority / P7 closeout — ACCEPTED**  
 → **P8 Modern follower coexistence — ACCEPTED**  
 → **P9A Yellow Pikachu PCM reachability audit — LOCKED**  
-→ **P9B Yellow Pikachu PCM runtime implementation — NEXT ACTIVE BOUNDARY**
+→ **P9B Yellow Pikachu PCM runtime + audio tuning — ACCEPTED FOR CURRENT AUDIO SCOPE**  
+→ **P9 reaction-defect correction and final regression closeout — ACTIVE BOUNDARY**
 
 The P7 authored-reaction phase remains an accepted regression baseline.
 
 P8 modern follower coexistence is now accepted. Canonical Partner Pikachu retains the Yellow ownership/priority system, and compatible modern contextual follower behavior may run only after a successful normal Yellow mood interaction. Concrete local context outranks nearby scenery and broad ambient context, while ordinary followers remain on the existing expansion path.
 
-P9A is locked under the approved reachability policy. P9B is the next active Partner-system boundary.
+P9A remains the locked reachability authority. P9B runtime audio is implemented and the current sound balance is manually accepted as a working baseline. The user has reported additional Pikachu reaction problems; their exact reproduction cases and corrections are the active boundary before full P9 closeout.
 
 The final P7 closeout also validates the corrected exit-ownership behavior for the three scene-owned Partner states that can temporarily prevent room exit:
 
@@ -233,6 +234,25 @@ The approved baseline preserves all 42 semantic Yellow Pikachu PCM IDs while ini
 
 Detailed mappings, classifications, and ROM-cost evidence are authoritative in `Pokemon_Golden_Yellow_P9A_Audio_Reachability_Audit.md`.
 
+## 5.13 P9B Yellow Pikachu PCM Runtime and Audio Baseline
+
+P9B is implemented for the 27 clips classified Required by P9A.
+
+The current runtime:
+
+- preserves semantic IDs `01–42` while keeping Deferred and Not Applicable samples out of the initial import;
+- treats Yellow `$FF` as true `NO_PCM`;
+- keeps ordinary Pokémon cries unchanged;
+- preserves separate outer-Emotion and portrait-internal PCM timing;
+- filters the imported 22,050 Hz mono source PCM for GBA playback with a 30 Hz high-pass, 4.5 kHz low-pass, and -6 dBFS peak target;
+- balances clips through three measured energy groups rather than one global gain;
+- plays Yellow Partner PCM over the currently playing BGM without lowering the BGM;
+- waits for actual Yellow PCM completion without relying on the ordinary cry/BGM-duck task.
+
+The manually accepted working volume tiers are `115` for the quiet group, `95` for the balanced group, and `76` for the naturally loud group. This is an accepted current audio baseline, not a claim that every Partner reaction path is defect-free.
+
+Detailed implementation, build, and test evidence is recorded in `Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md`.
+
 ---
 
 # 6. Established Design Decisions
@@ -252,6 +272,8 @@ Detailed mappings, classifications, and ROM-cost evidence are authoritative in `
 - Scene-owned Partner exit prevention must protect every traversable exit lane; a guard placed on a side warp must not be defeated merely by entering it laterally.
 - P8 modern follower context remains subordinate to Yellow-owned Partner reactions and must not add duplicate basic/random chatter.
 - P9 uses the locked reachability policy: stable IDs `01–42`, 27 initially Required clips, one Deferred clip, 14 Not Applicable clips, and true `NO_PCM` semantics for Yellow `$FF`.
+- Yellow Partner PCM may overlap the currently playing BGM; P9B must not reuse the ordinary Pokémon cry duck/restore task.
+- Yellow PCM gain remains tiered by measured clip energy. The accepted working tiers are quiet `115`, balanced `95`, and loud `76`.
 
 ---
 
@@ -275,39 +297,42 @@ The current accepted regression baseline reaches through:
 - P7E unified Partner interaction priority;
 - final accepted Pewter/Bill/Fan Club exit-guard coverage and Bill follower release lifecycle;
 - P1/P2 portrait catalog/renderer and P3 reaction director;
-- P8 modern follower coexistence, including specific-context priority and ordinary-follower preservation.
+- P8 modern follower coexistence, including specific-context priority and ordinary-follower preservation;
+- P9B Yellow Pikachu PCM runtime and the manually accepted current audio balance/BGM-overlay behavior.
 
-P9A is a locked implementation policy and does not itself extend the accepted gameplay boundary.
+P9A remains the locked implementation policy. P9B extends the accepted boundary only for its stated audio scope; reported Partner reaction defects remain open until reproduced, corrected, rebuilt, and manually validated.
 
 Detailed commits, workflow runs, ROM hashes, and manual-validation notes belong in the Acceptance Log and dedicated acceptance records.
 
 ---
 
-# 8. Current Active Development Boundary — P9B Yellow Pikachu PCM Runtime
+# 8. Current Active Development Boundary — P9 Reaction Corrections and Closeout
 
-P8 modern follower coexistence is accepted. P9A has locked the source/call-site reachability policy. The next Partner-system implementation boundary is **P9B — Yellow Pikachu PCM runtime implementation**.
+P9B audio runtime is implemented. The final tested audio baseline is commit `962cea4df4ecdacbb3b852e33656461ac0a53f0f`, built successfully in workflow run `33895487132`.
 
-P9B must begin from the authoritative `Pokemon_Golden_Yellow_P9A_Audio_Reachability_Audit.md` baseline and must:
+The user manually confirmed that:
 
-1. preserve semantic IDs `YELLOW_PIKACHU_CRY_01` through `YELLOW_PIKACHU_CRY_42`;
-2. initially import only the 27 clips classified Required;
-3. keep Cry23 deferred until its Celadon Mansion call site becomes active or a later explicit decision advances it;
-4. keep the 14 Not Applicable clips out of the ROM unless a newly verified Yellow call site changes their classification;
-5. implement true `NO_PCM` behavior for Yellow `$FF`;
-6. keep ordinary `SPECIES_PIKACHU` cry behavior unchanged;
-7. apply Yellow PCM overrides only to canonical `SPECIES_PIKACHU_STARTER` or explicitly Yellow-owned Partner events;
-8. preserve separate outer-Emotion and portrait-internal cry timing;
-9. protect the complete accepted P1–P8 Partner regression baseline;
-10. complete build validation followed by manual gameplay/audio validation before P9 is accepted.
+- Yellow Pikachu PCM plays while the existing BGM continues;
+- the final tiered cry volume is acceptable for the current baseline;
+- the project may keep this audio balance for now.
 
-The approved initial aligned PCM budget is **446,892 bytes (approximately 436.42 KiB)**.
+The next work is not another speculative volume pass. The active boundary is to collect the exact Pikachu reaction defects found during gameplay, reproduce each defect against the live branch, identify whether ownership, command sequencing, portrait timing, movement, or cleanup is responsible, and implement only the confirmed corrections.
+
+Full P9 closeout requires:
+
+1. exact defect reports and reproduction paths;
+2. targeted fixes that preserve the accepted P1–P8 regression baseline and P9B audio behavior;
+3. successful build validation;
+4. manual regression testing of the corrected reactions;
+5. explicit final acceptance.
 
 # 9. Major Yellow Campaign Requirements Still Ahead
 
 ## Partner system
 
-- P9B import and runtime wiring for the 27 Required Yellow Pikachu PCM clips;
-- P9 build and manual gameplay/audio validation;
+- reproduce and correct the newly reported Pikachu reaction problems;
+- complete P9 reaction and audio regression validation;
+- close P9 only after explicit manual acceptance;
 - any remaining Partner evolution-refusal presentation or one-shot integration not already completed under P6.
 
 ## Cerulean era
@@ -372,15 +397,15 @@ Rules:
 - accepted behavior remains a regression baseline unless a defect is found or redesign is approved;
 - Current Project State stays broad and does not duplicate detailed evidence.
 
-The complete accepted P1–P8 Partner subsystem is the protected regression baseline for P9B.
+The complete accepted P1–P8 Partner subsystem and the accepted P9B audio behavior are the protected regression baseline for the active reaction corrections.
 
 ---
 
 # 12. Current Blockers
 
-**No confirmed blocking regression is open at this snapshot.**
+**No repository-access or build blocker is open at this snapshot.**
 
-P8 passed its build and manual gameplay validation. P9A is locked, and the project is clear to begin P9B from the approved 27-clip reachability baseline.
+The user has reported Pikachu reaction problems after accepting the current P9B audio balance. Their exact symptoms and reproduction paths have not yet been supplied, so the defects cannot yet be classified or corrected. Collecting those cases is the immediate next step.
 
 ---
 

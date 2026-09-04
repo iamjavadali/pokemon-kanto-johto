@@ -1,7 +1,7 @@
 # Pokémon Golden Yellow — Partner Blueprint Status Addendum
 
-**Status date:** September 2, 2026  
-**Current boundary:** **P8 accepted → P9A locked → P9B audio runtime next**
+**Status date:** September 4, 2026  
+**Current boundary:** **P9B audio baseline accepted → reaction corrections and P9 closeout active**
 
 This file began as the source-audit and implementation blueprint for the Yellow Partner portrait/reaction subsystem. The audit and original design language below are intentionally preserved as historical technical rationale.
 
@@ -16,7 +16,7 @@ Where the original blueprint speaks in future tense, the current implementation 
 - **final P7 regression closeout — ACCEPTED:** Bill live-follower release and complete Pewter/Bill/Fan Club exit guarding, including lateral side-warp protection;
 - **P8 — ACCEPTED:** modern contextual follower behavior is layered underneath the accepted Yellow priority system; ordinary followers remain unchanged, Yellow-owned Partner reactions remain exclusive, and direct local context outranks nearby/ambient context;
 - **P9A — LOCKED:** Option B reachability policy preserves IDs `01–42`, authorizes 27 Required clips for initial import, defers one clip, excludes 14 Not Applicable clips, and defines Yellow `$FF` as true `NO_PCM`;
-- **P9B — NEXT ACTIVE BOUNDARY:** import and wire the 27 Required Yellow Pikachu PCM clips while preserving the accepted P1–P8 ownership, timing, and regression baseline.
+- **P9B — ACCEPTED FOR CURRENT AUDIO SCOPE:** 27 Required PCM clips are imported and wired; true `NO_PCM`, separate outer/portrait timing, filtered assets, tiered volume, and non-ducking BGM overlay are established. The active boundary is correction of newly reported reaction defects before full P9 closeout.
 
 The original source-audit caveat about the exact **original Pokémon Yellow** mood initialization writer remains unresolved as a source-history question. It no longer blocks Golden Yellow implementation because P5 has an explicit project implementation choice as described above.
 
@@ -712,7 +712,9 @@ For Phase 1 of the system:
 
 This prevented audio conversion from blocking the P1–P8 graphics/reaction architecture.
 
-**Current P9 policy:** the earlier generic-fallback recommendation is superseded for Yellow-owned commands by the locked P9A reachability audit. P9B preserves stable IDs `01–42`, imports only the 27 Required clips initially, treats Yellow `$FF` as true `NO_PCM`, keeps ordinary Pikachu behavior unchanged, and preserves separate outer-Emotion and portrait-internal cry timing.
+**Current P9 implementation:** the earlier generic-fallback recommendation is superseded for Yellow-owned commands by the locked P9A reachability audit. P9B preserves stable IDs `01–42`, imports only the 27 Required clips initially, treats Yellow `$FF` as true `NO_PCM`, keeps ordinary Pikachu behavior unchanged, and preserves separate outer-Emotion and portrait-internal cry timing.
+
+The imported PCM is filtered for GBA playback and divided into quiet, balanced, and naturally loud energy groups. The accepted working runtime levels are `115 / 95 / 76`. Yellow PCM now overlaps the current BGM without using the ordinary cry duck/restore task, and the reaction director waits for the actual Yellow PCM player to finish. These audio rules are protected while the reported reaction defects are investigated.
 
 ---
 
@@ -1207,8 +1209,9 @@ Layer existing contextual follower messages underneath the Yellow priority syste
 P9 is split into controlled subpasses:
 
 - **P9A — LOCKED:** source/call-site reachability audit and Option B inclusion policy;
-- **P9B — NEXT:** import and wire the 27 Required clips;
-- later P9 validation/extension passes may wire deferred system-specific call sites only when their corresponding gameplay becomes applicable.
+- **P9B — ACCEPTED FOR CURRENT AUDIO SCOPE:** 27 Required clips, filtered PCM, tiered gain, true `NO_PCM`, and non-ducking BGM overlay;
+- **P9 closeout — ACTIVE:** correct the newly reported Partner reaction defects and complete targeted regression validation;
+- later P9 extension passes may wire deferred system-specific call sites only when their corresponding gameplay becomes applicable.
 
 Do not import all 42 clips merely because the canonical namespace contains 42 IDs.
 

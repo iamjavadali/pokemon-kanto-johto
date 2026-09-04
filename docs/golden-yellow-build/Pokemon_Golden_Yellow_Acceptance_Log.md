@@ -5,7 +5,7 @@
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
 **Log established:** August 26, 2026  
-**Last acceptance closeout:** September 1, 2026
+**Last acceptance closeout:** September 4, 2026
 
 ---
 
@@ -76,6 +76,8 @@ When a later fix corrects a defect inside an already accepted milestone, this lo
 | P7D Pokémon Tower authored fear/unease reaction | ACCEPTED | This log |
 | P7E unified Yellow Partner interaction priority / P7 closeout | ACCEPTED | This log |
 | Final Pewter/Bill/Fan Club exit-ownership regression closeout | ACCEPTED | Bill/Fan Club records + this log |
+| P8 modern follower coexistence | ACCEPTED | This log |
+| P9B Yellow Pikachu PCM runtime and current audio baseline | ACCEPTED FOR CURRENT AUDIO SCOPE | `Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md` |
 
 ---
 
@@ -515,7 +517,37 @@ P9A subsequently locked the Yellow Pikachu PCM reachability policy in `Pokemon_G
 
 ---
 
-# 23. Maintenance Rule
+# 23. Acceptance — P9B Yellow Pikachu PCM Runtime and Current Audio Baseline
+
+**Status:** ACCEPTED FOR CURRENT AUDIO SCOPE  
+**Acceptance date:** 2026-09-04  
+**Initial implementation commit:** `101901726a6e3f2374d06b1471b38d4464f74b67`  
+**Final accepted source tip:** `962cea4df4ecdacbb3b852e33656461ac0a53f0f`  
+**Final workflow run:** `33895487132`  
+**Final artifact ID:** `9945719424`  
+**Final artifact name:** `pokemon-kanto-johto-firered-962cea4df4ecdacbb3b852e33656461ac0a53f0f`  
+**Final ROM SHA-256:** `7cc112a58987908aa0538a1a6ae33d85db4fbf3e0cf363717bc6271240a390a5`  
+**Manual result:** PASS for the current audio baseline — the user confirmed the final volume is good for now.
+
+Accepted audio behavior includes:
+
+- the 27 P9A Required Yellow Pikachu PCM clips are imported and reachable through stable semantic IDs;
+- Deferred and Not Applicable clips remain excluded from the initial runtime set;
+- Yellow `$FF` remains true `NO_PCM`;
+- outer-Emotion and portrait-internal PCM timing remain distinct;
+- ordinary Pokémon cry behavior remains unchanged;
+- filtered PCM and per-energy-group volume balancing are used to reduce harshness while preserving audibility;
+- Yellow Partner PCM overlaps the currently playing BGM without attenuating it;
+- the Yellow-specific completion check waits on the actual PCM player;
+- accepted volume tiers are quiet `115`, balanced `95`, and loud `76`.
+
+This acceptance is deliberately limited to the P9B audio implementation and current sound balance. The user subsequently reported separate Pikachu reaction problems. Those issues remain open and must be reproduced and corrected before full P9 reaction closeout.
+
+See `Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md` for implementation lineage and regression requirements.
+
+---
+
+# 24. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
