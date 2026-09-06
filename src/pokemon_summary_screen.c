@@ -765,7 +765,7 @@ static const struct WindowTemplate sPageBondTemplate[] =
     [PSS_DATA_WINDOW_BOND_LABELS] = {
         .bg = 0,
         .tilemapLeft = 10,
-        .tilemapTop = 4,
+        .tilemapTop = 5,
         .width = 5,
         .height = 8,
         .paletteNum = 6,
@@ -774,7 +774,7 @@ static const struct WindowTemplate sPageBondTemplate[] =
     [PSS_DATA_WINDOW_BOND_VALUES] = {
         .bg = 0,
         .tilemapLeft = 15,
-        .tilemapTop = 4,
+        .tilemapTop = 5,
         .width = 15,
         .height = 8,
         .paletteNum = 6,
@@ -794,7 +794,7 @@ static const struct WindowTemplate sPageBondTemplate[] =
         .tilemapLeft = 10,
         .tilemapTop = 3,
         .width = 20,
-        .height = 1,
+        .height = 2,
         .paletteNum = 6,
         .baseBlock = 747,
     },
@@ -3899,7 +3899,7 @@ static void PrintBondHeader(const struct BondPageSnapshot *snapshot)
 
     FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
     titleX = GetStringCenterAlignXOffset(FONT_SMALL, sText_BondStatsHeader, 160);
-    PrintTextOnWindowWithFont(windowId, sText_BondStatsHeader, titleX, 0, 0, 1, FONT_SMALL);
+    PrintTextOnWindowWithFont(windowId, sText_BondStatsHeader, titleX, 1, 0, 1, FONT_SMALL);
 
     if (sMonSummaryScreen->bondInfoMode == BOND_INFO_DESCRIPTION)
     {
@@ -3910,7 +3910,7 @@ static void PrintBondHeader(const struct BondPageSnapshot *snapshot)
         ConvertIntToDecimalStringN(gStringVar2, pageCount, STR_CONV_MODE_LEFT_ALIGN, 1);
         StringExpandPlaceholders(gStringVar3, sText_PageNumber);
         x = GetStringRightAlignXOffset(FONT_SMALL, gStringVar3, 156);
-        PrintTextOnWindowWithFont(windowId, gStringVar3, x, 0, 0, 1, FONT_SMALL);
+        PrintTextOnWindowWithFont(windowId, gStringVar3, x, 1, 0, 1, FONT_SMALL);
     }
 
     PutWindowTilemap(windowId);
