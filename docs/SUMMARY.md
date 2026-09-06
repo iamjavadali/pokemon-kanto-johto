@@ -33,6 +33,7 @@
     - [Yellow Partner Portrait Blueprint](golden-yellow-build/Yellow-portrait.md)
     - [P9A Yellow Pikachu PCM Reachability Audit](golden-yellow-build/Pokemon_Golden_Yellow_P9A_Audio_Reachability_Audit.md)
     - [P9B Yellow Pikachu Audio Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md)
+    - [Bond Summary Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md)
     - [Mt. Moon Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md)
     - [Charmander Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md)
     - [Bill Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Bill_Acceptance_Record.md)

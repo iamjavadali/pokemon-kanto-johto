@@ -4,7 +4,7 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot date:** September 4, 2026
+**Snapshot date:** September 6, 2026
 
 ---
 
@@ -66,13 +66,17 @@ Broad progression currently stands at:
 → **P8 Modern follower coexistence — ACCEPTED**  
 → **P9A Yellow Pikachu PCM reachability audit — LOCKED**  
 → **P9B Yellow Pikachu PCM runtime + audio tuning — ACCEPTED FOR CURRENT AUDIO SCOPE**  
-→ **P9 reaction-defect correction and final regression closeout — ACTIVE BOUNDARY**
+→ **P9 Partner final-facing reaction correction — ACCEPTED**  
+→ **Bond Summary page — ACCEPTED**  
+→ **Next scoped Yellow Kanto feature or defect — AWAITING SELECTION**
 
 The P7 authored-reaction phase remains an accepted regression baseline.
 
 P8 modern follower coexistence is now accepted. Canonical Partner Pikachu retains the Yellow ownership/priority system, and compatible modern contextual follower behavior may run only after a successful normal Yellow mood interaction. Concrete local context outranks nearby scenery and broad ambient context, while ordinary followers remain on the existing expansion path.
 
-P9A remains the locked reachability authority. P9B runtime audio is implemented and the current sound balance is manually accepted as a working baseline. The user has reported additional Pikachu reaction problems; their exact reproduction cases and corrections are the active boundary before full P9 closeout.
+P9A remains the locked reachability authority. P9B runtime audio and its current sound balance remain the accepted working baseline. The reported movement-cleanup defect was corrected so Partner Pikachu finishes reaction movement facing the player, and that correction is accepted.
+
+The Pokémon Summary Screen now includes an accepted Bond page. It exposes friendship and follower information for ordinary Pokémon and adds Partner Pikachu mood, feeling, and progress counters. The page uses the existing Moves-page interaction model so the stat list and long descriptions can be navigated without crowding the base summary layout.
 
 The final P7 closeout also validates the corrected exit-ownership behavior for the three scene-owned Partner states that can temporarily prevent room exit:
 
@@ -253,6 +257,22 @@ The manually accepted working volume tiers are `115` for the quiet group, `95` f
 
 Detailed implementation, build, and test evidence is recorded in `Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md`.
 
+## 5.14 Partner Final-Facing and Bond Summary UI
+
+The reported Partner movement-cleanup defect is corrected: reaction movement now ends with Partner Pikachu facing the player.
+
+The accepted Bond Summary page:
+
+- adds a fifth `BOND` tab to the Pokémon Summary Screen;
+- shows friendship, friendship tier, follower status/style, and friendship-step progress for ordinary Pokémon;
+- adds Partner Pikachu mood, current feeling, friendship-check steps, and mood-neutral steps;
+- uses a four-row viewport modeled on the Moves tab, with extra rows contained and revealed by scrolling;
+- uses `A` to enter stat selection and open a selected description, `Up/Down` to navigate or page long text, and `B` to return one level;
+- preserves the standard left portrait panel and keeps the `BOND STATS` header and row selector aligned with the table;
+- resolves Partner following status from the canonical Partner/follower state rather than the separate follower-NPC system.
+
+Detailed build, implementation, and manual-acceptance evidence is recorded in `Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md`.
+
 ---
 
 # 6. Established Design Decisions
@@ -298,42 +318,34 @@ The current accepted regression baseline reaches through:
 - final accepted Pewter/Bill/Fan Club exit-guard coverage and Bill follower release lifecycle;
 - P1/P2 portrait catalog/renderer and P3 reaction director;
 - P8 modern follower coexistence, including specific-context priority and ordinary-follower preservation;
-- P9B Yellow Pikachu PCM runtime and the manually accepted current audio balance/BGM-overlay behavior.
+- P9B Yellow Pikachu PCM runtime and the manually accepted current audio balance/BGM-overlay behavior;
+- the correction that makes Partner reaction movement finish facing the player;
+- the Partner-aware Bond Summary page and its accepted Moves-style navigation/layout.
 
-P9A remains the locked implementation policy. P9B extends the accepted boundary only for its stated audio scope; reported Partner reaction defects remain open until reproduced, corrected, rebuilt, and manually validated.
+P9A remains the locked implementation policy. P9B audio and the accepted final-facing correction together establish the current P9 regression baseline. The Bond Summary page is an additional accepted Partner-facing interface and must preserve canonical Partner identity and existing summary-page behavior.
 
 Detailed commits, workflow runs, ROM hashes, and manual-validation notes belong in the Acceptance Log and dedicated acceptance records.
 
 ---
 
-# 8. Current Active Development Boundary — P9 Reaction Corrections and Closeout
+# 8. Current Active Development Boundary — Next Scoped Yellow Kanto Work
 
-P9B audio runtime is implemented. The final tested audio baseline is commit `962cea4df4ecdacbb3b852e33656461ac0a53f0f`, built successfully in workflow run `33895487132`.
+The current accepted Partner-system baseline includes:
 
-The user manually confirmed that:
+- P9B Yellow Pikachu PCM playback and accepted tiered audio balance;
+- reaction movement cleanup that returns Partner Pikachu to face the player;
+- the Partner-aware Bond Summary page at source tip `398e2254b3790c8e65e1fa8b7bce0c1d9dd9d868`;
+- successful workflow run `34017871548`;
+- explicit user manual acceptance of the final Bond layout and selector alignment.
 
-- Yellow Pikachu PCM plays while the existing BGM continues;
-- the final tiered cry volume is acceptable for the current baseline;
-- the project may keep this audio balance for now.
-
-The next work is not another speculative volume pass. The active boundary is to collect the exact Pikachu reaction defects found during gameplay, reproduce each defect against the live branch, identify whether ownership, command sequencing, portrait timing, movement, or cleanup is responsible, and implement only the confirmed corrections.
-
-Full P9 closeout requires:
-
-1. exact defect reports and reproduction paths;
-2. targeted fixes that preserve the accepted P1–P8 regression baseline and P9B audio behavior;
-3. successful build validation;
-4. manual regression testing of the corrected reactions;
-5. explicit final acceptance.
+No additional Partner or campaign implementation is selected in this snapshot. The next active boundary is to choose one scoped Yellow Kanto feature or confirmed defect from the remaining campaign requirements, inspect only its owning files and recent history, and implement incrementally while preserving the accepted regression baseline.
 
 # 9. Major Yellow Campaign Requirements Still Ahead
 
 ## Partner system
 
-- reproduce and correct the newly reported Pikachu reaction problems;
-- complete P9 reaction and audio regression validation;
-- close P9 only after explicit manual acceptance;
-- any remaining Partner evolution-refusal presentation or one-shot integration not already completed under P6.
+- any remaining Partner evolution-refusal presentation or one-shot integration not already completed under P6;
+- future Bond-page refinements only when a confirmed regression or explicitly approved redesign requires them.
 
 ## Cerulean era
 
@@ -397,15 +409,15 @@ Rules:
 - accepted behavior remains a regression baseline unless a defect is found or redesign is approved;
 - Current Project State stays broad and does not duplicate detailed evidence.
 
-The complete accepted P1–P8 Partner subsystem and the accepted P9B audio behavior are the protected regression baseline for the active reaction corrections.
+The complete accepted P1–P8 Partner subsystem, P9B audio behavior, Partner final-facing correction, and Bond Summary page are the protected regression baseline for subsequent work.
 
 ---
 
 # 12. Current Blockers
 
-**No repository-access or build blocker is open at this snapshot.**
+**No repository-access, build, or known gameplay blocker is open at this snapshot.**
 
-The user has reported Pikachu reaction problems after accepting the current P9B audio balance. Their exact symptoms and reproduction paths have not yet been supplied, so the defects cannot yet be classified or corrected. Collecting those cases is the immediate next step.
+The next task is not yet selected. Begin the next implementation only after its scope and owning subsystem are identified.
 
 ---
 

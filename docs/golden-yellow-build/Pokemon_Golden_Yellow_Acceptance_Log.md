@@ -5,7 +5,7 @@
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
 **Log established:** August 26, 2026  
-**Last acceptance closeout:** September 4, 2026
+**Last acceptance closeout:** September 6, 2026
 
 ---
 
@@ -78,6 +78,8 @@ When a later fix corrects a defect inside an already accepted milestone, this lo
 | Final Pewter/Bill/Fan Club exit-ownership regression closeout | ACCEPTED | Bill/Fan Club records + this log |
 | P8 modern follower coexistence | ACCEPTED | This log |
 | P9B Yellow Pikachu PCM runtime and current audio baseline | ACCEPTED FOR CURRENT AUDIO SCOPE | `Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md` |
+| P9 Partner reaction final-facing correction | ACCEPTED | This log |
+| Partner-aware Bond Summary page | ACCEPTED | `Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md` |
 
 ---
 
@@ -547,7 +549,54 @@ See `Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md` for implementation li
 
 ---
 
-# 24. Maintenance Rule
+# 24. Acceptance — P9 Partner Reaction Final-Facing Correction
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-09-04  
+**Implementation commit:** `ea643815c04ec4c5d935ae4cee315c66c2c76b33`  
+**Workflow run:** `33897178110`  
+**Manual result:** PASS — the user confirmed the corrected reaction behavior passed.
+
+Accepted behavior:
+
+- Partner Pikachu reaction movement finishes with the Partner facing the player;
+- the correction applies during reaction cleanup without changing the authored movement itself;
+- the accepted P1–P8 ownership/lifecycle behavior and P9B audio baseline remain unchanged.
+
+---
+
+# 25. Acceptance — Partner-Aware Bond Summary Page
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-09-06  
+**Initial implementation commit:** `d40bf97493e90e6d4e70749a91c275802e7f626e`  
+**Final accepted source tip:** `398e2254b3790c8e65e1fa8b7bce0c1d9dd9d868`  
+**Final workflow:** `Prototype FireRed Development`  
+**Final workflow run:** `34017871548`  
+**Artifact ID:** `9984550366`  
+**Artifact name:** `pokemon-kanto-johto-firered-398e2254b3790c8e65e1fa8b7bce0c1d9dd9d868`  
+**Artifact archive digest:** `sha256:4eea2e6a9a4c845adce4b4c0717dbc39ea67f01d34e61694b1401ade996f8084`  
+**Manual result:** PASS — after the title and selector alignment corrections, the user stated that the final version passed.
+
+Accepted behavior includes:
+
+- a fifth `BOND` tab in the Pokémon Summary Screen;
+- ordinary Pokémon friendship, friendship tier, follower status/style, and friendship-check step information;
+- additional canonical Partner Pikachu mood, current feeling, friendship-check steps, and mood-neutral steps;
+- a four-row scrollable stat table modeled on the Moves tab;
+- extra step rows remain contained inside the table and appear only when scrolled into view;
+- `A` enters stat selection and opens the selected stat description;
+- `Up/Down` navigates stats and pages long descriptions;
+- `B` returns one interaction level;
+- the unchanged standard left portrait panel, with no Bond-only overlay or cropped text;
+- a visible, unclipped `BOND STATS` header and a selector aligned to the active row;
+- canonical Partner following status derived from the live Partner/follower state.
+
+See `Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md` for the implementation lineage and protected regression invariants.
+
+---
+
+# 26. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 
