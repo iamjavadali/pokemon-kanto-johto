@@ -109,7 +109,7 @@
 #define PSS_DATA_WINDOW_BOND_DESCRIPTION 2
 #define PSS_DATA_WINDOW_BOND_HEADER 3
 
-#define BOND_VISIBLE_ROWS 5
+#define BOND_VISIBLE_ROWS 4
 
 enum
 {
@@ -767,7 +767,7 @@ static const struct WindowTemplate sPageBondTemplate[] =
         .tilemapLeft = 10,
         .tilemapTop = 4,
         .width = 5,
-        .height = 10,
+        .height = 8,
         .paletteNum = 6,
         .baseBlock = 467,
     },
@@ -776,7 +776,7 @@ static const struct WindowTemplate sPageBondTemplate[] =
         .tilemapLeft = 15,
         .tilemapTop = 4,
         .width = 15,
-        .height = 10,
+        .height = 8,
         .paletteNum = 6,
         .baseBlock = 517,
     },
@@ -792,9 +792,9 @@ static const struct WindowTemplate sPageBondTemplate[] =
     [PSS_DATA_WINDOW_BOND_HEADER] = {
         .bg = 0,
         .tilemapLeft = 10,
-        .tilemapTop = 2,
+        .tilemapTop = 3,
         .width = 20,
-        .height = 2,
+        .height = 1,
         .paletteNum = 6,
         .baseBlock = 747,
     },
@@ -3895,8 +3895,11 @@ static void PrintBondHeader(const struct BondPageSnapshot *snapshot)
     static const u8 sText_PageNumber[] = _("{STR_VAR_1}/{STR_VAR_2}");
     u8 windowId = AddWindowFromTemplateList(sPageBondTemplate, PSS_DATA_WINDOW_BOND_HEADER);
 
+    u8 titleX;
+
     FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
-    PrintTextOnWindowWithFont(windowId, sText_BondStatsHeader, 6, 1, 0, 0, FONT_NORMAL);
+    titleX = GetStringCenterAlignXOffset(FONT_SMALL, sText_BondStatsHeader, 160);
+    PrintTextOnWindowWithFont(windowId, sText_BondStatsHeader, titleX, 0, 0, 1, FONT_SMALL);
 
     if (sMonSummaryScreen->bondInfoMode == BOND_INFO_DESCRIPTION)
     {
@@ -3906,8 +3909,8 @@ static void PrintBondHeader(const struct BondPageSnapshot *snapshot)
         ConvertIntToDecimalStringN(gStringVar1, sMonSummaryScreen->bondDescriptionPage + 1, STR_CONV_MODE_LEFT_ALIGN, 1);
         ConvertIntToDecimalStringN(gStringVar2, pageCount, STR_CONV_MODE_LEFT_ALIGN, 1);
         StringExpandPlaceholders(gStringVar3, sText_PageNumber);
-        x = GetStringRightAlignXOffset(FONT_SMALL, gStringVar3, 154);
-        PrintTextOnWindowWithFont(windowId, gStringVar3, x, 5, 0, 0, FONT_SMALL);
+        x = GetStringRightAlignXOffset(FONT_SMALL, gStringVar3, 156);
+        PrintTextOnWindowWithFont(windowId, gStringVar3, x, 0, 0, 1, FONT_SMALL);
     }
 
     PutWindowTilemap(windowId);
@@ -3918,6 +3921,12 @@ static void PrintBondPageText(void)
 {
     struct BondPageSnapshot snapshot;
     u8 descriptionWindowId;
+
+    // Reuse the Moves page's portrait panel with its effect drawer closed.
+    CopyNColumnsToTilemap(&sPowerAccSlidingWindow,
+                          sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_BOND][0],
+                          sPowerAccSlidingWindow.width,
+                          TRUE);
 
     sMonSummaryScreen->bondRowIndex = 0;
     sMonSummaryScreen->bondListOffset = 0;
