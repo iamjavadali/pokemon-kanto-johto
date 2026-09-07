@@ -69,6 +69,8 @@ Route25_SeaCottage_EventScript_YellowEntryReaction::
 	callnative GoldenYellow_StartBillPartnerEntryApproach
 	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_BILL_CONFUSED
 	callnative GoldenYellow_StartBillPartnerSceneReaction, requests_effects=1
+	setvar VAR_0x8004, DIR_NORTH
+	callnative GoldenYellow_FaceBillPartnerSceneObject
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	waitmovement LOCALID_PLAYER
 	goto Route25_SeaCottage_EventScript_YellowEntryReactionFinish
@@ -433,8 +435,8 @@ Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
 	delay 8
 	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_BILL_SHOCKED
 	callnative GoldenYellow_StartBillPartnerSceneReaction, requests_effects=1
-	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	setvar VAR_0x8004, DIR_SOUTH
+	callnative GoldenYellow_FaceBillPartnerSceneObject
 
 Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn::
 	return

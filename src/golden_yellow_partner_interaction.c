@@ -235,6 +235,25 @@ static bool8 GoldenYellow_WaitForBillPartnerEntryApproach(void)
     return TRUE;
 }
 
+void GoldenYellow_FaceBillPartnerSceneObject(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *partnerObject = GoldenYellow_FindBillPartnerSceneObject();
+    enum Direction direction = gSpecialVar_0x8004;
+
+    (void)ctx;
+
+    if (partnerObject == NULL
+     || (direction != DIR_NORTH && direction != DIR_SOUTH))
+        return;
+
+    // The parked follower can retain the reaction director's last held facing.
+    // Clear that ownership and turn directly so the authored Bill scene pose
+    // cannot be swallowed by a follower or ScriptMovement callback.
+    ObjectEventClearHeldMovementIfActive(partnerObject);
+    UnfreezeObjectEvent(partnerObject);
+    ObjectEventTurn(partnerObject, direction);
+}
+
 void GoldenYellow_StartBillPartnerSceneReaction(struct ScriptContext *ctx)
 {
     struct Pokemon *partner = GetPartnerAwareFollowingMon();
