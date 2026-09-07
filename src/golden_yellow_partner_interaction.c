@@ -260,6 +260,60 @@ static bool32 GoldenYellow_IsOnRoute24(void)
         && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_ROUTE24);
 }
 
+static bool32 GoldenYellow_FacePartnerTowardRoute24Charmander(void)
+{
+    struct ObjectEvent *partnerObject = GetFollowerObject();
+    struct ObjectEvent *charmanderObject = NULL;
+    enum Direction direction;
+    u32 i;
+
+    if (!GoldenYellow_IsOnRoute24()
+     || partnerObject == NULL
+     || !partnerObject->active)
+        return FALSE;
+
+    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+    {
+        if (gObjectEvents[i].active
+         && gObjectEvents[i].mapGroup == gSaveBlock1Ptr->location.mapGroup
+         && gObjectEvents[i].mapNum == gSaveBlock1Ptr->location.mapNum
+         && gObjectEvents[i].graphicsId == OBJ_EVENT_GFX_SPECIES(CHARMANDER))
+        {
+            charmanderObject = &gObjectEvents[i];
+            break;
+        }
+    }
+
+    if (charmanderObject == NULL)
+        return FALSE;
+
+    if (charmanderObject->currentCoords.x < partnerObject->currentCoords.x)
+        direction = DIR_WEST;
+    else if (charmanderObject->currentCoords.x > partnerObject->currentCoords.x)
+        direction = DIR_EAST;
+    else if (charmanderObject->currentCoords.y < partnerObject->currentCoords.y)
+        direction = DIR_NORTH;
+    else if (charmanderObject->currentCoords.y > partnerObject->currentCoords.y)
+        direction = DIR_SOUTH;
+    else
+        return FALSE;
+
+    ObjectEventClearHeldMovementIfActive(partnerObject);
+    UnfreezeObjectEvent(partnerObject);
+    ObjectEventTurn(partnerObject, direction);
+    return TRUE;
+}
+
+static bool8 GoldenYellow_WaitForCharmanderPartnerConcern(void)
+{
+    if (GoldenYellow_IsPartnerPikachuReactionActive())
+        return FALSE;
+
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+    GoldenYellow_FacePartnerTowardRoute24Charmander();
+    return TRUE;
+}
+
 void GoldenYellow_StartCharmanderPartnerSceneReaction(struct ScriptContext *ctx)
 {
     struct Pokemon *partner = GetPartnerAwareFollowingMon();
@@ -273,11 +327,20 @@ void GoldenYellow_StartCharmanderPartnerSceneReaction(struct ScriptContext *ctx)
      || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER
      || GetFollowerObject() == NULL
      || (reaction != GY_PARTNER_REACTION_UNHAPPY
-      && reaction != GY_PARTNER_REACTION_STRONG_HAPPINESS)
-     || !GoldenYellow_StartPartnerPikachuReaction(reaction))
+      && reaction != GY_PARTNER_REACTION_STRONG_HAPPINESS))
         return;
 
-    SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+    if (reaction == GY_PARTNER_REACTION_UNHAPPY
+     && !GoldenYellow_FacePartnerTowardRoute24Charmander())
+        return;
+
+    if (!GoldenYellow_StartPartnerPikachuReaction(reaction))
+        return;
+
+    if (reaction == GY_PARTNER_REACTION_UNHAPPY)
+        SetupNativeScript(ctx, GoldenYellow_WaitForCharmanderPartnerConcern);
+    else
+        SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
     ctx->waitAfterCallNative = TRUE;
 }
 
