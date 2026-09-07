@@ -254,6 +254,33 @@ void GoldenYellow_FaceBillPartnerSceneObject(struct ScriptContext *ctx)
     ObjectEventTurn(partnerObject, direction);
 }
 
+static bool32 GoldenYellow_IsOnRoute24(void)
+{
+    return gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(MAP_ROUTE24)
+        && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_ROUTE24);
+}
+
+void GoldenYellow_StartCharmanderPartnerSceneReaction(struct ScriptContext *ctx)
+{
+    struct Pokemon *partner = GetPartnerAwareFollowingMon();
+    u8 reaction = gSpecialVar_0x8004;
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+
+    if (!GoldenYellow_IsOnRoute24()
+     || partner == NULL
+     || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER
+     || GetFollowerObject() == NULL
+     || (reaction != GY_PARTNER_REACTION_UNHAPPY
+      && reaction != GY_PARTNER_REACTION_STRONG_HAPPINESS)
+     || !GoldenYellow_StartPartnerPikachuReaction(reaction))
+        return;
+
+    SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+    ctx->waitAfterCallNative = TRUE;
+}
+
 void GoldenYellow_StartBillPartnerSceneReaction(struct ScriptContext *ctx)
 {
     struct Pokemon *partner = GetPartnerAwareFollowingMon();

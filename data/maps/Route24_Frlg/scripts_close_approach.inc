@@ -26,10 +26,8 @@ Route24_EventScript_CharmanderCloseApproachLeftWeak::
 	delay 12
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcern
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
-	waitmoncry
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_CONCERN
+	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	msgbox Route24_Text_CharmanderLooksWeak
@@ -68,10 +66,8 @@ Route24_EventScript_CharmanderCloseApproachRightWeak::
 	delay 12
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcernUp
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
-	waitmoncry
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_CONCERN
+	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	msgbox Route24_Text_CharmanderLooksWeak

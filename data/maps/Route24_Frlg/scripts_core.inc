@@ -1,3 +1,6 @@
+.equ YELLOW_PARTNER_REACTION_CHARMANDER_HAPPY,   16
+.equ YELLOW_PARTNER_REACTION_CHARMANDER_CONCERN, 17
+
 @ Golden Yellow Route 24 Charmander rescue states, stored in VAR_0x40FC.
 @ 0 = WAITING_WEAK, 1 = TREATMENT_PENDING, 2 = HEALED_RETURNED,
 @ 3 = DAMIAN_PRESENT, 4 = ADOPTED.
@@ -51,6 +54,7 @@ Route24_EventScript_StateDamianPresent::
 
 Route24_EventScript_StateAdopted::
 	setflag FLAG_0x0BB
+	setobjectxyperm LOCALID_ROUTE24_DAMIAN, 7, 5
 	clearflag FLAG_0x0BC
 	addobject LOCALID_ROUTE24_DAMIAN
 	setobjectxy LOCALID_ROUTE24_DAMIAN, 7, 5
@@ -156,10 +160,8 @@ Route24_EventScript_StageHealedReturn::
 	end
 
 Route24_EventScript_CharmanderPartnerConcern::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerConcern
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
-	waitmoncry
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_CONCERN
+	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
 	goto Route24_EventScript_CharmanderRescueText
 	end
 
@@ -167,6 +169,8 @@ Route24_EventScript_CharmanderRescueInteraction::
 	faceplayer
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
 	waitmoncry
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_CONCERN
+	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
 	msgbox Route24_Text_CharmanderLooksWeak
 	msgbox Route24_Text_TakeCharmanderToCenter, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, Route24_EventScript_CharmanderDirectRescueDeclined
@@ -364,9 +368,12 @@ Route24_EventScript_FinishCharmanderAdoption::
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianStepIntoCharmanderSpot
 	waitmovement LOCALID_ROUTE24_DAMIAN
+	copyobjectxytoperm LOCALID_ROUTE24_DAMIAN
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	textcolor NPC_TEXT_COLOR_MALE
 	msgbox Route24_Text_DamianAfterAdoption
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_HAPPY
+	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end

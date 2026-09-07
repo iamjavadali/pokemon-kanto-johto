@@ -8,6 +8,7 @@ struct ScriptContext;
 // debug browser must never treat 29 as a separately selectable portrait.
 void GoldenYellow_ShowPartnerPikachuPortrait(struct ScriptContext *ctx);
 void GoldenYellow_ShowPartnerPikachuPortraitProgram(struct ScriptContext *ctx);
+void GoldenYellow_StartCharmanderPartnerSceneReaction(struct ScriptContext *ctx);
 void GoldenYellow_StartBillPartnerSceneReaction(struct ScriptContext *ctx);
 void GoldenYellow_FaceBillPartnerSceneObject(struct ScriptContext *ctx);
 bool32 GoldenYellow_DebugStartPikachuPortraitBrowser(void);
