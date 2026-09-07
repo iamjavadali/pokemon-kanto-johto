@@ -24,6 +24,16 @@
 #include "constants/pokemon.h"
 #include "constants/species.h"
 
+
+#define MELANIE_BULBASAUR_FRIENDSHIP_REQUIREMENT 147
+
+enum GoldenYellowMelanieBulbasaurEligibility
+{
+    GY_MELANIE_NO_PARTNER,
+    GY_MELANIE_FRIENDSHIP_LOW,
+    GY_MELANIE_ELIGIBLE,
+};
+
 // fishing.c deliberately owns the native implementation and does not include
 // fishing.h, allowing the public header to route callers through the P6 wrapper.
 void StartFishing(u8 rod);
@@ -128,6 +138,26 @@ static struct Pokemon *FindPlayerPartnerPikachu(void)
     }
 
     return NULL;
+}
+
+
+void GoldenYellow_CheckMelanieBulbasaurEligibility(struct ScriptContext *ctx)
+{
+    struct Pokemon *partner = FindPlayerPartnerPikachu();
+    u8 friendship;
+
+    (void)ctx;
+
+    if (partner == NULL)
+    {
+        gSpecialVar_Result = GY_MELANIE_NO_PARTNER;
+        return;
+    }
+
+    friendship = GetMonData(partner, MON_DATA_FRIENDSHIP);
+    gSpecialVar_Result = friendship < MELANIE_BULBASAUR_FRIENDSHIP_REQUIREMENT
+                       ? GY_MELANIE_FRIENDSHIP_LOW
+                       : GY_MELANIE_ELIGIBLE;
 }
 
 static struct Pokemon *FindPlayerPartnerPikachuByBox(struct BoxPokemon *boxMon)

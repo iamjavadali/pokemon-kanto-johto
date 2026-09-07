@@ -254,6 +254,69 @@ void GoldenYellow_FaceBillPartnerSceneObject(struct ScriptContext *ctx)
     ObjectEventTurn(partnerObject, direction);
 }
 
+
+static bool32 GoldenYellow_IsInCeruleanHouse3(void)
+{
+    return gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(MAP_CERULEAN_CITY_HOUSE3)
+        && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_CERULEAN_CITY_HOUSE3);
+}
+
+static void GoldenYellow_FacePartnerTowardPlayer(void)
+{
+    struct ObjectEvent *partnerObject = GetFollowerObject();
+    struct ObjectEvent *playerObject = &gObjectEvents[gPlayerAvatar.objectEventId];
+    s16 deltaX;
+    s16 deltaY;
+    enum Direction direction;
+
+    if (partnerObject == NULL || !partnerObject->active)
+        return;
+
+    deltaX = playerObject->currentCoords.x - partnerObject->currentCoords.x;
+    deltaY = playerObject->currentCoords.y - partnerObject->currentCoords.y;
+
+    if ((deltaX < 0 ? -deltaX : deltaX) > (deltaY < 0 ? -deltaY : deltaY))
+        direction = deltaX < 0 ? DIR_WEST : DIR_EAST;
+    else if (deltaY != 0)
+        direction = deltaY < 0 ? DIR_NORTH : DIR_SOUTH;
+    else
+        return;
+
+    ObjectEventClearHeldMovementIfActive(partnerObject);
+    UnfreezeObjectEvent(partnerObject);
+    ObjectEventTurn(partnerObject, direction);
+}
+
+static bool8 GoldenYellow_WaitForMelanieBulbasaurPartnerReaction(void)
+{
+    if (GoldenYellow_IsPartnerPikachuReactionActive())
+        return FALSE;
+
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+    GoldenYellow_FacePartnerTowardPlayer();
+    return TRUE;
+}
+
+void GoldenYellow_StartMelanieBulbasaurPartnerReaction(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+
+    if (!GoldenYellow_IsInCeruleanHouse3()
+     || !GoldenYellow_IsCanonicalPartnerPikachuFollower(follower))
+        return;
+
+    GoldenYellow_FacePartnerTowardPlayer();
+
+    if (!GoldenYellow_StartPartnerPikachuReaction(GY_PARTNER_REACTION_CAPTURE_SUCCESS))
+        return;
+
+    SetupNativeScript(ctx, GoldenYellow_WaitForMelanieBulbasaurPartnerReaction);
+    ctx->waitAfterCallNative = TRUE;
+}
+
 static bool32 GoldenYellow_IsOnRoute24(void)
 {
     return gSaveBlock1Ptr->location.mapGroup == MAP_GROUP(MAP_ROUTE24)

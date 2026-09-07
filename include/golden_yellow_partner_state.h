@@ -11,6 +11,8 @@ struct ScriptContext;
 // Shared canonical identity predicate for the Yellow starter's active
 // following-Pokemon object. Traversal code uses this instead of treating every
 // ordinary Pikachu or generic follower as the authored Partner.
+void GoldenYellow_CheckMelanieBulbasaurEligibility(struct ScriptContext *ctx);
+
 bool8 GoldenYellow_IsCanonicalPartnerPikachuFollower(const struct ObjectEvent *followerObject);
 
 // P5 keeps pokeemerald-expansion's MON_DATA_FRIENDSHIP as the single long-term
