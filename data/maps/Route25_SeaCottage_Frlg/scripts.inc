@@ -3,8 +3,8 @@
 .equ YELLOW_BILL_ENTRY_PENDING, VAR_TEMP_0
 .equ YELLOW_BILL_PARTNER_PRESENT, VAR_TEMP_1
 .equ YELLOW_BILL_PARTNER_RELEASED, VAR_TEMP_2
-.equ YELLOW_PIKACHU_PORTRAIT_BILL_CONFUSED, 0
-.equ YELLOW_PIKACHU_PORTRAIT_BILL_SHOCKED,  1
+.equ YELLOW_PARTNER_REACTION_BILL_CONFUSED, 23
+.equ YELLOW_PARTNER_REACTION_BILL_SHOCKED,  27
 
 Route25_SeaCottage_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, Route25_SeaCottage_OnTransition
@@ -67,17 +67,10 @@ Route25_SeaCottage_EventScript_YellowEntryReaction::
 	applymovement LOCALID_BILL_CLEFAIRY, Common_Movement_FaceDown
 	waitmovement 0
 	callnative GoldenYellow_StartBillPartnerEntryApproach
-	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_QuestionMark
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
-	waitmoncry
-	setvar VAR_0x8004, YELLOW_PIKACHU_PORTRAIT_BILL_CONFUSED
-	callnative GoldenYellow_ShowPartnerPikachuPortrait, requests_effects=1
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerConfusedByBill
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_BILL_CONFUSED
+	callnative GoldenYellow_StartBillPartnerSceneReaction, requests_effects=1
 	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
-	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceUp
-	waitmovement 0
+	waitmovement LOCALID_PLAYER
 	goto Route25_SeaCottage_EventScript_YellowEntryReactionFinish
 
 Route25_SeaCottage_EventScript_YellowEntryReactionNoPartner::
@@ -438,14 +431,9 @@ Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBill::
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceLeft
 	waitmovement 0
 	delay 8
-	playse SE_PIN
-	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_ExclamationMark
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
-	waitmoncry
-	setvar VAR_0x8004, YELLOW_PIKACHU_PORTRAIT_BILL_SHOCKED
-	callnative GoldenYellow_ShowPartnerPikachuPortrait, requests_effects=1
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route25_SeaCottage_Movement_PartnerExcitedBillRestored
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_BILL_SHOCKED
+	callnative GoldenYellow_StartBillPartnerSceneReaction, requests_effects=1
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
 	waitmovement OBJ_EVENT_ID_FOLLOWER
 
 Route25_SeaCottage_EventScript_YellowPartnerReactToRestoredBillReturn::

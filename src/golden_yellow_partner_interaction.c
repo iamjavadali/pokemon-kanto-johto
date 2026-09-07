@@ -235,6 +235,27 @@ static bool8 GoldenYellow_WaitForBillPartnerEntryApproach(void)
     return TRUE;
 }
 
+void GoldenYellow_StartBillPartnerSceneReaction(struct ScriptContext *ctx)
+{
+    struct Pokemon *partner = GetPartnerAwareFollowingMon();
+    u8 reaction = gSpecialVar_0x8004;
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+
+    if (!GoldenYellow_IsInBillSeaCottage()
+     || partner == NULL
+     || GetMonData(partner, MON_DATA_SPECIES) != SPECIES_PIKACHU_STARTER
+     || GoldenYellow_FindBillPartnerSceneObject() == NULL
+     || (reaction != GY_PARTNER_REACTION_BILL_CONFUSED
+      && reaction != GY_PARTNER_REACTION_BILL_SHOCKED)
+     || !GoldenYellow_StartPartnerPikachuReaction(reaction))
+        return;
+
+    SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+    ctx->waitAfterCallNative = TRUE;
+}
+
 void GoldenYellow_StartBillPartnerEntryApproach(struct ScriptContext *ctx)
 {
     struct Pokemon *partner = GetPartnerAwareFollowingMon();
