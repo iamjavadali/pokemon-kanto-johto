@@ -411,6 +411,11 @@ static bool32 GoldenYellow_Route24TileHasObject(const struct ObjectEvent *actor,
 
         if (!object->active || object == actor)
             continue;
+        // The scripted camera is an invisible focus anchor, not a physical
+        // actor. On the right trigger its panned position overlaps Pikachu's
+        // authored approach lane, so it must not block scene pathfinding.
+        if (object->localId == LOCALID_CAMERA)
+            continue;
         if (object->mapGroup != gSaveBlock1Ptr->location.mapGroup
          || object->mapNum != gSaveBlock1Ptr->location.mapNum)
             continue;

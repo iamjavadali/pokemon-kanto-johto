@@ -444,6 +444,10 @@ Route24_EventScript_FinishCharmanderAdoption::
 	waitmovement 0
 	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_HAPPY
 	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
+	@ Damian watches Pikachu's reaction, then returns his attention to the
+	@ player before anyone moves into the post-adoption formation.
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	waitmovement LOCALID_ROUTE24_DAMIAN
 	@ Damian's former lane is now open. Pikachu prefers that east route, walks
 	@ south around Damian's new center tile, and physically reaches the correct
 	@ behind-player tile before FOLLOW_PLAYER authority is restored.
