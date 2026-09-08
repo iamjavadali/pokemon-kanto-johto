@@ -80,6 +80,8 @@ When a later fix corrects a defect inside an already accepted milestone, this lo
 | P9B Yellow Pikachu PCM runtime and current audio baseline | ACCEPTED FOR CURRENT AUDIO SCOPE | `Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md` |
 | P9 Partner reaction final-facing correction | ACCEPTED | This log |
 | Partner-aware Bond Summary page | ACCEPTED | `Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md` |
+| Melanie / Cerulean Bulbasaur gift | ACCEPTED | `Pokemon_Golden_Yellow_Melanie_Bulbasaur_Acceptance_Record.md` |
+| Route 24 Charmander scene | REOPENED FOR REVISION | Historical acceptance retained; fresh PASS required |
 
 ---
 
@@ -596,7 +598,32 @@ See `Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md` for the implementa
 
 ---
 
-# 26. Maintenance Rule
+# 26. Acceptance — Melanie / Cerulean Bulbasaur Gift
+
+**Status:** ACCEPTED  
+**Initial implementation commit:** `57a5bbe2d459d05b98fe0a62d96f83c880470626`  
+**Strict-build flag correction:** `c39c33490544ffc1c229f7741abc2671b4b54c6b`  
+**Final manually accepted source tip:** `2f478f5caca2a44d4915ddacc87aac100ec8adff`  
+**Manual result:** PASS — user confirmed the corrected placement, checkpoint, and scene passed gameplay testing on September 8, 2026.
+
+Accepted behavior includes:
+
+- Melanie and Bulbasaur occupy the upper-right of `CeruleanCity_House3_Frlg` at `(8,2)` and `(7,2)`, facing south;
+- Melanie is approached from the south, with Bulbasaur immediately to her left;
+- the existing old man/Jynx trade, old woman, house layout, and three exit warps remain intact;
+- eligibility reads the canonical `SPECIES_PIKACHU_STARTER` friendship and requires at least `147`;
+- ordinary Pikachu cannot satisfy the gate;
+- successful acceptance gives one Lv. 10 Bulbasaur through party or PC handling and records one-time completion;
+- decline and no-storage paths do not consume the gift;
+- the overworld Bulbasaur is directly interactable before adoption and disappears only after successful receipt;
+- the successful gift uses the existing Partner Reaction 18 capture-success presentation;
+- the permanent Bulbasaur checkpoint starts outside Melanie's house at Cerulean `(15,18)`, clears the completion flag, and initializes canonical Partner friendship/mood to `200/200` for deterministic testing.
+
+The exact implementation lineage and regression requirements are preserved in `Pokemon_Golden_Yellow_Melanie_Bulbasaur_Acceptance_Record.md`.
+
+---
+
+# 27. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 

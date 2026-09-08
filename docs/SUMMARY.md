@@ -35,6 +35,7 @@
     - [P9B Yellow Pikachu Audio Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_P9B_Audio_Acceptance_Record.md)
     - [Bond Summary Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md)
     - [Melanie and Bulbasaur Implementation Notes](golden-yellow-build/pokemon-golden-yellow-melanie-balbasaur.md)
+    - [Melanie and Bulbasaur Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Melanie_Bulbasaur_Acceptance_Record.md)
     - [Mt. Moon Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md)
     - [Charmander Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md)
     - [Bill Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Bill_Acceptance_Record.md)

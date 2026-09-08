@@ -68,7 +68,8 @@ Broad progression currently stands at:
 → **P9B Yellow Pikachu PCM runtime + audio tuning — ACCEPTED FOR CURRENT AUDIO SCOPE**  
 → **P9 Partner final-facing reaction correction — ACCEPTED**  
 → **Bond Summary page — ACCEPTED**  
-→ **Next scoped Yellow Kanto feature or defect — AWAITING SELECTION**
+→ **Melanie / Cerulean Bulbasaur gift — ACCEPTED**  
+→ **Route 24 Charmander scene-quality revision — ACTIVE DEFECT SCOPE**
 
 The P7 authored-reaction phase remains an accepted regression baseline.
 
@@ -96,7 +97,7 @@ The accepted geometry uses a center-upper guard plus side-warp guards so lateral
 | Viridian / early Route 2 / Viridian Forest | Implemented for current approved scope |
 | Pewter / Brock / post-Brock progression | Implemented and accepted for current approved scope; P7A authored Partner lifecycle accepted |
 | Route 3 / Mt. Moon | Implemented and accepted, including Jessie & James encounter #1 |
-| Cerulean / Route 24 / Route 25 / Bill | Rival/Fame Checker, Charmander rescue, Bill transformed/restored reactions, P7B precedence, and final Bill follower/exit lifecycle accepted; Bulbasaur/Misty remain separate boundaries |
+| Cerulean / Route 24 / Route 25 / Bill | Rival/Fame Checker, Bill transformed/restored reactions, P7B precedence, final Bill follower/exit lifecycle, and Melanie's Bulbasaur gift accepted; Route 24 Charmander remains historically accepted but is reopened for scene-quality revision; Misty remains separate |
 | Vermilion Pokémon Fan Club | Required Yellow Partner scene accepted, including parked/rejoin lifecycle and complete exit guarding |
 | Pokémon Tower Partner reaction | Required repeatable Yellow fear/unease direct-talk override accepted on Tower 1F–7F |
 | Remaining Vermilion / S.S. Anne / Lt. Surge | Pending staged audit/integration |
@@ -320,7 +321,8 @@ The current accepted regression baseline reaches through:
 - P8 modern follower coexistence, including specific-context priority and ordinary-follower preservation;
 - P9B Yellow Pikachu PCM runtime and the manually accepted current audio balance/BGM-overlay behavior;
 - the correction that makes Partner reaction movement finish facing the player;
-- the Partner-aware Bond Summary page and its accepted Moves-style navigation/layout.
+- the Partner-aware Bond Summary page and its accepted Moves-style navigation/layout;
+- Melanie's Cerulean Lv. 10 Bulbasaur gift, including canonical Partner friendship gating, one-time persistence, gift/storage handling, upper-right house placement, and the corrected test checkpoint.
 
 P9A remains the locked implementation policy. P9B audio and the accepted final-facing correction together establish the current P9 regression baseline. The Bond Summary page is an additional accepted Partner-facing interface and must preserve canonical Partner identity and existing summary-page behavior.
 
@@ -328,17 +330,20 @@ Detailed commits, workflow runs, ROM hashes, and manual-validation notes belong 
 
 ---
 
-# 8. Current Active Development Boundary — Next Scoped Yellow Kanto Work
+# 8. Current Active Development Boundary — Route 24 Charmander Revision
 
-The current accepted Partner-system baseline includes:
+Melanie's Cerulean Bulbasaur gift is accepted at source tip `2f478f5caca2a44d4915ddacc87aac100ec8adff`.
 
-- P9B Yellow Pikachu PCM playback and accepted tiered audio balance;
-- reaction movement cleanup that returns Partner Pikachu to face the player;
-- the Partner-aware Bond Summary page at source tip `398e2254b3790c8e65e1fa8b7bce0c1d9dd9d868`;
-- successful workflow run `34017871548`;
-- explicit user manual acceptance of the final Bond layout and selector alignment.
+The next active scope is a targeted revision of the existing Route 24 Charmander storyline. The user has explicitly reported that the current scene presentation is still not good enough, so the older Charmander acceptance remains historical evidence but no longer represents a closed present-day quality boundary.
 
-No additional Partner or campaign implementation is selected in this snapshot. The next active boundary is to choose one scoped Yellow Kanto feature or confirmed defect from the remaining campaign requirements, inspect only its owning files and recent history, and implement incrementally while preserving the accepted regression baseline.
+Before changing Charmander again:
+
+- reproduce and enumerate the remaining presentation defects;
+- inspect only the Route 24, Cerulean Pokémon Center, Partner-reaction, Damian-persistence, and Charmander-checkpoint code that owns those defects;
+- preserve Route 24, Lv. 10 gift status, one-time completion, treatment/return continuity, and canonical Partner-only behavior;
+- revise choreography incrementally and require a fresh manual PASS before closing the scene again.
+
+Melanie/Bulbasaur, Bill, the Partner reaction architecture, P9B audio, and the Bond Summary page remain protected regression baselines during that revision.
 
 # 9. Major Yellow Campaign Requirements Still Ahead
 
@@ -349,7 +354,6 @@ No additional Partner or campaign implementation is selected in this snapshot. T
 
 ## Cerulean era
 
-- Melanie's Bulbasaur gift with canonical Partner happiness requirement;
 - Misty Yellow battle identity validation.
 
 ## Vermilion era
@@ -409,15 +413,15 @@ Rules:
 - accepted behavior remains a regression baseline unless a defect is found or redesign is approved;
 - Current Project State stays broad and does not duplicate detailed evidence.
 
-The complete accepted P1–P8 Partner subsystem, P9B audio behavior, Partner final-facing correction, and Bond Summary page are the protected regression baseline for subsequent work.
+The complete accepted P1–P8 Partner subsystem, P9B audio behavior, Partner final-facing correction, Bond Summary page, and Melanie/Bulbasaur gift are protected regression baselines for subsequent work.
 
 ---
 
 # 12. Current Blockers
 
-**No repository-access, build, or known gameplay blocker is open at this snapshot.**
+**No repository-access or build blocker is known at this snapshot.**
 
-The next task is not yet selected. Begin the next implementation only after its scope and owning subsystem are identified.
+A gameplay-quality defect scope is open: the Route 24 Charmander scene requires revision despite its earlier acceptance. The next pass must begin with a focused reproduction/research review before implementation.
 
 ---
 

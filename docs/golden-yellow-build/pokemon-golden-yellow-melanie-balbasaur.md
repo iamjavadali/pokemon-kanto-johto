@@ -1,3 +1,14 @@
+# Pokémon Golden Yellow — Melanie and Bulbasaur Implementation Notes
+
+**Current status:** IMPLEMENTED AND MANUALLY ACCEPTED  
+**Final accepted source tip:** `2f478f5caca2a44d4915ddacc87aac100ec8adff`  
+**Acceptance date:** September 8, 2026  
+**Dedicated record:** `Pokemon_Golden_Yellow_Melanie_Bulbasaur_Acceptance_Record.md`
+
+> This document began as a research and implementation plan. The accepted implementation now supersedes future-tense wording below where they conflict. Final placement is Melanie `(8,2)` with Bulbasaur `(7,2)`; the gift checkpoint starts outside the house at Cerulean `(15,18)` and initializes Partner friendship/mood to `200/200`.
+
+---
+
 What I confirmed
 
 The house in your screenshot is CeruleanCity_House3_Frlg. The Cerulean exterior warp at (15,17) leads to that house, while the Pokémon Center is the nearby warp at (22,19), matching your screenshot. We therefore do not need to change the Cerulean exterior map or create a new building.

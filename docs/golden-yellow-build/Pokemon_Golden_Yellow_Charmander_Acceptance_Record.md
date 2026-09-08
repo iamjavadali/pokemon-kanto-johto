@@ -5,7 +5,8 @@
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
 **Acceptance date:** August 27, 2026  
-**Milestone:** Route 24 Charmander rescue / Damian adoption
+**Milestone:** Route 24 Charmander rescue / Damian adoption  
+**Current review status:** REOPENED FOR SCENE-QUALITY REVISION — September 8, 2026
 
 ---
 
@@ -41,6 +42,17 @@ After the gameplay PASS, the user identified one testing-infrastructure issue: t
 **Checkpoint artifact ID:** `9671932353`
 
 The checkpoint-only commit is part of acceptance closeout infrastructure. It does not replace the manual gameplay acceptance evidence attached to `1af6360f…`.
+
+## 2.1 September 2026 Reopened Quality Boundary
+
+The August acceptance remains valid historical evidence for the functionality tested at that time. After later Partner-reaction and Cerulean work, the user explicitly reported that the Charmander scene is still not good enough and requested a revision.
+
+Therefore:
+
+- this record must not be read as proof that the current Charmander presentation is closed;
+- canonical location, Lv. 10 gift status, one-time persistence, treatment/return continuity, and Partner-only identity remain protected;
+- current choreography, pacing, facing, or movement may be revised where focused reproduction confirms defects;
+- a new manual PASS is required before the Charmander scene returns to a closed accepted status.
 
 ---
 
@@ -235,8 +247,7 @@ Future Cerulean, Route 25, Bill, Bulbasaur, Misty, or later follower work must p
 
 # 13. Closeout
 
-**Milestone status:** ACCEPTED
+**Historical milestone status:** ACCEPTED on August 27, 2026  
+**Current status:** REOPENED FOR SCENE-QUALITY REVISION on September 8, 2026
 
-The accepted Yellow story boundary now extends through the Route 24 Charmander rescue / Damian adoption sequence.
-
-The next active Cerulean-era development boundary is Route 25 progression into Bill / Sea Cottage and the required Partner Pikachu reaction to Bill's transformation/restoration sequence.
+The canonical Charmander storyline remains implemented, but its current presentation requires a focused revision and fresh manual acceptance. Melanie/Bulbasaur and Bill are now separate accepted Cerulean regression baselines.
