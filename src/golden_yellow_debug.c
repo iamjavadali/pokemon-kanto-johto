@@ -1,5 +1,6 @@
 #include "global.h"
 #include "golden_yellow_debug.h"
+#include "golden_yellow_partner_state.h"
 #include "battle_setup.h"
 #include "event_data.h"
 #include "field_screen_effect.h"
@@ -524,7 +525,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         [GY_DEBUG_CP_BEFORE_MISTY] = { MAP_CERULEAN_CITY_GYM, 8, 17 },
         [GY_DEBUG_CP_NUGGET_BRIDGE_ROCKET] = { MAP_ROUTE24, 10, 16 },
         [GY_DEBUG_CP_BEFORE_BILL] = { MAP_ROUTE25, 51, 5 },
-        [GY_DEBUG_CP_BULBASAUR_GIFT] = { MAP_CERULEAN_CITY, 23, 7 },
+        [GY_DEBUG_CP_BULBASAUR_GIFT] = { MAP_CERULEAN_CITY, 15, 18 },
         [GY_DEBUG_CP_CHARMANDER_GIFT] = { MAP_ROUTE24, 7, 10 },
         [GY_DEBUG_CP_SS_ANNE_CAPTAIN] = { MAP_SSANNE_CAPTAINS_OFFICE, 4, 6 },
         [GY_DEBUG_CP_BEFORE_LT_SURGE] = { MAP_VERMILION_CITY_GYM, 5, 18 },
@@ -704,8 +705,10 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         break;
     case GY_DEBUG_CP_BULBASAUR_GIFT:
         GoldenYellowDebug_ApplyThroughBill(rivalPath);
+        FlagClear(FLAG_HIDE_CERULEAN_HOUSE3_BULBASAUR);
         ZeroPlayerPartyMons();
         GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
+        GoldenYellow_DebugSetPartnerPikachuState(&gParties[B_TRAINER_PLAYER][0], 200, 200);
         break;
     case GY_DEBUG_CP_CHARMANDER_GIFT:
         GoldenYellowDebug_ApplyThroughMtMoon(rivalPath);
