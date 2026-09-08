@@ -323,6 +323,48 @@ static bool32 GoldenYellow_IsOnRoute24(void)
         && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_ROUTE24);
 }
 
+static bool32 GoldenYellow_IsCanonicalRoute24Partner(struct ObjectEvent *follower)
+{
+    return GoldenYellow_IsOnRoute24()
+        && GoldenYellow_IsCanonicalPartnerPikachuFollower(follower);
+}
+
+void GoldenYellow_ParkRoute24PartnerFollower(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+
+    (void)ctx;
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    if (!GoldenYellow_IsCanonicalRoute24Partner(follower))
+        return;
+
+    // Transfer the live follower to Route 24's authored scene without removing
+    // or recreating it. Clearing in-flight FOLLOW_PLAYER ownership here is what
+    // keeps the released presentation from pulling Pikachu off its parked tile.
+    ClearObjectEventMovement(follower, &gSprites[follower->spriteId]);
+    UnfreezeObjectEvent(follower);
+    SetTrainerMovementType(follower, MOVEMENT_TYPE_NONE);
+    follower->invisible = FALSE;
+    gSprites[follower->spriteId].invisible = FALSE;
+}
+
+void GoldenYellow_RestoreRoute24PartnerFollower(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+
+    (void)ctx;
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    if (!GoldenYellow_IsCanonicalRoute24Partner(follower))
+        return;
+
+    // Scripts first walk the parked object to the correct behind-player tile.
+    // FOLLOW_PLAYER is restored only after that movement finishes, preventing
+    // the one-tile visual snap caused by normalizing from a scene-owned tile.
+    GoldenYellow_NormalizeBillPartnerFollower(follower);
+}
+
 static bool32 GoldenYellow_FacePartnerTowardRoute24Charmander(void)
 {
     struct ObjectEvent *partnerObject = GetFollowerObject();
