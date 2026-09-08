@@ -7,6 +7,10 @@
 .equ ROUTE24_PLAYER_SIDE_RIGHT, 1
 .equ ROUTE24_PLAYER_SIDE_LEFT,  2
 
+.equ ROUTE24_SCENE_ROUTE_DAMIAN_APPROACH, 3
+.equ ROUTE24_SCENE_ROUTE_DAMIAN_CENTER,   4
+.equ ROUTE24_SCENE_ROUTE_PARTNER_REJOIN,  5
+
 @ Golden Yellow Route 24 Charmander rescue states, stored in VAR_0x40FC.
 @ 0 = WAITING_WEAK, 1 = TREATMENT_PENDING, 2 = HEALED_RETURNED,
 @ 3 = DAMIAN_PRESENT, 4 = ADOPTED.
@@ -168,10 +172,7 @@ Route24_EventScript_CharmanderRescueAccepted::
 Route24_EventScript_CharmanderRescueDeclined::
 	msgbox Route24_Text_CharmanderStillNeedsHelp
 	goto_if_ne VAR_TEMP_E, 1, Route24_EventScript_CharmanderDirectRescueDeclined
-	specialvar VAR_RESULT, GetPlayerFacingDirection
-	call_if_eq VAR_RESULT, DIR_NORTH, Route24_EventScript_RejoinInitialFromSouth
-	call_if_eq VAR_RESULT, DIR_EAST, Route24_EventScript_RejoinInitialFromLeft
-	call_if_eq VAR_RESULT, DIR_SOUTH, Route24_EventScript_RejoinInitialFromNorth
+	call Route24_EventScript_RejoinRoute24Partner
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	callnative GoldenYellow_RestoreRoute24PartnerFollower
@@ -185,21 +186,6 @@ Route24_EventScript_CharmanderDirectRescueDeclined::
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
 	end
-
-Route24_EventScript_RejoinInitialFromSouth::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRejoinInitialSouth
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	return
-
-Route24_EventScript_RejoinInitialFromLeft::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRejoinInitialLeft
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	return
-
-Route24_EventScript_RejoinInitialFromNorth::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRejoinInitialNorth
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	return
 
 Route24_EventScript_CharmanderReturnInteraction::
 	faceplayer
@@ -271,8 +257,11 @@ Route24_EventScript_DamianEnterRightLane::
 	clearflag FLAG_0x0BC
 	addobject LOCALID_ROUTE24_DAMIAN
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnterRightLane
-	waitmovement LOCALID_ROUTE24_DAMIAN
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_DAMIAN_APPROACH
+	setvar VAR_0x8005, ROUTE24_DAMIAN_LANE_RIGHT
+	setvar VAR_0x8006, LOCALID_ROUTE24_DAMIAN
+	callnative GoldenYellow_StartRoute24DamianRoute, requests_effects=1
+	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_DamianRouteFailure
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
 
@@ -281,10 +270,23 @@ Route24_EventScript_DamianEnterSouthLane::
 	clearflag FLAG_0x0BC
 	addobject LOCALID_ROUTE24_DAMIAN
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianEnterSouthLane
-	waitmovement LOCALID_ROUTE24_DAMIAN
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_DAMIAN_APPROACH
+	setvar VAR_0x8005, ROUTE24_DAMIAN_LANE_SOUTH
+	setvar VAR_0x8006, LOCALID_ROUTE24_DAMIAN
+	callnative GoldenYellow_StartRoute24DamianRoute, requests_effects=1
+	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_DamianRouteFailure
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	return
+
+Route24_EventScript_DamianRouteFailure::
+	setflag FLAG_0x0BC
+	removeobject LOCALID_ROUTE24_DAMIAN
+	setvar VAR_TEMP_E, 0
+	call Route24_EventScript_RejoinRoute24Partner
+	callnative GoldenYellow_RestoreRoute24PartnerFollower
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
+	end
 
 @ Speaker-focus helpers deliberately leave every participant facing the most
 @ recent speaker until the next authored dialogue beat changes the focus.
@@ -422,17 +424,13 @@ Route24_EventScript_CharmanderTransferredToPC::
 	end
 
 Route24_EventScript_FinishCharmanderAdoption::
-	@ Damian occupies Charmander's former tile from either entrance lane.
+	@ Charmander is gone before Damian moves. The route controller verifies the
+	@ newly opened center tile and all active actors before Damian occupies it.
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
-	goto_if_eq VAR_TEMP_D, ROUTE24_DAMIAN_LANE_SOUTH, Route24_EventScript_DamianStepIntoSpotFromSouth
-	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianStepIntoCharmanderSpot
-	goto Route24_EventScript_DamianStepIntoSpotWait
-
-Route24_EventScript_DamianStepIntoSpotFromSouth::
-	applymovement LOCALID_ROUTE24_DAMIAN, Route24_Movement_DamianStepIntoCharmanderSpotSouth
-
-Route24_EventScript_DamianStepIntoSpotWait::
-	waitmovement LOCALID_ROUTE24_DAMIAN
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_DAMIAN_CENTER
+	copyvar VAR_0x8005, VAR_TEMP_D
+	setvar VAR_0x8006, LOCALID_ROUTE24_DAMIAN
+	callnative GoldenYellow_StartRoute24DamianRoute, requests_effects=1
 	copyobjectxytoperm LOCALID_ROUTE24_DAMIAN
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
@@ -446,6 +444,9 @@ Route24_EventScript_DamianStepIntoSpotWait::
 	waitmovement 0
 	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_HAPPY
 	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
+	@ Damian's former lane is now open. Pikachu prefers that east route, walks
+	@ south around Damian's new center tile, and physically reaches the correct
+	@ behind-player tile before FOLLOW_PLAYER authority is restored.
 	call Route24_EventScript_FinishHealedPartnerOwnership
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall
@@ -469,32 +470,15 @@ Route24_EventScript_DamianPostAdoption::
 
 Route24_EventScript_FinishHealedPartnerOwnership::
 	goto_if_ne VAR_TEMP_E, 1, Route24_EventScript_FinishHealedPartnerOwnershipReturn
-	call Route24_EventScript_RejoinHealedPartner
+	call Route24_EventScript_RejoinRoute24Partner
 	callnative GoldenYellow_RestoreRoute24PartnerFollower
 
 Route24_EventScript_FinishHealedPartnerOwnershipReturn::
 	return
 
-Route24_EventScript_RejoinHealedPartner::
-	specialvar VAR_RESULT, GetPlayerFacingDirection
-	call_if_eq VAR_RESULT, DIR_NORTH, Route24_EventScript_RejoinHealedFromSouth
-	call_if_eq VAR_RESULT, DIR_WEST, Route24_EventScript_RejoinHealedFromRight
-	call_if_eq VAR_RESULT, DIR_EAST, Route24_EventScript_RejoinHealedFromLeft
-	return
-
-Route24_EventScript_RejoinHealedFromSouth::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRejoinHealedSouth
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	return
-
-Route24_EventScript_RejoinHealedFromRight::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRejoinHealedRight
-	waitmovement OBJ_EVENT_ID_FOLLOWER
-	return
-
-Route24_EventScript_RejoinHealedFromLeft::
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerRejoinHealedLeft
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+Route24_EventScript_RejoinRoute24Partner::
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_PARTNER_REJOIN
+	callnative GoldenYellow_StartRoute24PartnerRejoin, requests_effects=1
 	return
 
 Route24_Movement_CharmanderCallsForHelp::
@@ -512,77 +496,6 @@ Route24_Movement_CameraPanBackFromCharmander::
 	delay_16
 	walk_down
 	walk_down
-	step_end
-
-Route24_Movement_PartnerRejoinInitialSouth::
-	walk_down
-	walk_down
-	walk_left
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_PartnerRejoinInitialLeft::
-	walk_down
-	walk_left
-	walk_left
-	walk_left
-	walk_up
-	walk_in_place_faster_right
-	step_end
-
-Route24_Movement_PartnerRejoinInitialNorth::
-	walk_right
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_in_place_faster_down
-	step_end
-
-Route24_Movement_PartnerRejoinHealedSouth::
-	walk_left
-	walk_down
-	walk_down
-	walk_down
-	walk_right
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_PartnerRejoinHealedRight::
-	walk_right
-	walk_right
-	walk_down
-	walk_in_place_faster_left
-	step_end
-
-Route24_Movement_PartnerRejoinHealedLeft::
-	walk_left
-	walk_left
-	walk_down
-	walk_in_place_faster_right
-	step_end
-
-Route24_Movement_DamianEnterRightLane::
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_left
-	step_end
-
-Route24_Movement_DamianEnterSouthLane::
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_up
-	step_end
-
-Route24_Movement_DamianStepIntoCharmanderSpot::
-	walk_left
-	step_end
-
-Route24_Movement_DamianStepIntoCharmanderSpotSouth::
-	walk_up
 	step_end
 
 Route24_EventScript_Rocket::

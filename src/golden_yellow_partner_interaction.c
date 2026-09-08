@@ -2,6 +2,7 @@
 #include "event_data.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
+#include "fieldmap.h"
 #include "golden_yellow_partner_fan_club.h"
 #include "golden_yellow_partner_reaction.h"
 #include "golden_yellow_partner_state.h"
@@ -22,6 +23,8 @@
 
 #define VAR_GY_BILL_PARTNER_RELEASED VAR_TEMP_2
 #define BILL_PARTNER_APPROACH_MOVEMENT_CAPACITY 32
+#define ROUTE24_SCENE_ROUTE_CAPACITY 32
+#define ROUTE24_SCENE_NODE_CAPACITY 128
 
 enum GoldenYellowPartnerInteractionRoute
 {
@@ -323,10 +326,567 @@ static bool32 GoldenYellow_IsOnRoute24(void)
         && gSaveBlock1Ptr->location.mapNum == MAP_NUM(MAP_ROUTE24);
 }
 
+enum GoldenYellowRoute24SceneRoute
+{
+    GY_ROUTE24_ROUTE_PARTNER_WEAK = 1,
+    GY_ROUTE24_ROUTE_PARTNER_HEALED,
+    GY_ROUTE24_ROUTE_DAMIAN_APPROACH,
+    GY_ROUTE24_ROUTE_DAMIAN_CENTER,
+    GY_ROUTE24_ROUTE_PARTNER_REJOIN,
+};
+
+enum GoldenYellowRoute24DamianLane
+{
+    GY_ROUTE24_DAMIAN_LANE_RIGHT,
+    GY_ROUTE24_DAMIAN_LANE_SOUTH,
+};
+
+enum GoldenYellowRoute24PlayerSide
+{
+    GY_ROUTE24_PLAYER_SIDE_SOUTH,
+    GY_ROUTE24_PLAYER_SIDE_RIGHT,
+    GY_ROUTE24_PLAYER_SIDE_LEFT,
+};
+
+struct GoldenYellowRoute24RouteNode
+{
+    s16 x;
+    s16 y;
+    s16 parent;
+    enum Direction direction;
+};
+
+static EWRAM_DATA u8 sRoute24SceneMovement[ROUTE24_SCENE_ROUTE_CAPACITY];
+static EWRAM_DATA struct GoldenYellowRoute24RouteNode sRoute24SceneNodes[ROUTE24_SCENE_NODE_CAPACITY];
+static u8 sRoute24SceneLocalId;
+
 static bool32 GoldenYellow_IsCanonicalRoute24Partner(struct ObjectEvent *follower)
 {
     return GoldenYellow_IsOnRoute24()
         && GoldenYellow_IsCanonicalPartnerPikachuFollower(follower);
+}
+
+static struct ObjectEvent *GoldenYellow_FindRoute24Charmander(void)
+{
+    u32 i;
+
+    if (!GoldenYellow_IsOnRoute24())
+        return NULL;
+
+    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+    {
+        struct ObjectEvent *object = &gObjectEvents[i];
+
+        if (object->active
+         && object->mapGroup == gSaveBlock1Ptr->location.mapGroup
+         && object->mapNum == gSaveBlock1Ptr->location.mapNum
+         && object->graphicsId == OBJ_EVENT_GFX_SPECIES(CHARMANDER))
+            return object;
+    }
+
+    return NULL;
+}
+
+static struct ObjectEvent *GoldenYellow_FindRoute24ObjectByLocalId(u8 localId)
+{
+    u8 objectEventId;
+
+    if (!GoldenYellow_IsOnRoute24()
+     || TryGetObjectEventIdByLocalIdAndMap(localId,
+                                           gSaveBlock1Ptr->location.mapNum,
+                                           gSaveBlock1Ptr->location.mapGroup,
+                                           &objectEventId))
+        return NULL;
+
+    return &gObjectEvents[objectEventId];
+}
+
+static bool32 GoldenYellow_Route24TileHasObject(const struct ObjectEvent *actor, s16 x, s16 y)
+{
+    u32 i;
+
+    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+    {
+        const struct ObjectEvent *object = &gObjectEvents[i];
+
+        if (!object->active || object == actor)
+            continue;
+        if (object->mapGroup != gSaveBlock1Ptr->location.mapGroup
+         || object->mapNum != gSaveBlock1Ptr->location.mapNum)
+            continue;
+        // Every scene route is planned while all actors are locked and prior
+        // movement has completed. Only the live tile remains occupied; using
+        // previousCoords here would incorrectly keep Damian's vacated lane
+        // blocked during Pikachu's post-adoption rejoin.
+        if (object->currentCoords.x == x && object->currentCoords.y == y)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+static bool32 GoldenYellow_Route24CanStep(const struct ObjectEvent *actor,
+                                           s16 x,
+                                           s16 y,
+                                           enum Direction direction,
+                                           s16 nextX,
+                                           s16 nextY)
+{
+    struct ObjectEvent probe = *actor;
+
+    if (!AreCoordsInsidePlayerMap(nextX, nextY)
+     || MapGridGetCollisionAt(nextX, nextY)
+     || GetMapBorderIdAt(nextX, nextY) == CONNECTION_INVALID
+     || GoldenYellow_Route24TileHasObject(actor, nextX, nextY))
+        return FALSE;
+
+    probe.currentCoords.x = x;
+    probe.currentCoords.y = y;
+    probe.currentElevation = MapGridGetElevationAt(x, y);
+    probe.currentMetatileBehavior = MapGridGetMetatileBehaviorAt(x, y);
+    probe.range.rangeX = 0;
+    probe.range.rangeY = 0;
+
+    if (IsMetatileDirectionallyImpassable(&probe, nextX, nextY, direction)
+     || IsElevationMismatchAt(probe.currentElevation, nextX, nextY))
+        return FALSE;
+
+    return TRUE;
+}
+
+static bool32 GoldenYellow_Route24AppendMovement(u8 *count, u8 movement)
+{
+    if (*count >= ROUTE24_SCENE_ROUTE_CAPACITY - 1)
+        return FALSE;
+
+    sRoute24SceneMovement[(*count)++] = movement;
+    return TRUE;
+}
+
+static bool32 GoldenYellow_Route24AppendValidatedStep(const struct ObjectEvent *actor,
+                                                       s16 *x,
+                                                       s16 *y,
+                                                       enum Direction direction,
+                                                       u8 *count)
+{
+    s16 nextX = *x;
+    s16 nextY = *y;
+
+    MoveCoords(direction, &nextX, &nextY);
+    if (!GoldenYellow_Route24CanStep(actor, *x, *y, direction, nextX, nextY)
+     || !GoldenYellow_Route24AppendMovement(count, GetWalkNormalMovementAction(direction)))
+        return FALSE;
+
+    *x = nextX;
+    *y = nextY;
+    return TRUE;
+}
+
+static bool32 GoldenYellow_Route24NodeWasVisited(s16 x, s16 y, u16 nodeCount)
+{
+    u16 i;
+
+    for (i = 0; i < nodeCount; i++)
+    {
+        if (sRoute24SceneNodes[i].x == x && sRoute24SceneNodes[i].y == y)
+            return TRUE;
+    }
+
+    return FALSE;
+}
+
+static bool32 GoldenYellow_Route24AppendPathSegment(const struct ObjectEvent *actor,
+                                                     s16 *startX,
+                                                     s16 *startY,
+                                                     s16 targetX,
+                                                     s16 targetY,
+                                                     const enum Direction *directionOrder,
+                                                     u8 *movementCount)
+{
+    u8 reversePath[ROUTE24_SCENE_ROUTE_CAPACITY];
+    u16 head = 0;
+    u16 nodeCount = 1;
+    s16 destinationNode = -1;
+    s16 minX = (*startX < targetX ? *startX : targetX) - 4;
+    s16 maxX = (*startX > targetX ? *startX : targetX) + 4;
+    s16 minY = (*startY < targetY ? *startY : targetY) - 4;
+    s16 maxY = (*startY > targetY ? *startY : targetY) + 4;
+    u8 reverseCount = 0;
+    u16 i;
+
+    sRoute24SceneNodes[0].x = *startX;
+    sRoute24SceneNodes[0].y = *startY;
+    sRoute24SceneNodes[0].parent = -1;
+    sRoute24SceneNodes[0].direction = DIR_NONE;
+
+    while (head < nodeCount)
+    {
+        struct GoldenYellowRoute24RouteNode *node = &sRoute24SceneNodes[head];
+
+        if (node->x == targetX && node->y == targetY)
+        {
+            destinationNode = head;
+            break;
+        }
+
+        for (i = 0; i < 4; i++)
+        {
+            enum Direction direction = directionOrder[i];
+            s16 nextX = node->x;
+            s16 nextY = node->y;
+
+            MoveCoords(direction, &nextX, &nextY);
+            if (nextX < minX || nextX > maxX || nextY < minY || nextY > maxY)
+                continue;
+            if (GoldenYellow_Route24NodeWasVisited(nextX, nextY, nodeCount))
+                continue;
+            if (!GoldenYellow_Route24CanStep(actor, node->x, node->y, direction, nextX, nextY))
+                continue;
+            if (nodeCount >= ROUTE24_SCENE_NODE_CAPACITY)
+                return FALSE;
+
+            sRoute24SceneNodes[nodeCount].x = nextX;
+            sRoute24SceneNodes[nodeCount].y = nextY;
+            sRoute24SceneNodes[nodeCount].parent = head;
+            sRoute24SceneNodes[nodeCount].direction = direction;
+            nodeCount++;
+        }
+
+        head++;
+    }
+
+    if (destinationNode < 0)
+        return FALSE;
+
+    while (sRoute24SceneNodes[destinationNode].parent >= 0)
+    {
+        if (reverseCount >= ROUTE24_SCENE_ROUTE_CAPACITY - 1)
+            return FALSE;
+        reversePath[reverseCount++] = sRoute24SceneNodes[destinationNode].direction;
+        destinationNode = sRoute24SceneNodes[destinationNode].parent;
+    }
+
+    while (reverseCount != 0)
+    {
+        enum Direction direction = reversePath[--reverseCount];
+
+        if (!GoldenYellow_Route24AppendMovement(movementCount, GetWalkNormalMovementAction(direction)))
+            return FALSE;
+    }
+
+    *startX = targetX;
+    *startY = targetY;
+    return TRUE;
+}
+
+static bool32 GoldenYellow_Route24AppendPreset(const struct ObjectEvent *actor,
+                                                s16 *x,
+                                                s16 *y,
+                                                const enum Direction *directions,
+                                                u8 directionCount,
+                                                u8 *movementCount)
+{
+    u8 i;
+
+    for (i = 0; i < directionCount; i++)
+    {
+        if (!GoldenYellow_Route24AppendValidatedStep(actor, x, y, directions[i], movementCount))
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+static bool32 GoldenYellow_BuildRoute24PartnerStage(const struct ObjectEvent *partner,
+                                                     enum GoldenYellowRoute24SceneRoute route,
+                                                     enum Direction *finalFacing)
+{
+    static const enum Direction sWeakOrder[] =
+    {
+        DIR_EAST, DIR_SOUTH, DIR_WEST, DIR_NORTH,
+    };
+    static const enum Direction sHealedOrder[] =
+    {
+        DIR_WEST, DIR_EAST, DIR_SOUTH, DIR_NORTH,
+    };
+    static const enum Direction sWeakLeftNorth[] =
+    {
+        DIR_EAST, DIR_NORTH, DIR_NORTH, DIR_NORTH,
+    };
+    static const enum Direction sHealedLeftNorth[] =
+    {
+        DIR_EAST, DIR_NORTH, DIR_NORTH, DIR_NORTH, DIR_NORTH, DIR_WEST,
+    };
+    static const enum Direction sHealedRightNorth[] =
+    {
+        DIR_WEST, DIR_NORTH, DIR_NORTH, DIR_EAST, DIR_NORTH, DIR_NORTH, DIR_WEST,
+    };
+    struct ObjectEvent *charmander = GoldenYellow_FindRoute24Charmander();
+    const struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    const enum Direction *directionOrder;
+    s16 x;
+    s16 y;
+    s16 targetX;
+    s16 targetY;
+    u8 count = 0;
+
+    if (charmander == NULL)
+        return FALSE;
+
+    x = partner->currentCoords.x;
+    y = partner->currentCoords.y;
+    if (route == GY_ROUTE24_ROUTE_PARTNER_WEAK)
+    {
+        targetX = charmander->currentCoords.x + 1;
+        targetY = charmander->currentCoords.y;
+        directionOrder = sWeakOrder;
+        *finalFacing = DIR_WEST;
+
+        if (player->currentCoords.x == charmander->currentCoords.x
+         && player->currentCoords.y == charmander->currentCoords.y + 2
+         && x == player->currentCoords.x
+         && y == player->currentCoords.y + 1)
+        {
+            if (!GoldenYellow_Route24AppendPreset(partner, &x, &y,
+                                                   sWeakLeftNorth,
+                                                   ARRAY_COUNT(sWeakLeftNorth),
+                                                   &count))
+                return FALSE;
+            goto finish;
+        }
+    }
+    else
+    {
+        targetX = charmander->currentCoords.x;
+        targetY = charmander->currentCoords.y - 1;
+        directionOrder = sHealedOrder;
+        *finalFacing = DIR_SOUTH;
+
+        if (player->currentCoords.y == charmander->currentCoords.y + 2
+         && x == player->currentCoords.x
+         && y == player->currentCoords.y + 1)
+        {
+            if (player->currentCoords.x == charmander->currentCoords.x)
+            {
+                if (!GoldenYellow_Route24AppendPreset(partner, &x, &y,
+                                                       sHealedLeftNorth,
+                                                       ARRAY_COUNT(sHealedLeftNorth),
+                                                       &count))
+                    return FALSE;
+                goto finish;
+            }
+            if (player->currentCoords.x == charmander->currentCoords.x + 1)
+            {
+                if (!GoldenYellow_Route24AppendPreset(partner, &x, &y,
+                                                       sHealedRightNorth,
+                                                       ARRAY_COUNT(sHealedRightNorth),
+                                                       &count))
+                    return FALSE;
+                goto finish;
+            }
+        }
+    }
+
+    // A lateral trigger entry leaves Pikachu beside the player. Move one tile
+    // south first so the route cannot cut through the player's occupied tile.
+    if (y == player->currentCoords.y
+     && (x == player->currentCoords.x - 1 || x == player->currentCoords.x + 1))
+    {
+        if (!GoldenYellow_Route24AppendValidatedStep(partner, &x, &y, DIR_SOUTH, &count))
+            return FALSE;
+    }
+
+    if (!GoldenYellow_Route24AppendPathSegment(partner, &x, &y,
+                                                targetX, targetY,
+                                                directionOrder, &count))
+        return FALSE;
+
+finish:
+    if (x != targetX || y != targetY
+     || !GoldenYellow_Route24AppendMovement(&count, GetFaceDirectionMovementAction(*finalFacing)))
+        return FALSE;
+
+    sRoute24SceneMovement[count] = MOVEMENT_ACTION_STEP_END;
+    return TRUE;
+}
+
+static bool32 GoldenYellow_BuildRoute24DamianRoute(const struct ObjectEvent *damian,
+                                                    enum GoldenYellowRoute24SceneRoute route,
+                                                    enum GoldenYellowRoute24DamianLane lane,
+                                                    enum Direction *finalFacing)
+{
+    static const enum Direction sDamianOrder[] =
+    {
+        DIR_NORTH, DIR_WEST, DIR_EAST, DIR_SOUTH,
+    };
+    struct ObjectEvent *charmander = GoldenYellow_FindRoute24Charmander();
+    s16 x = damian->currentCoords.x;
+    s16 y = damian->currentCoords.y;
+    s16 targetX;
+    s16 targetY;
+    u8 count = 0;
+
+    if (route == GY_ROUTE24_ROUTE_DAMIAN_APPROACH)
+    {
+        if (charmander == NULL)
+            return FALSE;
+        if (lane == GY_ROUTE24_DAMIAN_LANE_SOUTH)
+        {
+            targetX = charmander->currentCoords.x;
+            targetY = charmander->currentCoords.y + 1;
+            *finalFacing = DIR_NORTH;
+        }
+        else
+        {
+            targetX = charmander->currentCoords.x + 1;
+            targetY = charmander->currentCoords.y;
+            *finalFacing = DIR_WEST;
+        }
+    }
+    else
+    {
+        if (lane == GY_ROUTE24_DAMIAN_LANE_SOUTH)
+        {
+            targetX = x;
+            targetY = y - 1;
+        }
+        else
+        {
+            targetX = x - 1;
+            targetY = y;
+        }
+        *finalFacing = DIR_SOUTH;
+    }
+
+    if (!GoldenYellow_Route24AppendPathSegment(damian, &x, &y,
+                                                targetX, targetY,
+                                                sDamianOrder, &count)
+     || !GoldenYellow_Route24AppendMovement(&count, GetFaceDirectionMovementAction(*finalFacing)))
+        return FALSE;
+
+    sRoute24SceneMovement[count] = MOVEMENT_ACTION_STEP_END;
+    return TRUE;
+}
+
+static bool32 GoldenYellow_BuildRoute24PartnerRejoin(const struct ObjectEvent *partner,
+                                                      enum Direction *finalFacing)
+{
+    static const enum Direction sRejoinOrder[] =
+    {
+        DIR_EAST, DIR_SOUTH, DIR_WEST, DIR_NORTH,
+    };
+    const struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    enum GoldenYellowRoute24PlayerSide playerSide = VarGet(VAR_TEMP_C);
+    s16 candidateX[4];
+    s16 candidateY[4];
+    s16 startX = partner->currentCoords.x;
+    s16 startY = partner->currentCoords.y;
+    u8 i;
+
+    // The canonical south interaction rejoins below the player. Right- and
+    // left-side interactions first try the corresponding behind-player tile.
+    // Remaining adjacent tiles are collision-safe fallbacks, never teleports.
+    if (playerSide == GY_ROUTE24_PLAYER_SIDE_RIGHT)
+    {
+        candidateX[0] = player->currentCoords.x + 1;
+        candidateY[0] = player->currentCoords.y;
+    }
+    else if (playerSide == GY_ROUTE24_PLAYER_SIDE_LEFT)
+    {
+        candidateX[0] = player->currentCoords.x - 1;
+        candidateY[0] = player->currentCoords.y;
+    }
+    else
+    {
+        candidateX[0] = player->currentCoords.x;
+        candidateY[0] = player->currentCoords.y + 1;
+    }
+
+    candidateX[1] = player->currentCoords.x + 1;
+    candidateY[1] = player->currentCoords.y;
+    candidateX[2] = player->currentCoords.x - 1;
+    candidateY[2] = player->currentCoords.y;
+    candidateX[3] = player->currentCoords.x;
+    candidateY[3] = player->currentCoords.y - 1;
+
+    for (i = 0; i < ARRAY_COUNT(candidateX); i++)
+    {
+        s16 x = startX;
+        s16 y = startY;
+        u8 count = 0;
+
+        if (GoldenYellow_Route24TileHasObject(partner, candidateX[i], candidateY[i]))
+            continue;
+        if (!GoldenYellow_Route24AppendPathSegment(partner, &x, &y,
+                                                    candidateX[i], candidateY[i],
+                                                    sRejoinOrder, &count))
+            continue;
+
+        if (candidateX[i] < player->currentCoords.x)
+            *finalFacing = DIR_EAST;
+        else if (candidateX[i] > player->currentCoords.x)
+            *finalFacing = DIR_WEST;
+        else if (candidateY[i] < player->currentCoords.y)
+            *finalFacing = DIR_SOUTH;
+        else
+            *finalFacing = DIR_NORTH;
+
+        if (!GoldenYellow_Route24AppendMovement(&count, GetFaceDirectionMovementAction(*finalFacing)))
+            return FALSE;
+
+        sRoute24SceneMovement[count] = MOVEMENT_ACTION_STEP_END;
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static bool8 GoldenYellow_WaitForRoute24SceneRoute(void)
+{
+    struct ObjectEvent *object;
+
+    if (!GoldenYellow_IsOnRoute24() || sRoute24SceneLocalId == 0)
+        return TRUE;
+
+    if (!ScriptMovement_IsObjectMovementFinished(sRoute24SceneLocalId,
+                                                  gSaveBlock1Ptr->location.mapNum,
+                                                  gSaveBlock1Ptr->location.mapGroup))
+        return FALSE;
+
+    object = GoldenYellow_FindRoute24ObjectByLocalId(sRoute24SceneLocalId);
+    if (object != NULL)
+    {
+        ObjectEventClearHeldMovementIfFinished(object);
+        UnfreezeObjectEvent(object);
+    }
+
+    sRoute24SceneLocalId = 0;
+    return TRUE;
+}
+
+static void GoldenYellow_StartRoute24SceneMovement(struct ScriptContext *ctx,
+                                                    struct ObjectEvent *object,
+                                                    bool32 routeBuilt)
+{
+    gSpecialVar_Result = FALSE;
+    sRoute24SceneLocalId = 0;
+
+    if (!routeBuilt || object == NULL)
+        return;
+
+    sRoute24SceneLocalId = object->localId;
+    if (ScriptMovement_StartObjectMovementScript(sRoute24SceneLocalId,
+                                                  gSaveBlock1Ptr->location.mapNum,
+                                                  gSaveBlock1Ptr->location.mapGroup,
+                                                  sRoute24SceneMovement))
+    {
+        sRoute24SceneLocalId = 0;
+        return;
+    }
+
+    gSpecialVar_Result = TRUE;
+    SetupNativeScript(ctx, GoldenYellow_WaitForRoute24SceneRoute);
+    ctx->waitAfterCallNative = TRUE;
 }
 
 void GoldenYellow_ParkRoute24PartnerFollower(struct ScriptContext *ctx)
@@ -339,14 +899,62 @@ void GoldenYellow_ParkRoute24PartnerFollower(struct ScriptContext *ctx)
     if (!GoldenYellow_IsCanonicalRoute24Partner(follower))
         return;
 
-    // Transfer the live follower to Route 24's authored scene without removing
-    // or recreating it. Clearing in-flight FOLLOW_PLAYER ownership here is what
-    // keeps the released presentation from pulling Pikachu off its parked tile.
     ClearObjectEventMovement(follower, &gSprites[follower->spriteId]);
     UnfreezeObjectEvent(follower);
     SetTrainerMovementType(follower, MOVEMENT_TYPE_NONE);
     follower->invisible = FALSE;
     gSprites[follower->spriteId].invisible = FALSE;
+}
+
+void GoldenYellow_StartRoute24PartnerStage(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+    enum Direction finalFacing = DIR_NONE;
+    enum GoldenYellowRoute24SceneRoute route = gSpecialVar_0x8004;
+    bool32 routeBuilt = FALSE;
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    if (GoldenYellow_IsCanonicalRoute24Partner(follower)
+     && (route == GY_ROUTE24_ROUTE_PARTNER_WEAK
+      || route == GY_ROUTE24_ROUTE_PARTNER_HEALED))
+        routeBuilt = GoldenYellow_BuildRoute24PartnerStage(follower, route, &finalFacing);
+
+    GoldenYellow_StartRoute24SceneMovement(ctx, follower, routeBuilt);
+}
+
+void GoldenYellow_StartRoute24DamianRoute(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *damian = GoldenYellow_FindRoute24ObjectByLocalId(gSpecialVar_0x8006);
+    enum Direction finalFacing = DIR_NONE;
+    enum GoldenYellowRoute24SceneRoute route = gSpecialVar_0x8004;
+    enum GoldenYellowRoute24DamianLane lane = gSpecialVar_0x8005;
+    bool32 routeBuilt = FALSE;
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    if (damian != NULL
+     && (route == GY_ROUTE24_ROUTE_DAMIAN_APPROACH
+      || route == GY_ROUTE24_ROUTE_DAMIAN_CENTER)
+     && (lane == GY_ROUTE24_DAMIAN_LANE_RIGHT
+      || lane == GY_ROUTE24_DAMIAN_LANE_SOUTH))
+        routeBuilt = GoldenYellow_BuildRoute24DamianRoute(damian, route, lane, &finalFacing);
+
+    GoldenYellow_StartRoute24SceneMovement(ctx, damian, routeBuilt);
+}
+
+void GoldenYellow_StartRoute24PartnerRejoin(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+    enum Direction finalFacing = DIR_NONE;
+    bool32 routeBuilt = FALSE;
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+
+    if (GoldenYellow_IsCanonicalRoute24Partner(follower))
+        routeBuilt = GoldenYellow_BuildRoute24PartnerRejoin(follower, &finalFacing);
+
+    GoldenYellow_StartRoute24SceneMovement(ctx, follower, routeBuilt);
 }
 
 void GoldenYellow_RestoreRoute24PartnerFollower(struct ScriptContext *ctx)
@@ -359,9 +967,6 @@ void GoldenYellow_RestoreRoute24PartnerFollower(struct ScriptContext *ctx)
     if (!GoldenYellow_IsCanonicalRoute24Partner(follower))
         return;
 
-    // Scripts first walk the parked object to the correct behind-player tile.
-    // FOLLOW_PLAYER is restored only after that movement finishes, preventing
-    // the one-tile visual snap caused by normalizing from a scene-owned tile.
     GoldenYellow_NormalizeBillPartnerFollower(follower);
 }
 

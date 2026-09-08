@@ -1,3 +1,6 @@
+.equ ROUTE24_SCENE_ROUTE_PARTNER_WEAK,   1
+.equ ROUTE24_SCENE_ROUTE_PARTNER_HEALED, 2
+
 @ Golden Yellow Route 24: two-stage, lane-aware Charmander presentation.
 @ (7,7) is the left trigger; (8,7) is the right trigger. Neither trigger moves
 @ Red or opens dialogue. The player manually presses A on Charmander afterward.
@@ -23,8 +26,9 @@ Route24_EventScript_PresentWeakFromLeft::
 	lockall
 	call Route24_EventScript_BeginCharmanderCameraPan
 	callnative GoldenYellow_ParkRoute24PartnerFollower
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerStageWeakFromLeft
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_PARTNER_WEAK
+	callnative GoldenYellow_StartRoute24PartnerStage, requests_effects=1
+	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_AbortCharmanderPresentation
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	call Route24_EventScript_CharmanderPartnerConcern
@@ -34,8 +38,9 @@ Route24_EventScript_PresentWeakFromRight::
 	lockall
 	call Route24_EventScript_BeginCharmanderCameraPan
 	callnative GoldenYellow_ParkRoute24PartnerFollower
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerStageWeakFromRight
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_PARTNER_WEAK
+	callnative GoldenYellow_StartRoute24PartnerStage, requests_effects=1
+	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_AbortCharmanderPresentation
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	call Route24_EventScript_CharmanderPartnerConcern
@@ -45,8 +50,9 @@ Route24_EventScript_PresentHealedFromLeft::
 	lockall
 	call Route24_EventScript_BeginCharmanderCameraPan
 	callnative GoldenYellow_ParkRoute24PartnerFollower
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerStageHealedFromLeft
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_PARTNER_HEALED
+	callnative GoldenYellow_StartRoute24PartnerStage, requests_effects=1
+	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_AbortCharmanderPresentation
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceUp
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	call Route24_EventScript_CharmanderPartnerConcern
@@ -56,8 +62,9 @@ Route24_EventScript_PresentHealedFromRight::
 	lockall
 	call Route24_EventScript_BeginCharmanderCameraPan
 	callnative GoldenYellow_ParkRoute24PartnerFollower
-	applymovement OBJ_EVENT_ID_FOLLOWER, Route24_Movement_PartnerStageHealedFromRight
-	waitmovement OBJ_EVENT_ID_FOLLOWER
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_PARTNER_HEALED
+	callnative GoldenYellow_StartRoute24PartnerStage, requests_effects=1
+	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_AbortCharmanderPresentation
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceUp
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
 	call Route24_EventScript_CharmanderPartnerConcern
@@ -88,41 +95,13 @@ Route24_EventScript_EndCharmanderCameraPan::
 	releaseall
 	end
 
-@ Initial encounter: Pikachu parks east of Charmander at (8,5), facing west.
-Route24_Movement_PartnerStageWeakFromLeft::
-	walk_right
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_left
-	step_end
-
-Route24_Movement_PartnerStageWeakFromRight::
-	walk_up
-	walk_up
-	walk_up
-	walk_in_place_faster_left
-	step_end
-
-@ Healed encounter: Pikachu parks north of Charmander at (7,4), facing south.
-@ Separate paths keep it from crossing Charmander's occupied center tile.
-Route24_Movement_PartnerStageHealedFromLeft::
-	walk_left
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_right
-	walk_in_place_faster_down
-	step_end
-
-Route24_Movement_PartnerStageHealedFromRight::
-	walk_right
-	walk_up
-	walk_up
-	walk_up
-	walk_up
-	walk_left
-	walk_left
-	walk_in_place_faster_down
-	step_end
+Route24_EventScript_AbortCharmanderPresentation::
+	setvar VAR_TEMP_E, 0
+	delay 16
+	applymovement LOCALID_CAMERA, Route24_Movement_CameraPanBackFromCharmander
+	waitmovement 0
+	special RemoveCameraObject
+	callnative GoldenYellow_RestoreRoute24PartnerFollower
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
+	end
