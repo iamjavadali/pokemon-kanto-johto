@@ -70,6 +70,7 @@ Broad progression currently stands at:
 → **Bond Summary page — ACCEPTED**  
 → **Melanie / Cerulean Bulbasaur gift — ACCEPTED**  
 → **Route 24 Charmander scene-quality revision — ACCEPTED**
+→ **Partner portrait-facing fidelity and early-story reactions — ACCEPTED**
 
 The P7 authored-reaction phase remains an accepted regression baseline.
 
@@ -276,6 +277,17 @@ Detailed build, implementation, and manual-acceptance evidence is recorded in `P
 
 ---
 
+## 5.15 Accepted Portrait-Facing Fidelity and Early-Story Reactions
+
+The Partner reaction director now preserves the overworld direction held when a reaction begins unless the matching Yellow portrait visibly changes Pikachu's orientation. Emotion 6 uses a sideways Skull pose, Emotion 9 uses a fully turned-away Skull pose, and Emotion 13 retains its intentional aloof turn. Other portraits preserve the starting direction; Emotion 24's refusal shake returns to that direction before its portrait.
+
+Two existing early-story scenes now use the common blocking reaction director:
+
+- Oak's Lab plays Emotion 24 immediately after Partner Pikachu appears and cries following the first Rival battle, before Oak explains the Poké Ball refusal;
+- Mt. Moon Jessie and James encounter #1 plays Emotion 14 after James threatens to take Pikachu and the Fossil, replacing the former generic cry/jump beat.
+
+These are accepted story-polish additions. They do not change either scene's dialogue, battle outcome, flags, object placement, or progression.
+
 # 6. Established Design Decisions
 
 - Pokémon Yellow owns the initial Kanto narrative identity.
@@ -303,11 +315,13 @@ Detailed build, implementation, and manual-acceptance evidence is recorded in `P
 The current accepted regression baseline reaches through:
 
 - Yellow opening and Partner foundation;
+- accepted Oak's Lab post-Rival Poké Ball-refusal reaction timing;
 - Viridian Teachy TV integration;
 - Pewter/Brock early progression;
 - Pewter Jigglypuff reaction and P7A lifecycle;
 - Route 3 / Mt. Moon fossil progression;
 - Jessie & James encounter #1;
+- accepted Emotion 14 Partner reaction during the Mt. Moon threat beat;
 - battle follower send-out identity correction;
 - Cerulean Rival #3 / Fame Checker / Partner choreography;
 - Route 24 Charmander rescue / treatment / Damian adoption;
@@ -416,7 +430,7 @@ Rules:
 - accepted behavior remains a regression baseline unless a defect is found or redesign is approved;
 - Current Project State stays broad and does not duplicate detailed evidence.
 
-The complete accepted P1–P8 Partner subsystem, P9B audio behavior, Partner final-facing correction, Bond Summary page, and Melanie/Bulbasaur gift are protected regression baselines for subsequent work.
+The complete accepted P1–P8 Partner subsystem, P9B audio behavior, portrait-facing fidelity, early-story Oak/Mt. Moon reactions, Bond Summary page, Melanie/Bulbasaur gift, and Route 24 Charmander revision are protected regression baselines for subsequent work.
 
 ---
 

@@ -626,7 +626,45 @@ The exact implementation lineage and regression requirements are preserved in `P
 
 ---
 
-# 27. Maintenance Rule
+# 27. Acceptance — Partner Portrait Facing and Early-Story Reactions
+
+**Status:** ACCEPTED  
+**Acceptance date:** 2026-09-09  
+**Implementation commits:** `f132165d28cdbf451866db0c20568a59dbf22197`, `7e112431b305b86572c8600db9616b0123b28119`, `0ae63580434483d4b8d4ab8c0661fe8685def614`, `3528a078de35a981433932ba25ca8de137af79a3`  
+**CI reliability commit:** `8a878b828300b4338b688926c7ac5665dea373b0`  
+**Final accepted source tip:** `3528a078de35a981433932ba25ca8de137af79a3`  
+**Final workflow:** `Prototype FireRed Development`  
+**Final workflow run:** `34388337842`  
+**Artifact ID:** `10118791738`  
+**Artifact name:** `pokemon-kanto-johto-firered-3528a078de35a981433932ba25ca8de137af79a3`  
+**Artifact archive digest:** `sha256:2ccec4655ea15bafe946f8399253d43dde720682ef472ef884c331c8e68b65ee`  
+**Manual result:** PASS — the user confirmed the revised reaction presentation in Oak's Lab and Mt. Moon passed gameplay testing.
+
+## 27.1 Accepted portrait-facing behavior
+
+- Reaction movement no longer adds arbitrary east/west or opposite-facing turns when the Yellow close-up does not show Pikachu changing orientation.
+- Ordinary reaction portraits preserve the Partner's direction from the start of the reaction.
+- Emotion 6 / Portrait 6 ends with Pikachu turned sideways, matching its Skull portrait.
+- Emotion 9 / Portrait 9 ends with Pikachu facing away, matching its stronger Skull portrait.
+- Emotion 13 retains its intentional aloof turn away.
+- Emotion 24 may shake left/right for refusal but returns to its starting direction for the portrait.
+- Reaction cleanup preserves these intentional ending poses while restoring normal follower ownership.
+
+## 27.2 Accepted early-story reactions
+
+- In the first Mt. Moon Jessie and James encounter, Partner Pikachu plays Emotion 14 / Very Angry immediately after James threatens to take both Pikachu and the Fossil.
+- The authored reaction replaces the former generic cry/jump beat without changing the surrounding dialogue, trainer battle, object placement, or encounter progression.
+- In Oak's Lab after the first Rival battle, the lab Pikachu object is converted into the canonical follower as it appears.
+- Emotion 24 / Poké Ball Refusal then plays immediately after Pikachu's appearance cry and before Oak explains that Pikachu came out and dislikes Poké Balls.
+- Both scenes use the shared blocking scripted-reaction entry point and return control only after the reaction completes.
+
+## 27.3 CI note
+
+Runs `34384038257` and `34385946917` were blocked before compilation by a repeated hash mismatch from the hosted runner's unrelated Google Chrome APT source. Commit `8a878b828300b4338b688926c7ac5665dea373b0` disables only that unused third-party source before dependency installation. The next workflow run, `34386178335`, passed, and the final accepted source tip also passed in run `34388337842`.
+
+---
+
+# 28. Maintenance Rule
 
 This log is governed by Hard Rule `DOC-006`.
 

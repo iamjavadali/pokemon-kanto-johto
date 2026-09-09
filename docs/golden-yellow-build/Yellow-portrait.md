@@ -217,6 +217,18 @@ An emotion is a whole reaction program. A portrait is only one component of it.
 
 ---
 
+## 5.1 Accepted GBA overworld-orientation fidelity
+
+The implemented GBA reaction director must keep the overworld Partner object consistent with the visible Yellow portrait:
+
+- Emotion 6 / Portrait 6 turns Pikachu sideways for the Skull reaction;
+- Emotion 9 / Portrait 9 turns Pikachu fully away for the stronger Skull reaction;
+- Emotion 13 keeps the intentional aloof turn away;
+- Emotion 24 may shake left/right but restores the direction held when the reaction began before showing its portrait;
+- all other portrait reactions preserve the direction held when the reaction began unless a future Yellow-source audit proves that the portrait itself changes orientation.
+
+This rule prevents generic follower movement presets from inventing east/west or opposite-facing poses that are not present in the portrait artwork. It is an accepted runtime fidelity requirement, not a change to the source Emotion-to-portrait mapping below.
+
 # 6. Normal happiness + mood system
 
 Yellow's regular A-button expression uses two values:
