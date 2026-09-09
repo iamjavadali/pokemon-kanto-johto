@@ -165,7 +165,6 @@ static bool32 GoldenYellow_BuildBillPartnerApproachMovement(const struct ObjectE
     s16 y;
     s16 targetX;
     s16 targetY;
-    bool32 lateralApproach = FALSE;
     u8 count = 0;
 
     if (partnerObject == NULL || billObject == NULL)
@@ -638,6 +637,7 @@ static bool32 GoldenYellow_BuildRoute24PartnerStage(const struct ObjectEvent *pa
     s16 y;
     s16 targetX;
     s16 targetY;
+    bool32 lateralApproach = FALSE;
     u8 count = 0;
 
     if (charmander == NULL)
