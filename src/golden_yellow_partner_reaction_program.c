@@ -81,15 +81,6 @@ enum GoldenYellowPartnerReactionTaskState
     GY_PARTNER_REACTION_STATE_BROWSER_IDLE,
 };
 
-enum GoldenYellowPartnerPortraitPose
-{
-    GY_PARTNER_POSE_KEEP,
-    GY_PARTNER_POSE_FACE_PLAYER,
-    GY_PARTNER_POSE_FACE_AWAY,
-    GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    GY_PARTNER_POSE_SIDE_COUNTERCLOCKWISE,
-};
-
 struct GoldenYellowPartnerReactionCommand
 {
     u8 type;
@@ -120,27 +111,23 @@ extern const u8 FollowerStartled[];
 // in-place, and use the same movement actions as the existing follower scripts.
 static const u8 sPartnerEnergeticMovement[] =
 {
-    MOVEMENT_ACTION_FACE_PLAYER,
     MOVEMENT_ACTION_LOCK_FACING_DIRECTION,
     MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
     MOVEMENT_ACTION_WALK_IN_PLACE_FASTER_DOWN,
     MOVEMENT_ACTION_WALK_IN_PLACE_FAST_DOWN,
     MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
     MOVEMENT_ACTION_UNLOCK_FACING_DIRECTION,
-    MOVEMENT_ACTION_FACE_PLAYER,
     MOVEMENT_ACTION_STEP_END,
 };
 
 static const u8 sPartnerStrongAffectionMovement[] =
 {
-    MOVEMENT_ACTION_FACE_PLAYER,
     MOVEMENT_ACTION_LOCK_FACING_DIRECTION,
     MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
     MOVEMENT_ACTION_DELAY_4,
     MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
     MOVEMENT_ACTION_WALK_IN_PLACE_FAST_DOWN,
     MOVEMENT_ACTION_UNLOCK_FACING_DIRECTION,
-    MOVEMENT_ACTION_FACE_PLAYER,
     MOVEMENT_ACTION_STEP_END,
 };
 
@@ -160,69 +147,28 @@ static const u8 sPartnerRefusalMovement[] =
 
 static const u8 sPartnerFearMovement[] =
 {
-    MOVEMENT_ACTION_FACE_AWAY_PLAYER,
     MOVEMENT_ACTION_LOCK_FACING_DIRECTION,
     MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
+    MOVEMENT_ACTION_DELAY_8,
+    MOVEMENT_ACTION_JUMP_IN_PLACE_DOWN,
+    MOVEMENT_ACTION_DELAY_8,
     MOVEMENT_ACTION_UNLOCK_FACING_DIRECTION,
-    MOVEMENT_ACTION_DELAY_8,
-    MOVEMENT_ACTION_FACE_LEFT,
-    MOVEMENT_ACTION_DELAY_8,
-    MOVEMENT_ACTION_FACE_RIGHT,
-    MOVEMENT_ACTION_DELAY_8,
-    MOVEMENT_ACTION_FACE_PLAYER,
     MOVEMENT_ACTION_STEP_END,
 };
 
 static const u8 sPartnerSleepySwayMovement[] =
 {
-    MOVEMENT_ACTION_FACE_LEFT,
+    MOVEMENT_ACTION_LOCK_FACING_DIRECTION,
     MOVEMENT_ACTION_DELAY_16,
-    MOVEMENT_ACTION_FACE_RIGHT,
+    MOVEMENT_ACTION_WALK_IN_PLACE_SLOW_DOWN,
     MOVEMENT_ACTION_DELAY_16,
-    MOVEMENT_ACTION_FACE_PLAYER,
+    MOVEMENT_ACTION_UNLOCK_FACING_DIRECTION,
     MOVEMENT_ACTION_STEP_END,
 };
 
-// Final overworld pose before each portrait. This is deliberately independent
-// from the expressive movement preset so a reaction can dance, recoil, sway,
-// or hop first and still visually agree with the Yellow close-up pose.
-static const u8 sPartnerReactionPortraitPoses[GY_PARTNER_REACTION_COUNT] =
-{
-    [GY_PARTNER_REACTION_EMPTY]                  = GY_PARTNER_POSE_KEEP,
-    [GY_PARTNER_REACTION_NEUTRAL]                = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_HAPPY]                  = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_SUBDUED]                = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_PLAYFUL]                = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_DISPLEASED]             = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_IRRITATED]              = GY_PARTNER_POSE_FACE_AWAY,
-    [GY_PARTNER_REACTION_ENERGETIC_HAPPY]        = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_HAPPY_GRIN]             = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_STRONG_DISPLEASURE]     = GY_PARTNER_POSE_FACE_AWAY,
-    [GY_PARTNER_REACTION_AFFECTION]              = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_SLEEPING]               = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_FROWNING]               = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_ALOOF]                  = GY_PARTNER_POSE_FACE_AWAY,
-    [GY_PARTNER_REACTION_VERY_ANGRY]             = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_CONTENT]                = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_STRONG_HAPPINESS]       = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_UNHAPPY]                = GY_PARTNER_POSE_FACE_AWAY,
-    [GY_PARTNER_REACTION_CAPTURE_SUCCESS]        = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_STRONG_AFFECTION]       = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_MAX_AFFECTION]          = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_FISHING]                = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_TOWER_AFRAID]           = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_BILL_CONFUSED]          = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_THUNDER_STONE_REFUSAL]  = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_ELECTRIC_POWER]         = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_PEWTER_JIGGLYPUFF]      = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_BILL_SHOCKED]           = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_STATUS_SICK]            = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_FAN_CLUB_AFFECTION]     = GY_PARTNER_POSE_FACE_PLAYER,
-    [GY_PARTNER_REACTION_FAN_CLUB_MAX_AFFECTION] = GY_PARTNER_POSE_FACE_AWAY,
-    [GY_PARTNER_REACTION_BILL_POST_STATE]        = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-    [GY_PARTNER_REACTION_BILL_INTERMEDIATE]      = GY_PARTNER_POSE_SIDE_CLOCKWISE,
-};
-
+// Portraits retain the direction Pikachu had when the reaction began. Aloof is
+// the only portrait that deliberately looks away; Thunder Stone refusal keeps
+// its left/right shake but returns to the starting direction before the portrait.
 #define rReactionId          data[0]
 #define rCommandIndex        data[1]
 #define rState               data[2]
@@ -234,13 +180,14 @@ static const u8 sPartnerReactionPortraitPoses[GY_PARTNER_REACTION_COUNT] =
 #define rBubbleEffectId      data[8]
 #define rPoseApplied         data[9]
 #define rDebugPortraitReady  data[10]
+#define rStartDirection       data[11]
 
 static void Task_PartnerReaction(u8 taskId);
 static bool32 StartPartnerReactionTask(u8 reactionId, enum GoldenYellowPartnerReactionTaskMode mode);
 static bool32 HasFreePartnerReactionTaskSlot(void);
 static bool32 IsCanonicalPartnerFollowerReady(struct ObjectEvent **follower);
 static void BeginPartnerReaction(u8 taskId, u8 reactionId);
-static void NormalizePartnerReactionFacing(void);
+static void NormalizePartnerReactionFacing(u8 taskId);
 static void FinishPartnerReaction(u8 taskId);
 static void ClosePartnerReactionBrowser(u8 taskId);
 static void ExecutePartnerReactionCommand(u8 taskId);
@@ -352,17 +299,28 @@ static void BeginPartnerReaction(u8 taskId, u8 reactionId)
     task->rBubbleEffectId = PARTNER_REACTION_NO_FIELD_EFFECT;
     task->rPoseApplied = FALSE;
     task->rDebugPortraitReady = FALSE;
+
+    {
+        struct ObjectEvent *follower = GetFollowerObject();
+
+        task->rStartDirection = follower != NULL && follower->active
+                              ? follower->facingDirection
+                              : DIR_SOUTH;
+    }
 }
 
-static void NormalizePartnerReactionFacing(void)
+static void NormalizePartnerReactionFacing(u8 taskId)
 {
+    struct Task *task = &gTasks[taskId];
     struct ObjectEvent *follower = GetFollowerObject();
 
     if (follower != NULL && follower->active)
     {
         ObjectEventClearHeldMovementIfActive(follower);
         UnfreezeObjectEvent(follower);
-        ObjectEventTurn(follower, GetFollowerDirectionTowardPlayer(follower));
+
+        if (task->rReactionId != GY_PARTNER_REACTION_ALOOF)
+            ObjectEventTurn(follower, task->rStartDirection);
     }
 }
 
@@ -373,7 +331,7 @@ static void FinishPartnerReaction(u8 taskId)
     // Expressive movement and portrait poses may face sideways or away during
     // a reaction, but every completed reaction returns to the player-facing
     // overworld baseline before follower control resumes.
-    NormalizePartnerReactionFacing();
+    NormalizePartnerReactionFacing(taskId);
 
     if (task->rMode == GY_PARTNER_REACTION_MODE_DEBUG_BROWSER)
     {
@@ -388,7 +346,7 @@ static void FinishPartnerReaction(u8 taskId)
 
 static void ClosePartnerReactionBrowser(u8 taskId)
 {
-    NormalizePartnerReactionFacing();
+    NormalizePartnerReactionFacing(taskId);
 
     DestroyTask(taskId);
     UnlockPlayerFieldControls();
@@ -547,9 +505,9 @@ static void ExecutePartnerReactionCommand(u8 taskId)
         break;
 
     case GY_PARTNER_REACTION_CMD_PORTRAIT:
-        // The expressive movement may intentionally end in any direction.
-        // Resolve a separate pose before opening the close-up so overworld
-        // Pikachu and Yellow portrait body language agree with one another.
+        // Resolve the portrait pose separately from the expressive movement.
+        // Only Aloof looks away; every other portrait returns Pikachu to the
+        // direction held when this reaction began.
         if (!task->rPoseApplied)
         {
             task->rPoseApplied = TRUE;
@@ -731,18 +689,18 @@ static const u8 *GetPartnerReactionMovementScript(u8 reactionId, u8 movementId, 
     switch (movementId)
     {
     case GY_PARTNER_MOVEMENT_AGITATED_TURN:
-        return FollowerLookAwayPokeG;
+        return FollowerPokeGround;
 
     case GY_PARTNER_MOVEMENT_ALOOF_TURN:
-        if (reactionId == GY_PARTNER_REACTION_IRRITATED)
-            return FollowerLookAwayBark;
-        return FollowerLookAway;
+        if (reactionId == GY_PARTNER_REACTION_ALOOF)
+            return FollowerLookAway;
+        return FollowerPokeGround;
 
     case GY_PARTNER_MOVEMENT_ENERGETIC_HOP:
         return sPartnerEnergeticMovement;
 
     case GY_PARTNER_MOVEMENT_PLAYFUL_HOP:
-        return FollowerHopFast;
+        return FollowerSkippingMovement;
 
     case GY_PARTNER_MOVEMENT_HAPPY_BOUNCE:
         return FollowerSkippingMovement;
@@ -753,10 +711,10 @@ static const u8 *GetPartnerReactionMovementScript(u8 reactionId, u8 movementId, 
         return FollowerSkippingMovement;
 
     case GY_PARTNER_MOVEMENT_CELEBRATE:
-        return FollowerDance;
+        return sPartnerEnergeticMovement;
 
     case GY_PARTNER_MOVEMENT_CONFUSED_LOOK:
-        return FollowerLookAround;
+        return sPartnerSleepySwayMovement;
 
     case GY_PARTNER_MOVEMENT_REFUSAL_SHAKE:
         return sPartnerRefusalMovement;
@@ -770,21 +728,19 @@ static const u8 *GetPartnerReactionMovementScript(u8 reactionId, u8 movementId, 
         return FollowerShiverHorizontalMovement;
 
     case GY_PARTNER_MOVEMENT_SAD_TURN:
-        if (reactionId == GY_PARTNER_REACTION_DISPLEASED)
-            return FollowerPokeGround;
-        return FollowerLookAway;
+        return FollowerPokeGround;
 
     case GY_PARTNER_MOVEMENT_SLEEPY_SWAY:
         return sPartnerSleepySwayMovement;
 
     case GY_PARTNER_MOVEMENT_WEAK_PAUSE:
-        return FollowerDizzy;
+        return sPartnerFearMovement;
 
     case GY_PARTNER_MOVEMENT_STARTLED_HOP:
-        return FollowerStartled;
+        return FollowerSkippingMovement;
 
     case PARTNER_REACTION_TURN_AWAY_MOVEMENT:
-        return FollowerLookAwayBark;
+        return sPartnerSleepySwayMovement;
     }
 
     return NULL;
@@ -794,11 +750,9 @@ static bool32 UpdatePartnerReactionPose(u8 taskId)
 {
     struct Task *task = &gTasks[taskId];
     struct ObjectEvent *follower = GetFollowerObject();
-    enum Direction towardPlayer;
     enum Direction poseDirection;
-    u8 pose = sPartnerReactionPortraitPoses[task->rReactionId];
 
-    if (follower == NULL || !follower->active || pose == GY_PARTNER_POSE_KEEP)
+    if (follower == NULL || !follower->active)
         return TRUE;
 
     if (task->rWaitTimer > 0)
@@ -809,29 +763,14 @@ static bool32 UpdatePartnerReactionPose(u8 taskId)
 
     if (task->rMovementStep == 0)
     {
-        towardPlayer = GetFollowerDirectionTowardPlayer(follower);
-        switch (pose)
-        {
-        case GY_PARTNER_POSE_FACE_PLAYER:
-            poseDirection = towardPlayer;
-            break;
-        case GY_PARTNER_POSE_FACE_AWAY:
-            poseDirection = GetOppositeDirection(towardPlayer);
-            break;
-        case GY_PARTNER_POSE_SIDE_CLOCKWISE:
-            poseDirection = GetNinetyDegreeDirection(towardPlayer, TRUE);
-            break;
-        case GY_PARTNER_POSE_SIDE_COUNTERCLOCKWISE:
-            poseDirection = GetNinetyDegreeDirection(towardPlayer, FALSE);
-            break;
-        default:
-            return TRUE;
-        }
+        if (task->rReactionId == GY_PARTNER_REACTION_ALOOF)
+            poseDirection = GetOppositeDirection(GetFollowerDirectionTowardPlayer(follower));
+        else
+            poseDirection = task->rStartDirection;
 
         // ScriptMovement freezes an object at STEP_END. The movement wait
-        // explicitly unfreezes the Partner, then the final portrait pose uses
-        // ObjectEventTurn directly so facing cannot be swallowed by the
-        // follower's normal held-movement callback.
+        // explicitly unfreezes the Partner, then the portrait pose restores
+        // the authored starting direction unless the portrait looks away.
         ObjectEventClearHeldMovementIfActive(follower);
         UnfreezeObjectEvent(follower);
         ObjectEventTurn(follower, poseDirection);
@@ -913,3 +852,4 @@ static bool32 UpdatePartnerReactionMovement(u8 taskId)
 #undef rBubbleEffectId
 #undef rPoseApplied
 #undef rDebugPortraitReady
+#undef rStartDirection
