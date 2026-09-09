@@ -545,8 +545,6 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	delay 16
 	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
 	waitmoncry
-	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut
-	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls
 	setflag FLAG_PARTNER_PIKACHU_FOLLOWING
 	callnative UpdateFollowingPokemon
 	setvar VAR_0x8004, LOCALID_OAKS_LAB_YELLOW_PIKACHU
@@ -555,6 +553,8 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	removeobject LOCALID_OAKS_LAB_YELLOW_PIKACHU
 	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_POKE_BALL_REFUSAL
 	callnative GoldenYellow_StartScriptedPartnerReaction, requests_effects=1
+	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuCameOut
+	msgbox PalletTown_ProfessorOaksLab_Text_OakPikachuDislikesBalls
 	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4
 	releaseall
 	end
