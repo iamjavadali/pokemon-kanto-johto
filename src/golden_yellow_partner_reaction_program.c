@@ -166,9 +166,10 @@ static const u8 sPartnerSleepySwayMovement[] =
     MOVEMENT_ACTION_STEP_END,
 };
 
-// Portraits retain the direction Pikachu had when the reaction began. Aloof is
-// the only portrait that deliberately looks away; Thunder Stone refusal keeps
-// its left/right shake but returns to the starting direction before the portrait.
+// Portraits retain the direction Pikachu had when the reaction began, except
+// where the Yellow close-up visibly changes Pikachu's orientation. Irritated
+// turns sideways, Strong Displeasure and Aloof face away, and Thunder Stone
+// refusal keeps its left/right shake before returning to the starting direction.
 #define rReactionId          data[0]
 #define rCommandIndex        data[1]
 #define rState               data[2]
@@ -319,7 +320,9 @@ static void NormalizePartnerReactionFacing(u8 taskId)
         ObjectEventClearHeldMovementIfActive(follower);
         UnfreezeObjectEvent(follower);
 
-        if (task->rReactionId != GY_PARTNER_REACTION_ALOOF)
+        if (task->rReactionId != GY_PARTNER_REACTION_IRRITATED
+         && task->rReactionId != GY_PARTNER_REACTION_STRONG_DISPLEASURE
+         && task->rReactionId != GY_PARTNER_REACTION_ALOOF)
             ObjectEventTurn(follower, task->rStartDirection);
     }
 }
@@ -506,8 +509,9 @@ static void ExecutePartnerReactionCommand(u8 taskId)
 
     case GY_PARTNER_REACTION_CMD_PORTRAIT:
         // Resolve the portrait pose separately from the expressive movement.
-        // Only Aloof looks away; every other portrait returns Pikachu to the
-        // direction held when this reaction began.
+        // Skull reactions reproduce the portrait's side/away orientation;
+        // Aloof also looks away. Other portraits return to the direction held
+        // when the reaction began.
         if (!task->rPoseApplied)
         {
             task->rPoseApplied = TRUE;
@@ -763,10 +767,22 @@ static bool32 UpdatePartnerReactionPose(u8 taskId)
 
     if (task->rMovementStep == 0)
     {
-        if (task->rReactionId == GY_PARTNER_REACTION_ALOOF)
+        switch (task->rReactionId)
+        {
+        case GY_PARTNER_REACTION_IRRITATED:
+            // Portrait 6 shows Pikachu turned to the side.
+            poseDirection = GetNinetyDegreeDirection(
+                GetFollowerDirectionTowardPlayer(follower), TRUE);
+            break;
+        case GY_PARTNER_REACTION_STRONG_DISPLEASURE:
+        case GY_PARTNER_REACTION_ALOOF:
+            // Portrait 9 and the aloof portrait show Pikachu facing away.
             poseDirection = GetOppositeDirection(GetFollowerDirectionTowardPlayer(follower));
-        else
+            break;
+        default:
             poseDirection = task->rStartDirection;
+            break;
+        }
 
         // ScriptMovement freezes an object at STEP_END. The movement wait
         // explicitly unfreezes the Partner, then the portrait pose restores
