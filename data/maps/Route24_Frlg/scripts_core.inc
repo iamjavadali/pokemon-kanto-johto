@@ -10,6 +10,7 @@
 .equ ROUTE24_SCENE_ROUTE_DAMIAN_APPROACH, 3
 .equ ROUTE24_SCENE_ROUTE_DAMIAN_CENTER,   4
 .equ ROUTE24_SCENE_ROUTE_PARTNER_REJOIN,  5
+.equ ROUTE24_SCENE_ROUTE_PARTNER_CANCEL_REJOIN, 6
 
 @ Golden Yellow Route 24 Charmander rescue states, stored in VAR_0x40FC.
 @ 0 = WAITING_WEAK, 1 = TREATMENT_PENDING, 2 = HEALED_RETURNED,
@@ -329,6 +330,15 @@ Route24_EventScript_FocusCharmanderFromSouthLane::
 
 Route24_EventScript_FocusDamianOnCharmander::
 	goto_if_eq VAR_TEMP_D, ROUTE24_DAMIAN_LANE_SOUTH, Route24_EventScript_FocusSouthDamianOnCharmander
+	goto_if_eq VAR_TEMP_C, ROUTE24_PLAYER_SIDE_LEFT, Route24_EventScript_FocusRightDamianOnCharmanderFromLeft
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceLeft
+	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
+	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	waitmovement 0
+	return
+
+Route24_EventScript_FocusRightDamianOnCharmanderFromLeft::
 	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceLeft
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
@@ -350,7 +360,7 @@ Route24_EventScript_FocusDamianOnPlayer::
 	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceDown
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceRight
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
-	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
 	waitmovement 0
 	return
 
@@ -516,7 +526,8 @@ Route24_EventScript_CancelCharmanderPresentation::
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	setvar VAR_TEMP_E, 0
 	setvar VAR_TEMP_F, 0
-	call Route24_EventScript_RejoinRoute24Partner
+	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_PARTNER_CANCEL_REJOIN
+	callnative GoldenYellow_StartRoute24PartnerRejoin, requests_effects=1
 	callnative GoldenYellow_RestoreRoute24PartnerFollower
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	releaseall

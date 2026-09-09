@@ -333,6 +333,7 @@ enum GoldenYellowRoute24SceneRoute
     GY_ROUTE24_ROUTE_DAMIAN_APPROACH,
     GY_ROUTE24_ROUTE_DAMIAN_CENTER,
     GY_ROUTE24_ROUTE_PARTNER_REJOIN,
+    GY_ROUTE24_ROUTE_PARTNER_CANCEL_REJOIN,
 };
 
 enum GoldenYellowRoute24DamianLane
@@ -359,6 +360,9 @@ struct GoldenYellowRoute24RouteNode
 static EWRAM_DATA u8 sRoute24SceneMovement[ROUTE24_SCENE_ROUTE_CAPACITY];
 static EWRAM_DATA struct GoldenYellowRoute24RouteNode sRoute24SceneNodes[ROUTE24_SCENE_NODE_CAPACITY];
 static u8 sRoute24SceneLocalId;
+static bool8 sRoute24SceneHasForbiddenTile;
+static s16 sRoute24SceneForbiddenX;
+static s16 sRoute24SceneForbiddenY;
 
 static bool32 GoldenYellow_IsCanonicalRoute24Partner(struct ObjectEvent *follower)
 {
@@ -403,7 +407,22 @@ static struct ObjectEvent *GoldenYellow_FindRoute24ObjectByLocalId(u8 localId)
 
 static bool32 GoldenYellow_Route24TileHasObject(const struct ObjectEvent *actor, s16 x, s16 y)
 {
+    const struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
     u32 i;
+
+    // The player object is not guaranteed to share the same map identity fields
+    // used by regular NPC objects. Reserve its live tile explicitly so a staged
+    // Partner route can never cross through the player.
+    if (player != actor
+     && player->active
+     && player->currentCoords.x == x
+     && player->currentCoords.y == y)
+        return TRUE;
+
+    if (sRoute24SceneHasForbiddenTile
+     && sRoute24SceneForbiddenX == x
+     && sRoute24SceneForbiddenY == y)
+        return TRUE;
 
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
     {
@@ -630,6 +649,11 @@ static bool32 GoldenYellow_BuildRoute24PartnerStage(const struct ObjectEvent *pa
     {
         DIR_NORTH, DIR_WEST,
     };
+    static const enum Direction sRightLateralAroundPlayer[] =
+    {
+        DIR_SOUTH, DIR_WEST, DIR_WEST, DIR_NORTH,
+        DIR_NORTH, DIR_EAST, DIR_NORTH,
+    };
     struct ObjectEvent *charmander = GoldenYellow_FindRoute24Charmander();
     const struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
     const enum Direction *directionOrder;
@@ -695,6 +719,28 @@ static bool32 GoldenYellow_BuildRoute24PartnerStage(const struct ObjectEvent *pa
                 goto finish;
             }
         }
+    }
+
+    // Entering the right trigger from the east places Pikachu directly east of
+    // the player. Use the exact accepted first-scene lane around the player;
+    // the healed scene then continues north and west into its final position.
+    if (player->currentCoords.x == charmander->currentCoords.x + 1
+     && player->currentCoords.y == charmander->currentCoords.y + 2
+     && x == player->currentCoords.x + 1
+     && y == player->currentCoords.y)
+    {
+        if (!GoldenYellow_Route24AppendPreset(partner, &x, &y,
+                                               sRightLateralAroundPlayer,
+                                               ARRAY_COUNT(sRightLateralAroundPlayer),
+                                               &count))
+            return FALSE;
+        if (route == GY_ROUTE24_ROUTE_PARTNER_HEALED
+         && !GoldenYellow_Route24AppendPreset(partner, &x, &y,
+                                               sHealedFromEast,
+                                               ARRAY_COUNT(sHealedFromEast),
+                                               &count))
+            return FALSE;
+        goto finish;
     }
 
     // A lateral trigger entry leaves Pikachu beside the player. Move one tile
@@ -871,6 +917,66 @@ static bool32 GoldenYellow_BuildRoute24PartnerRejoin(const struct ObjectEvent *p
     return FALSE;
 }
 
+static bool32 GoldenYellow_BuildRoute24PartnerCancelRejoin(const struct ObjectEvent *partner,
+                                                            enum Direction *finalFacing)
+{
+    static const enum Direction sCancelOrder[] =
+    {
+        DIR_EAST, DIR_WEST, DIR_NORTH, DIR_SOUTH,
+    };
+    const struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    enum Direction playerFacing = GetPlayerFacingDirection();
+    enum Direction behindDirection;
+    s16 x = partner->currentCoords.x;
+    s16 y = partner->currentCoords.y;
+    s16 targetX = player->currentCoords.x;
+    s16 targetY = player->currentCoords.y;
+    s16 frontX = player->currentCoords.x;
+    s16 frontY = player->currentCoords.y;
+    u8 count = 0;
+    bool32 routeBuilt;
+
+    switch (playerFacing)
+    {
+    case DIR_NORTH:
+        behindDirection = DIR_SOUTH;
+        break;
+    case DIR_SOUTH:
+        behindDirection = DIR_NORTH;
+        break;
+    case DIR_WEST:
+        behindDirection = DIR_EAST;
+        break;
+    case DIR_EAST:
+        behindDirection = DIR_WEST;
+        break;
+    default:
+        return FALSE;
+    }
+
+    MoveCoords(behindDirection, &targetX, &targetY);
+    MoveCoords(playerFacing, &frontX, &frontY);
+
+    // Cancellation must never route Pikachu through the player or through the
+    // tile in front of a departing player. Normal follower ownership is
+    // restored only after Pikachu reaches the true behind-player tile.
+    sRoute24SceneHasForbiddenTile = TRUE;
+    sRoute24SceneForbiddenX = frontX;
+    sRoute24SceneForbiddenY = frontY;
+    routeBuilt = GoldenYellow_Route24AppendPathSegment(partner, &x, &y,
+                                                        targetX, targetY,
+                                                        sCancelOrder, &count);
+    sRoute24SceneHasForbiddenTile = FALSE;
+
+    if (!routeBuilt
+     || !GoldenYellow_Route24AppendMovement(&count, GetFaceDirectionMovementAction(playerFacing)))
+        return FALSE;
+
+    *finalFacing = playerFacing;
+    sRoute24SceneMovement[count] = MOVEMENT_ACTION_STEP_END;
+    return TRUE;
+}
+
 static bool8 GoldenYellow_WaitForRoute24SceneRoute(void)
 {
     struct ObjectEvent *object;
@@ -977,12 +1083,18 @@ void GoldenYellow_StartRoute24PartnerRejoin(struct ScriptContext *ctx)
 {
     struct ObjectEvent *follower = GetFollowerObject();
     enum Direction finalFacing = DIR_NONE;
+    enum GoldenYellowRoute24SceneRoute route = gSpecialVar_0x8004;
     bool32 routeBuilt = FALSE;
 
     Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
 
     if (GoldenYellow_IsCanonicalRoute24Partner(follower))
-        routeBuilt = GoldenYellow_BuildRoute24PartnerRejoin(follower, &finalFacing);
+    {
+        if (route == GY_ROUTE24_ROUTE_PARTNER_CANCEL_REJOIN)
+            routeBuilt = GoldenYellow_BuildRoute24PartnerCancelRejoin(follower, &finalFacing);
+        else if (route == GY_ROUTE24_ROUTE_PARTNER_REJOIN)
+            routeBuilt = GoldenYellow_BuildRoute24PartnerRejoin(follower, &finalFacing);
+    }
 
     GoldenYellow_StartRoute24SceneMovement(ctx, follower, routeBuilt);
 }
