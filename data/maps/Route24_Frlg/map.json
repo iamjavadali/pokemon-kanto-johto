@@ -226,6 +226,150 @@
       "var": "VAR_0x40FC",
       "var_value": "2",
       "script": "Route24_EventScript_CharmanderCloseApproachRight"
+    },
+    {
+      "type": "trigger",
+      "x": 5,
+      "y": 4,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 5,
+      "y": 5,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 5,
+      "y": 6,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 5,
+      "y": 7,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 5,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 4,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 5,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 6,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 7,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 9,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 6,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 8,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 6,
+      "y": 3,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 7,
+      "y": 3,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
+    },
+    {
+      "type": "trigger",
+      "x": 8,
+      "y": 3,
+      "elevation": 3,
+      "var": "VAR_TEMP_E",
+      "var_value": "1",
+      "script": "Route24_EventScript_CancelCharmanderPresentation"
     }
   ],
   "bg_events": [

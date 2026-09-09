@@ -165,6 +165,7 @@ static bool32 GoldenYellow_BuildBillPartnerApproachMovement(const struct ObjectE
     s16 y;
     s16 targetX;
     s16 targetY;
+    bool32 lateralApproach = FALSE;
     u8 count = 0;
 
     if (partnerObject == NULL || billObject == NULL)
@@ -626,6 +627,10 @@ static bool32 GoldenYellow_BuildRoute24PartnerStage(const struct ObjectEvent *pa
     {
         DIR_WEST, DIR_NORTH, DIR_NORTH, DIR_EAST, DIR_NORTH, DIR_NORTH, DIR_WEST,
     };
+    static const enum Direction sHealedFromEast[] =
+    {
+        DIR_NORTH, DIR_WEST,
+    };
     struct ObjectEvent *charmander = GoldenYellow_FindRoute24Charmander();
     const struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
     const enum Direction *directionOrder;
@@ -699,6 +704,26 @@ static bool32 GoldenYellow_BuildRoute24PartnerStage(const struct ObjectEvent *pa
     {
         if (!GoldenYellow_Route24AppendValidatedStep(partner, &x, &y, DIR_SOUTH, &count))
             return FALSE;
+        lateralApproach = TRUE;
+    }
+
+    // The healed lateral presentation must use the same proven approach around
+    // the player as the weak scene. From Charmander's east side, Pikachu then
+    // takes the two clear tiles north and west into the healed staging spot.
+    if (route == GY_ROUTE24_ROUTE_PARTNER_HEALED && lateralApproach)
+    {
+        s16 eastX = charmander->currentCoords.x + 1;
+        s16 eastY = charmander->currentCoords.y;
+
+        if (!GoldenYellow_Route24AppendPathSegment(partner, &x, &y,
+                                                    eastX, eastY,
+                                                    sWeakOrder, &count)
+         || !GoldenYellow_Route24AppendPreset(partner, &x, &y,
+                                               sHealedFromEast,
+                                               ARRAY_COUNT(sHealedFromEast),
+                                               &count))
+            return FALSE;
+        goto finish;
     }
 
     if (!GoldenYellow_Route24AppendPathSegment(partner, &x, &y,

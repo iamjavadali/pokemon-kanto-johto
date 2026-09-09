@@ -55,7 +55,7 @@ Route24_EventScript_PresentHealedFromLeft::
 	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_AbortCharmanderPresentation
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceUp
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
-	call Route24_EventScript_CharmanderPartnerConcern
+	call Route24_EventScript_CharmanderPartnerHappy
 	goto Route24_EventScript_EndCharmanderCameraPan
 
 Route24_EventScript_PresentHealedFromRight::
@@ -67,7 +67,7 @@ Route24_EventScript_PresentHealedFromRight::
 	goto_if_eq VAR_RESULT, FALSE, Route24_EventScript_AbortCharmanderPresentation
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceUp
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
-	call Route24_EventScript_CharmanderPartnerConcern
+	call Route24_EventScript_CharmanderPartnerHappy
 	goto Route24_EventScript_EndCharmanderCameraPan
 
 Route24_EventScript_BeginCharmanderCameraPan::

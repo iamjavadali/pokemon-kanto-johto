@@ -140,6 +140,11 @@ Route24_EventScript_CharmanderPartnerConcern::
 	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
 	return
 
+Route24_EventScript_CharmanderPartnerHappy::
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_CHARMANDER_HAPPY
+	callnative GoldenYellow_StartCharmanderPartnerSceneReaction, requests_effects=1
+	return
+
 Route24_EventScript_CharmanderRescueInteraction::
 	faceplayer
 	playmoncry SPECIES_CHARMANDER, CRY_MODE_NORMAL
@@ -207,6 +212,7 @@ Route24_EventScript_CharmanderReturnScene::
 	specialvar VAR_RESULT, GetPlayerFacingDirection
 	call_if_eq VAR_RESULT, DIR_WEST, Route24_EventScript_SelectDamianSouthLane
 	call_if_eq VAR_RESULT, DIR_EAST, Route24_EventScript_SelectPlayerLeftSide
+	call Route24_EventScript_FacePlayerTowardCharmander
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
 	waitmovement OBJ_EVENT_ID_FOLLOWER
 	msgbox Route24_Text_CharmanderLooksHealthy
@@ -226,6 +232,7 @@ Route24_EventScript_CharmanderReturnScene::
 	delay 24
 
 	call Route24_EventScript_FocusCharmander
+	call Route24_EventScript_FacePlayerTowardCharmander
 	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FacePlayer
 	waitmovement LOCALID_ROUTE24_YELLOW_CHARMANDER
@@ -247,6 +254,23 @@ Route24_EventScript_SelectDamianSouthLane::
 
 Route24_EventScript_SelectPlayerLeftSide::
 	setvar VAR_TEMP_C, ROUTE24_PLAYER_SIDE_LEFT
+	return
+
+Route24_EventScript_FacePlayerTowardCharmander::
+	goto_if_eq VAR_TEMP_C, ROUTE24_PLAYER_SIDE_RIGHT, Route24_EventScript_FacePlayerLeft
+	goto_if_eq VAR_TEMP_C, ROUTE24_PLAYER_SIDE_LEFT, Route24_EventScript_FacePlayerRight
+	applymovement LOCALID_PLAYER, Common_Movement_FaceUp
+	waitmovement LOCALID_PLAYER
+	return
+
+Route24_EventScript_FacePlayerLeft::
+	applymovement LOCALID_PLAYER, Common_Movement_FaceLeft
+	waitmovement LOCALID_PLAYER
+	return
+
+Route24_EventScript_FacePlayerRight::
+	applymovement LOCALID_PLAYER, Common_Movement_FaceRight
+	waitmovement LOCALID_PLAYER
 	return
 
 Route24_EventScript_DamianEnterSelectedLane::
@@ -339,7 +363,7 @@ Route24_EventScript_FocusRightDamianOnLeftPlayer::
 	return
 
 Route24_EventScript_FocusSouthDamianOnPlayer::
-	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceRight
+	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FaceUp
 	applymovement LOCALID_ROUTE24_YELLOW_CHARMANDER, Common_Movement_FaceDown
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
 	applymovement LOCALID_PLAYER, Common_Movement_FaceDown
@@ -434,6 +458,7 @@ Route24_EventScript_FinishCharmanderAdoption::
 	copyobjectxytoperm LOCALID_ROUTE24_DAMIAN
 	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
 	applymovement LOCALID_ROUTE24_DAMIAN, Common_Movement_FacePlayer
+	call Route24_EventScript_FacePlayerTowardCharmander
 	applymovement OBJ_EVENT_ID_FOLLOWER, Common_Movement_FaceDown
 	waitmovement 0
 	textcolor NPC_TEXT_COLOR_MALE
@@ -476,6 +501,7 @@ Route24_EventScript_FinishHealedPartnerOwnership::
 	goto_if_ne VAR_TEMP_E, 1, Route24_EventScript_FinishHealedPartnerOwnershipReturn
 	call Route24_EventScript_RejoinRoute24Partner
 	callnative GoldenYellow_RestoreRoute24PartnerFollower
+	setvar VAR_TEMP_E, 0
 
 Route24_EventScript_FinishHealedPartnerOwnershipReturn::
 	return
@@ -484,6 +510,17 @@ Route24_EventScript_RejoinRoute24Partner::
 	setvar VAR_0x8004, ROUTE24_SCENE_ROUTE_PARTNER_REJOIN
 	callnative GoldenYellow_StartRoute24PartnerRejoin, requests_effects=1
 	return
+
+Route24_EventScript_CancelCharmanderPresentation::
+	lockall
+	setflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	setvar VAR_TEMP_E, 0
+	setvar VAR_TEMP_F, 0
+	call Route24_EventScript_RejoinRoute24Partner
+	callnative GoldenYellow_RestoreRoute24PartnerFollower
+	clearflag FLAG_SAFE_FOLLOWER_MOVEMENT
+	releaseall
+	end
 
 Route24_Movement_CharmanderCallsForHelp::
 	walk_in_place_faster_down
