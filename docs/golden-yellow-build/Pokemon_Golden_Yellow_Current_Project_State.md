@@ -4,7 +4,7 @@
 **Project:** Pokémon Golden Yellow  
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
-**Snapshot date:** September 6, 2026
+**Snapshot date:** September 9, 2026
 
 ---
 
@@ -69,7 +69,7 @@ Broad progression currently stands at:
 → **P9 Partner final-facing reaction correction — ACCEPTED**  
 → **Bond Summary page — ACCEPTED**  
 → **Melanie / Cerulean Bulbasaur gift — ACCEPTED**  
-→ **Route 24 Charmander scene-quality revision — ACTIVE DEFECT SCOPE**
+→ **Route 24 Charmander scene-quality revision — ACCEPTED**
 
 The P7 authored-reaction phase remains an accepted regression baseline.
 
@@ -97,7 +97,7 @@ The accepted geometry uses a center-upper guard plus side-warp guards so lateral
 | Viridian / early Route 2 / Viridian Forest | Implemented for current approved scope |
 | Pewter / Brock / post-Brock progression | Implemented and accepted for current approved scope; P7A authored Partner lifecycle accepted |
 | Route 3 / Mt. Moon | Implemented and accepted, including Jessie & James encounter #1 |
-| Cerulean / Route 24 / Route 25 / Bill | Rival/Fame Checker, Bill transformed/restored reactions, P7B precedence, final Bill follower/exit lifecycle, and Melanie's Bulbasaur gift accepted; Route 24 Charmander remains historically accepted but is reopened for scene-quality revision; Misty remains separate |
+| Cerulean / Route 24 / Route 25 / Bill | Rival/Fame Checker, Bill transformed/restored reactions, P7B precedence, final Bill follower/exit lifecycle, Melanie's Bulbasaur gift, and the revalidated Route 24 Charmander scene are accepted; Misty remains separate |
 | Vermilion Pokémon Fan Club | Required Yellow Partner scene accepted, including parked/rejoin lifecycle and complete exit guarding |
 | Pokémon Tower Partner reaction | Required repeatable Yellow fear/unease direct-talk override accepted on Tower 1F–7F |
 | Remaining Vermilion / S.S. Anne / Lt. Surge | Pending staged audit/integration |
@@ -330,20 +330,23 @@ Detailed commits, workflow runs, ROM hashes, and manual-validation notes belong 
 
 ---
 
-# 8. Current Active Development Boundary — Route 24 Charmander Revision
+# 8. Current Development Boundary — Charmander Revision Closed
 
-Melanie's Cerulean Bulbasaur gift is accepted at source tip `2f478f5caca2a44d4915ddacc87aac100ec8adff`.
+Melanie's Cerulean Bulbasaur gift remains accepted at source tip `2f478f5caca2a44d4915ddacc87aac100ec8adff`.
 
-The next active scope is a targeted revision of the existing Route 24 Charmander storyline. The user has explicitly reported that the current scene presentation is still not good enough, so the older Charmander acceptance remains historical evidence but no longer represents a closed present-day quality boundary.
+The Route 24 Charmander scene-quality revision is accepted at source tip `ee00f5fcadca52aea3d999ea89dad102e9227e8b` after a fresh manual PASS on September 9, 2026.
 
-Before changing Charmander again:
+The protected current behavior includes:
 
-- reproduce and enumerate the remaining presentation defects;
-- inspect only the Route 24, Cerulean Pokémon Center, Partner-reaction, Damian-persistence, and Charmander-checkpoint code that owns those defects;
-- preserve Route 24, Lv. 10 gift status, one-time completion, treatment/return continuity, and canonical Partner-only behavior;
-- revise choreography incrementally and require a fresh manual PASS before closing the scene again.
+- camera-led weak and healed scene establishment followed by manual A-button interaction;
+- distinct concern and happy Partner Pikachu reactions;
+- collision-aware Partner routing for left/right and straight/lateral approaches;
+- correct player, Charmander, Damian, and Partner Pikachu facing;
+- lane-aware Damian entrance and post-adoption placement;
+- clean cancellation and follower restoration when the player leaves before interacting;
+- persistent rescue, Pokémon Center treatment, healed return, decline/revisit, and Lv. 10 adoption flow.
 
-Melanie/Bulbasaur, Bill, the Partner reaction architecture, P9B audio, and the Bond Summary page remain protected regression baselines during that revision.
+No new active implementation boundary has been selected yet. The next scoped feature or campaign audit should be chosen before further source changes.
 
 # 9. Major Yellow Campaign Requirements Still Ahead
 
@@ -421,7 +424,7 @@ The complete accepted P1–P8 Partner subsystem, P9B audio behavior, Partner fin
 
 **No repository-access or build blocker is known at this snapshot.**
 
-A gameplay-quality defect scope is open: the Route 24 Charmander scene requires revision despite its earlier acceptance. The next pass must begin with a focused reproduction/research review before implementation.
+No gameplay-quality defect scope is currently open in the revalidated Route 24 Charmander scene. A new active development boundary has not yet been selected.
 
 ---
 

@@ -6,7 +6,7 @@
 **Canonical working branch:** `prototype/v0.1`  
 **Acceptance date:** August 27, 2026  
 **Milestone:** Route 24 Charmander rescue / Damian adoption  
-**Current review status:** REOPENED FOR SCENE-QUALITY REVISION — September 8, 2026
+**Current review status:** ACCEPTED — REVALIDATED September 9, 2026
 
 ---
 
@@ -43,16 +43,26 @@ After the gameplay PASS, the user identified one testing-infrastructure issue: t
 
 The checkpoint-only commit is part of acceptance closeout infrastructure. It does not replace the manual gameplay acceptance evidence attached to `1af6360f…`.
 
-## 2.1 September 2026 Reopened Quality Boundary
+## 2.1 September 2026 Scene-Quality Revalidation
 
-The August acceptance remains valid historical evidence for the functionality tested at that time. After later Partner-reaction and Cerulean work, the user explicitly reported that the Charmander scene is still not good enough and requested a revision.
+The August acceptance remains the historical foundation for the storyline. The scene-quality boundary was reopened on September 8, 2026, after the user identified presentation defects in camera staging, approach routing, actor facing, Damian placement, and follower ownership when leaving before interaction.
 
-Therefore:
+**Revalidated manual result:** PASS  
+**Revalidation date:** September 9, 2026  
+**Current accepted regression tip:** `ee00f5fcadca52aea3d999ea89dad102e9227e8b`  
+**Commit message:** `fix: refine Route 24 partner choreography`  
+**Workflow evidence:** Not supplied for this documentation closeout.
 
-- this record must not be read as proof that the current Charmander presentation is closed;
-- canonical location, Lv. 10 gift status, one-time persistence, treatment/return continuity, and Partner-only identity remain protected;
-- current choreography, pacing, facing, or movement may be revised where focused reproduction confirms defects;
-- a new manual PASS is required before the Charmander scene returns to a closed accepted status.
+The revalidated implementation preserves the canonical story while closing the reopened scene-quality scope:
+
+- the camera pans to establish both weak and healed encounters, then returns control for manual A-button interaction;
+- Partner Pikachu uses collision-aware, approach-specific routing and never crosses the player, Charmander, Damian, cliffs, or blocking objects;
+- the weak encounter uses the concern reaction, while the healed reunion uses the distinct happy reaction;
+- Partner Pikachu finishes each authored reaction facing Charmander;
+- Damian selects a safe entrance lane based on the player's interaction side;
+- the player, Charmander, Damian, and Partner Pikachu retain the correct conversation-facing directions;
+- after adoption, Damian occupies Charmander's former tile and Partner Pikachu rejoins behind the player;
+- leaving before interacting cancels the staged presentation, restores normal following, and re-arms the encounter without leaving stale scene ownership.
 
 ---
 
@@ -112,9 +122,11 @@ This facing change is intentional choreography: the player sees Charmander react
 
 The Route 24 encounter uses staged trigger geometry so the player receives a visible notice/approach sequence before the close interaction.
 
-The accepted close-approach handling is lane-aware. The player and Partner Pikachu are staged relative to the lane from which the encounter is entered rather than assuming one universal starting coordinate.
+The accepted close-approach handling is lane-aware. The camera establishes the full scene, Partner Pikachu follows a validated route determined by the player's trigger and entry direction, and control returns without automatically advancing the dialogue. The player must manually press A on Charmander to continue.
 
-The choreography must not depend on an unverified assumption that the automatic follower-copy system will always place Partner Pikachu at one exact coordinate after a long scripted player route.
+The left and right trigger routes support straight and lateral entry. Known lateral cases use explicit walkable choreography, while route validation reserves the player and all physical scene objects. The temporary camera anchor is nonphysical and must not block Partner routing.
+
+If the player leaves the close scene boundary before interacting, the presentation cancels cleanly. Partner Pikachu reaches the true behind-player tile based on the player's current facing direction before ordinary follower ownership resumes, and the encounter is re-armed for a later approach.
 
 ---
 
@@ -128,9 +140,12 @@ Accepted requirements include:
 - ordinary Pikachu must not substitute for the canonical Partner in Yellow-specific logic;
 - scripted Route 24 staging must avoid recalling Partner Pikachu solely to clear scene geometry;
 - Partner Pikachu must be placed deliberately during the weak-Charmander concern beat;
-- lane-specific staging must use known walkable tiles;
-- during the healed-return/Damian sequence, Partner Pikachu must remain behind the player and outside Damian's approach path;
-- normal following must resume after controlled choreography completes.
+- the healed reunion must use the happy reaction rather than repeating the weak-scene concern reaction;
+- lane-specific staging must use known walkable tiles and must never cross the player or a nonwalkable map tile;
+- the weak scene ends with Partner Pikachu east of and facing Charmander;
+- the healed scene ends with Partner Pikachu north of and facing Charmander;
+- during the healed-return/Damian sequence, Partner Pikachu must remain outside Damian's selected approach lane;
+- normal following must resume behind the player after controlled choreography completes or the player leaves the staged area.
 
 The final accepted implementation uses scene-local movement and follower-safe handling rather than redesigning the generic follower engine for this one event.
 
@@ -183,9 +198,11 @@ When the rescue state reaches the healed-return phase:
 
 - Charmander is again present on Route 24;
 - the player can trigger the return interaction using the accepted Route 24 approach geometry;
-- Partner Pikachu is staged behind the player for the Damian sequence;
+- Partner Pikachu is staged north of Charmander for the happy reunion reaction;
 - Damian appears only at the appropriate later state;
-- Damian approaches without colliding with Partner Pikachu;
+- Damian selects the right or south approach lane from the player's interaction side;
+- Damian approaches without crossing the player, Partner Pikachu, Charmander, or nonwalkable terrain;
+- the player, Damian, Charmander, and Partner Pikachu face the active conversation focus correctly;
 - the scene communicates Damian's abandonment context;
 - the adoption/gift resolution remains available until accepted;
 - accepting the final outcome grants Charmander at Lv. 10 and records one-time completion.
@@ -242,12 +259,20 @@ Future Cerulean, Route 25, Bill, Bulbasaur, Misty, or later follower work must p
 7. Damian does not appear early and does not collide with Partner Pikachu during his approach.
 8. Decline/revisit paths preserve the event rather than consuming or corrupting it.
 9. The developer checkpoint remains south of the event trigger and reconstructs the correct pre-event state.
+10. Camera presentation must end without automatically starting Charmander dialogue.
+11. Weak and healed presentations retain distinct concern and happy Partner reactions.
+12. Left/right and straight/lateral approaches remain collision-safe and do not cross the player or cliffs.
+13. Damian remains lane-aware and every speaker/listener retains the accepted facing.
+14. Leaving before manual interaction resets staged ownership and restores Partner following without a later freeze.
+15. Post-adoption Partner rejoin ends behind the player without crossing in front first.
 
 ---
 
 # 13. Closeout
 
 **Historical milestone status:** ACCEPTED on August 27, 2026  
-**Current status:** REOPENED FOR SCENE-QUALITY REVISION on September 8, 2026
+**Reopened for scene-quality revision:** September 8, 2026  
+**Current status:** ACCEPTED — REVALIDATED on September 9, 2026  
+**Current accepted regression tip:** `ee00f5fcadca52aea3d999ea89dad102e9227e8b`
 
-The canonical Charmander storyline remains implemented, but its current presentation requires a focused revision and fresh manual acceptance. Melanie/Bulbasaur and Bill are now separate accepted Cerulean regression baselines.
+The revised Route 24 Charmander storyline is now the protected regression baseline. Its camera presentation, manual-interaction boundary, collision-aware Partner and Damian choreography, actor facing, cancellation cleanup, persistent rescue/treatment/return flow, and Lv. 10 adoption outcome passed manual review.

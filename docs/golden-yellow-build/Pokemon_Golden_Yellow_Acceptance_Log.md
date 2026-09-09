@@ -5,7 +5,7 @@
 **Repository:** `iamjavadali/pokemon-kanto-johto`  
 **Canonical working branch:** `prototype/v0.1`  
 **Log established:** August 26, 2026  
-**Last acceptance closeout:** September 6, 2026
+**Last acceptance closeout:** September 9, 2026
 
 ---
 
@@ -81,7 +81,7 @@ When a later fix corrects a defect inside an already accepted milestone, this lo
 | P9 Partner reaction final-facing correction | ACCEPTED | This log |
 | Partner-aware Bond Summary page | ACCEPTED | `Pokemon_Golden_Yellow_Bond_Summary_Acceptance_Record.md` |
 | Melanie / Cerulean Bulbasaur gift | ACCEPTED | `Pokemon_Golden_Yellow_Melanie_Bulbasaur_Acceptance_Record.md` |
-| Route 24 Charmander scene | REOPENED FOR REVISION | Historical acceptance retained; fresh PASS required |
+| Route 24 Charmander scene-quality revision | ACCEPTED — REVALIDATED | Current accepted tip `ee00f5fcadca52aea3d999ea89dad102e9227e8b`; see dedicated record |
 
 ---
 
@@ -216,9 +216,12 @@ Accepted scope includes Yellow Rival #3 integration, retained Fame Checker hando
 **Post-acceptance checkpoint correction:** `a4aca426e1d6e3cce57cacf171ea264001f014bd`  
 **Checkpoint workflow run:** `33135465513`  
 **Checkpoint artifact ID:** `9671932353`  
-**Detailed record:** `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md`
+**Detailed record:** `Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md`  
+**Scene-quality revalidation date:** 2026-09-09  
+**Current accepted regression tip:** `ee00f5fcadca52aea3d999ea89dad102e9227e8b`  
+**Revalidated manual result:** PASS
 
-Accepted scope includes abandoned Charmander discovery, Partner concern choreography, Pokémon Center treatment/escape, healed Route 24 return, Damian return, adoption/gift resolution, decline/revisit handling, and the corrected pre-event checkpoint position.
+Accepted scope includes abandoned Charmander discovery, camera-led weak and healed presentations, manual A-button continuation, distinct concern/happy Partner reactions, collision-aware left/right and straight/lateral routing, correct actor facing, lane-aware Damian entrance, safe cancellation when the player leaves before interacting, Pokémon Center treatment/escape, healed Route 24 return, adoption/gift resolution, decline/revisit handling, and the corrected pre-event checkpoint position.
 
 ---
 

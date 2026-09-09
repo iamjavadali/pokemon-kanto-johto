@@ -37,7 +37,7 @@
     - [Melanie and Bulbasaur Implementation Notes](golden-yellow-build/pokemon-golden-yellow-melanie-balbasaur.md)
     - [Melanie and Bulbasaur Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Melanie_Bulbasaur_Acceptance_Record.md)
     - [Mt. Moon Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_MtMoon_Acceptance_Record.md)
-    - [Charmander Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md)
+    - [Route 24 Charmander Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Charmander_Acceptance_Record.md)
     - [Bill Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Bill_Acceptance_Record.md)
     - [Fan Club Acceptance Record](golden-yellow-build/Pokemon_Golden_Yellow_Fan_Club_Acceptance_Record.md)
 - [D1 — Early Kanto Story Checkpoints](development/D1_Early_Kanto_Checkpoints_Plan.md)
