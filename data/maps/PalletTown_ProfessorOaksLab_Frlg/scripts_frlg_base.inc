@@ -4,6 +4,7 @@
 .equ RIVAL_STARTER_ID,        VAR_TEMP_4
 
 .equ SHOWED_OAK_COMPLETE_DEX, FLAG_TEMP_2
+.equ YELLOW_PARTNER_REACTION_POKE_BALL_REFUSAL, 24
 
 PalletTown_ProfessorOaksLab_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, PalletTown_ProfessorOaksLab_OnTransition
@@ -552,6 +553,8 @@ PalletTown_ProfessorOaksLab_EventScript_FinishYellowRivalExit::
 	callnative PlaceFollowingPokemonAtScriptedObject
 	setflag FLAG_HIDE_OAKS_LAB_YELLOW_PIKACHU
 	removeobject LOCALID_OAKS_LAB_YELLOW_PIKACHU
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_POKE_BALL_REFUSAL
+	callnative GoldenYellow_StartScriptedPartnerReaction, requests_effects=1
 	setvar VAR_MAP_SCENE_PALLET_TOWN_PROFESSOR_OAKS_LAB, 4
 	releaseall
 	end

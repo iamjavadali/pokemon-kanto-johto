@@ -1,3 +1,5 @@
+.equ YELLOW_PARTNER_REACTION_VERY_ANGRY, 14
+
 MtMoon_B2F_Frlg_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, MtMoon_B2F_OnTransition
 	.byte 0
@@ -550,10 +552,6 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	waitmovement 0
 	msgbox MtMoon_B2F_Text_JessieNoticePikachu
 	msgbox MtMoon_B2F_Text_JamesPikachuUnusual
-	playmoncry SPECIES_PIKACHU_STARTER, CRY_MODE_NORMAL
-	waitmoncry
-	applymovement OBJ_EVENT_ID_FOLLOWER, MtMoon_B2F_Movement_PartnerChallenge
-	waitmovement OBJ_EVENT_ID_FOLLOWER
 	applymovement LOCALID_ROCKET_MEOWTH, MtMoon_B2F_Movement_MeowthLookToTeamThenPlayer
 	waitmovement LOCALID_ROCKET_MEOWTH
 	msgbox MtMoon_B2F_Text_MeowthUnderstandsPikachu
@@ -565,6 +563,8 @@ MtMoon_B2F_EventScript_JessieJamesFaceoff::
 	applymovement LOCALID_JAMES, MtMoon_B2F_Movement_JamesLookToTeamThenPlayer
 	waitmovement LOCALID_JAMES
 	msgbox MtMoon_B2F_Text_JamesTakeBoth
+	setvar VAR_0x8004, YELLOW_PARTNER_REACTION_VERY_ANGRY
+	callnative GoldenYellow_StartScriptedPartnerReaction, requests_effects=1
 	setvar VAR_LAST_TALKED, LOCALID_JESSIE
 	trainerbattle_no_intro TRAINER_JESSIE_JAMES_MT_MOON, MtMoon_B2F_Text_JessieJamesDefeat
 	setvar VAR_MAP_SCENE_MT_MOON_B2F, 3

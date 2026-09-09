@@ -19,6 +19,7 @@ bool32 GoldenYellow_DebugStartPikachuPortraitBrowser(void);
 bool32 GoldenYellow_StartPartnerPikachuReaction(u8 reactionId);
 bool32 GoldenYellow_StartPartnerPikachuFieldTalkReaction(u8 reactionId);
 bool32 GoldenYellow_IsPartnerPikachuReactionActive(void);
+void GoldenYellow_StartScriptedPartnerReaction(struct ScriptContext *ctx);
 bool32 GoldenYellow_DebugStartPikachuReactionBrowser(void);
 
 // Authored maps may temporarily render canonical Partner Pikachu as a normal

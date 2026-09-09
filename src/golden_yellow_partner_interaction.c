@@ -58,6 +58,24 @@ static bool8 GoldenYellow_WaitForPartnerPikachuFieldInteraction(void)
     return TRUE;
 }
 
+void GoldenYellow_StartScriptedPartnerReaction(struct ScriptContext *ctx)
+{
+    struct ObjectEvent *follower = GetFollowerObject();
+    u16 reaction = gSpecialVar_0x8004;
+
+    Script_RequestEffects(SCREFF_V1 | SCREFF_HARDWARE);
+    GoldenYellow_ClearPartnerPikachuReactionObject();
+
+    if (reaction == GY_PARTNER_REACTION_EMPTY
+     || reaction >= GY_PARTNER_REACTION_COUNT
+     || !GoldenYellow_IsCanonicalPartnerPikachuFollower(follower)
+     || !GoldenYellow_StartPartnerPikachuReaction(reaction))
+        return;
+
+    SetupNativeScript(ctx, GoldenYellow_WaitForPartnerPikachuFieldInteraction);
+    ctx->waitAfterCallNative = TRUE;
+}
+
 static bool8 GoldenYellow_WaitForPewterPartnerWake(void)
 {
     if (GoldenYellow_IsPartnerPikachuReactionActive())
