@@ -472,7 +472,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JANICE
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -489,7 +489,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: SALLY
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -506,7 +506,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ROBIN
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -519,7 +519,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CRISSY
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -540,7 +540,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MIRIAM
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -557,7 +557,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: IRIS
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -570,7 +570,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: RELI
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -587,7 +587,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ALI
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -608,7 +608,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: HALEY
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -629,7 +629,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ANN
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -646,7 +646,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: DAWN
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -663,7 +663,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: PAIGE
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -680,7 +680,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ANDREA
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -701,7 +701,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MEGAN
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -730,7 +730,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JULIA
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -747,7 +747,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: KAY
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -764,7 +764,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: LISA
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -1041,7 +1041,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: DIANA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1054,7 +1054,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: NANCY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1071,7 +1071,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ISABELLE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1092,7 +1092,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: KELSEY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1109,7 +1109,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ALICIA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1134,7 +1134,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CAITLIN
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1147,7 +1147,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: HEIDI
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1164,7 +1164,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CAROL
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1181,7 +1181,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: SOFIA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1202,7 +1202,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MARTHA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1219,7 +1219,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: TINA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -1236,7 +1236,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: HANNAH
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -3239,7 +3239,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: BRIDGET
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3264,7 +3264,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: TAMIA
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3281,7 +3281,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: LORI
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3294,7 +3294,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: LOLA
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3315,7 +3315,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: SHEILA
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3332,7 +3332,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: TIFFANY
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3345,7 +3345,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: NORA
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3366,7 +3366,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MELISSA
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3383,7 +3383,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: GRACE
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3400,7 +3400,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: OLIVIA
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3417,7 +3417,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: LAUREN
 Class: Beauty Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3438,7 +3438,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ANYA
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3467,7 +3467,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ALICE
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3484,7 +3484,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CONNIE
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -3505,7 +3505,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: SHIRLEY
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -6434,7 +6434,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: MARY
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Super Potion
 Double Battle: No
@@ -6484,7 +6484,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: CAROLINE
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Hyper Potion
 Double Battle: No
@@ -6534,7 +6534,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: ALEXA
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -6584,7 +6584,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: SHANNON
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -6634,7 +6634,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: NAOMI
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Hyper Potion
 Double Battle: No
@@ -6684,7 +6684,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: BROOKE
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -6734,7 +6734,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: AUSTINA
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -6784,7 +6784,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: JULIE
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Hyper Potion
 Double Battle: No
@@ -6834,7 +6834,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: LORELEI
 Class: Elite Four Frlg
 Pic: Elite Four Lorelei Frlg
-Gender: Male
+Gender: Female
 Music: Elite Four
 Items: Full Restore / Full Restore
 Double Battle: No
@@ -6936,7 +6936,7 @@ IVs: 30 HP / 30 Atk / 30 Def / 30 SpA / 30 SpD / 30 Spe
 Name: AGATHA
 Class: Elite Four Frlg
 Pic: Elite Four Agatha Frlg
-Gender: Male
+Gender: Female
 Music: Elite Four
 Items: Full Restore / Full Restore
 Double Battle: No
@@ -7060,7 +7060,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MISTY
 Class: Leader Frlg
 Pic: Leader Misty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Items: Super Potion
 Double Battle: No
@@ -7120,7 +7120,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ERIKA
 Class: Leader Frlg
 Pic: Leader Erika Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Items: Hyper Potion / Full Heal
 Double Battle: No
@@ -7238,7 +7238,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: SABRINA
 Class: Leader Frlg
 Pic: Leader Sabrina Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Items: Hyper Potion / Hyper Potion / Full Heal
 Double Battle: No
@@ -7954,7 +7954,7 @@ IVs: 31 HP / 31 Atk / 31 Def / 31 SpA / 31 SpD / 31 Spe
 Name: PATRICIA
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -7967,7 +7967,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CARLY
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -7980,7 +7980,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: HOPE
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -7993,7 +7993,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: PAULA
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8006,7 +8006,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: LAUREL
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8023,7 +8023,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JODY
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8036,7 +8036,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: TAMMY
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8049,7 +8049,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: RUTH
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8062,7 +8062,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: KARINA
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8075,7 +8075,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JANAE
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8088,7 +8088,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ANGELICA
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8109,7 +8109,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: EMILIA
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8122,7 +8122,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JENNIFER
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8135,7 +8135,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: AMANDA
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8152,7 +8152,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: STACY
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8165,7 +8165,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: TASHA
 Class: Channeler Frlg
 Pic: Channeler Frlg
-Gender: Male
+Gender: Female
 Music: Suspicious
 Double Battle: No
 AI: Check Bad Move
@@ -8203,7 +8203,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ALMA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8224,7 +8224,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: SUSIE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8253,7 +8253,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: VALERIE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8270,7 +8270,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: GWEN
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8345,7 +8345,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MISSY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8362,7 +8362,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: IRENE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8383,7 +8383,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: DANA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8404,7 +8404,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ARIANA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8429,7 +8429,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: LEAH
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8463,7 +8463,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: YAZMIN
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8484,7 +8484,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: KINDRA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8505,7 +8505,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: BECKY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8522,7 +8522,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CELIA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -8760,7 +8760,7 @@ IVs: 2 HP / 2 Atk / 2 Def / 2 SpA / 2 SpD / 2 Spe
 Name: RELI
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -8777,7 +8777,7 @@ IVs: 2 HP / 2 Atk / 2 Def / 2 SpA / 2 SpD / 2 Spe
 Name: RELI
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -8874,7 +8874,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: JANICE
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -8891,7 +8891,7 @@ IVs: 2 HP / 2 Atk / 2 Def / 2 SpA / 2 SpD / 2 Spe
 Name: JANICE
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -8972,7 +8972,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JACLYN
 Class: Psychic Frlg
 Pic: Psychic F Frlg
-Gender: Male
+Gender: Female
 Music: Intense
 Double Battle: No
 AI: Check Bad Move
@@ -9043,7 +9043,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ALIZE
 Class: Pkmn Breeder Frlg
 Pic: Pokemon Breeder Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9090,7 +9090,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: MADELINE
 Class: Pkmn Ranger Frlg
 Pic: Pokemon Ranger F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -9116,7 +9116,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: NIKKI
 Class: Aroma Lady Frlg
 Pic: Aroma Lady Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9154,7 +9154,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JACKI
 Class: Lady Frlg
 Pic: Lady Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Items: Full Restore
 Double Battle: No
@@ -9172,7 +9172,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: DAISY
 Class: Painter Frlg
 Pic: Painter Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9609,7 +9609,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: AMARA
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9630,7 +9630,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MARIA
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9647,7 +9647,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ABIGAIL
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9803,7 +9803,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CLAIRE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -9845,7 +9845,7 @@ IVs: 6 HP / 6 Atk / 6 Def / 6 SpA / 6 SpD / 6 Spe
 Name: VIOLET
 Class: Aroma Lady Frlg
 Pic: Aroma Lady Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9908,7 +9908,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: TISHA
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9921,7 +9921,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: CELINA
 Class: Painter Frlg
 Pic: Painter Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9938,7 +9938,7 @@ IVs: 6 HP / 6 Atk / 6 Def / 6 SpA / 6 SpD / 6 Spe
 Name: RAYNA
 Class: Painter Frlg
 Pic: Painter Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -9955,7 +9955,7 @@ IVs: 6 HP / 6 Atk / 6 Def / 6 SpA / 6 SpD / 6 Spe
 Name: GILLIAN
 Class: Lady Frlg
 Pic: Lady Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Items: Full Restore
 Double Battle: No
@@ -10167,7 +10167,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: NICOLE
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -10197,7 +10197,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: ROSE
 Class: Aroma Lady Frlg
 Pic: Aroma Lady Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -10227,7 +10227,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: DENISE
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -10355,7 +10355,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: RODETTE
 Class: Psychic Frlg
 Pic: Psychic F Frlg
-Gender: Male
+Gender: Female
 Music: Intense
 Double Battle: No
 AI: Check Bad Move
@@ -10388,7 +10388,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: MIAH
 Class: Aroma Lady Frlg
 Pic: Aroma Lady Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -10599,7 +10599,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: BETH
 Class: Pkmn Ranger Frlg
 Pic: Pokemon Ranger F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -10621,7 +10621,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: KATELYN
 Class: Pkmn Ranger Frlg
 Pic: Pokemon Ranger F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -10689,7 +10689,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: MICHELLE
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Hyper Potion
 Double Battle: No
@@ -10811,7 +10811,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: EDNA
 Class: Painter Frlg
 Pic: Painter Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -10845,7 +10845,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: SELPHY
 Class: Lady Frlg
 Pic: Lady Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Items: Full Restore
 Double Battle: No
@@ -10892,7 +10892,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: LAURA
 Class: Psychic Frlg
 Pic: Psychic F Frlg
-Gender: Male
+Gender: Female
 Music: Intense
 Double Battle: No
 AI: Check Bad Move
@@ -10913,7 +10913,7 @@ IVs: 12 HP / 12 Atk / 12 Def / 12 SpA / 12 SpD / 12 Spe
 Name: BETHANY
 Class: Pkmn Breeder Frlg
 Pic: Pokemon Breeder Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -10926,7 +10926,7 @@ IVs: 3 HP / 3 Atk / 3 Def / 3 SpA / 3 SpD / 3 Spe
 Name: ALLISON
 Class: Pkmn Breeder Frlg
 Pic: Pokemon Breeder Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -11040,7 +11040,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: DALIA
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -11065,7 +11065,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: JOANA
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -11095,7 +11095,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: MARCY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11137,7 +11137,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 Name: KELSEY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11154,7 +11154,7 @@ IVs: 2 HP / 2 Atk / 2 Def / 2 SpA / 2 SpD / 2 Spe
 Name: KELSEY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11171,7 +11171,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: KELSEY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11278,7 +11278,7 @@ IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 Name: ISABELLE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11299,7 +11299,7 @@ IVs: 2 HP / 2 Atk / 2 Def / 2 SpA / 2 SpD / 2 Spe
 Name: ISABELLE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11320,7 +11320,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: ISABELLE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11472,7 +11472,7 @@ IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 Name: ALICIA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11485,7 +11485,7 @@ IVs: 4 HP / 4 Atk / 4 Def / 4 SpA / 4 SpD / 4 Spe
 Name: ALICIA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11498,7 +11498,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: ALICIA
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11596,7 +11596,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: MEGAN
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -11625,7 +11625,7 @@ IVs: 4 HP / 4 Atk / 4 Def / 4 SpA / 4 SpD / 4 Spe
 Name: MEGAN
 Class: Lass Frlg
 Pic: Lass Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -11751,7 +11751,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: SHEILA
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -11818,7 +11818,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: SUSIE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11847,7 +11847,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: SUSIE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -11876,7 +11876,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: SUSIE
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -12006,7 +12006,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: GRACE
 Class: Beauty Frlg
 Pic: Beauty Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -12065,7 +12065,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: BECKY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -12082,7 +12082,7 @@ IVs: 7 HP / 7 Atk / 7 Def / 7 SpA / 7 SpD / 7 Spe
 Name: BECKY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -12099,7 +12099,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: BECKY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -12306,7 +12306,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: ALICE
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -12348,7 +12348,7 @@ IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 Name: MISSY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -12365,7 +12365,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: MISSY
 Class: Picnicker Frlg
 Pic: Picnicker Frlg
-Gender: Male
+Gender: Female
 Music: Girl
 Double Battle: No
 AI: Check Bad Move
@@ -12683,7 +12683,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: RAYNA
 Class: Painter Frlg
 Pic: Painter Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -12717,7 +12717,7 @@ IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 Name: ALIZE
 Class: Pkmn Breeder Frlg
 Pic: Pokemon Breeder Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -12823,7 +12823,7 @@ IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 Name: NICOLE
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
@@ -12836,7 +12836,7 @@ IVs: 14 HP / 14 Atk / 14 Def / 14 SpA / 14 SpD / 14 Spe
 Name: JACLYN
 Class: Psychic Frlg
 Pic: Psychic F Frlg
-Gender: Male
+Gender: Female
 Music: Intense
 Double Battle: No
 AI: Check Bad Move
@@ -12950,7 +12950,7 @@ IVs: 26 HP / 26 Atk / 26 Def / 26 SpA / 26 SpD / 26 Spe
 Name: RODETTE
 Class: Psychic Frlg
 Pic: Psychic F Frlg
-Gender: Male
+Gender: Female
 Music: Intense
 Double Battle: No
 AI: Check Bad Move
@@ -13034,7 +13034,7 @@ IVs: 26 HP / 26 Atk / 26 Def / 26 SpA / 26 SpD / 26 Spe
 Name: MADELINE
 Class: Pkmn Ranger Frlg
 Pic: Pokemon Ranger F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -13136,7 +13136,7 @@ IVs: 26 HP / 26 Atk / 26 Def / 26 SpA / 26 SpD / 26 Spe
 Name: KATELYN
 Class: Pkmn Ranger Frlg
 Pic: Pokemon Ranger F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Full Restore
 Double Battle: No
@@ -13204,7 +13204,7 @@ IVs: 26 HP / 26 Atk / 26 Def / 26 SpA / 26 SpD / 26 Spe
 Name: MICHELLE
 Class: Cooltrainer Frlg
 Pic: Cooltrainer F Frlg
-Gender: Male
+Gender: Female
 Music: Cool
 Items: Hyper Potion
 Double Battle: No
@@ -13377,7 +13377,7 @@ IVs: 9 HP / 9 Atk / 9 Def / 9 SpA / 9 SpD / 9 Spe
 Name: MELISSA
 Class: Swimmer F Frlg
 Pic: Swimmer F Frlg
-Gender: Male
+Gender: Female
 Music: Female
 Double Battle: No
 AI: Check Bad Move
