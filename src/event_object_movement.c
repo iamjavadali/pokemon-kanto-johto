@@ -2490,7 +2490,12 @@ void RemoveFollowingPokemon(void)
 // Determine whether follower *should* be visible
 bool32 IsFollowerVisible(void)
 {
-    return !(TestPlayerAvatarFlags(FOLLOWER_INVISIBLE_FLAGS)
+    struct Pokemon *follower = GetPartnerAwareFollowingMon();
+    bool32 keepPartnerVisible = FlagGet(FLAG_SAFE_FOLLOWER_MOVEMENT)
+                             && follower != NULL
+                             && GetMonData(follower, MON_DATA_SPECIES) == SPECIES_PIKACHU_STARTER;
+
+    return !((!keepPartnerVisible && TestPlayerAvatarFlags(FOLLOWER_INVISIBLE_FLAGS))
             || MetatileBehavior_IsSurfableWaterOrUnderwater(gObjectEvents[gPlayerAvatar.objectEventId].previousMetatileBehavior)
             || MetatileBehavior_IsForcedMovementTile(gObjectEvents[gPlayerAvatar.objectEventId].currentMetatileBehavior));
 }
