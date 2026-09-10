@@ -134,6 +134,8 @@ static const struct GoldenYellowDebugMon sPartySSAnne[] =
 {
     { SPECIES_BUTTERFREE, 22 },
     { SPECIES_NIDORINO, 22 },
+    { SPECIES_CHARMANDER, 10 },
+    { SPECIES_BULBASAUR, 10 },
 };
 
 static const struct GoldenYellowDebugMon sPartyTower[] =
@@ -395,6 +397,18 @@ static void GoldenYellowDebug_CompleteCharmanderAdoption(void)
     FlagSet(FLAG_0x0BD);
 }
 
+static void GoldenYellowDebug_CompleteBulbasaurGift(void)
+{
+    FlagSet(FLAG_HIDE_CERULEAN_HOUSE3_BULBASAUR);
+}
+
+static void GoldenYellowDebug_CompleteFanClubAndBicycle(void)
+{
+    FlagSet(FLAG_GOT_BIKE_VOUCHER);
+    FlagSet(FLAG_GOT_BICYCLE);
+    AddBagItem(ITEM_BICYCLE, 1);
+}
+
 // D1 cumulative story-state helpers. These deliberately do not construct test
 // parties; checkpoint party setup remains a separate concern below.
 static void GoldenYellowDebug_ApplyEarlyKantoFoundation(enum GoldenYellowDebugRivalPath rivalPath)
@@ -476,9 +490,16 @@ static void GoldenYellowDebug_ApplyThroughBill(enum GoldenYellowDebugRivalPath r
     AddBagItem(ITEM_SS_TICKET, 1);
 }
 
-static void GoldenYellowDebug_ApplyThroughSSAnneRival(enum GoldenYellowDebugRivalPath rivalPath)
+static void GoldenYellowDebug_ApplyThroughVermilionArrival(enum GoldenYellowDebugRivalPath rivalPath)
 {
     GoldenYellowDebug_ApplyThroughBill(rivalPath);
+    GoldenYellowDebug_CompleteBulbasaurGift();
+    GoldenYellowDebug_CompleteFanClubAndBicycle();
+}
+
+static void GoldenYellowDebug_ApplyThroughSSAnneRival(enum GoldenYellowDebugRivalPath rivalPath)
+{
+    GoldenYellowDebug_ApplyThroughVermilionArrival(rivalPath);
     GoldenYellowDebug_CompleteSSAnneRival();
 }
 
@@ -487,6 +508,7 @@ static void GoldenYellowDebug_ApplyThroughCaptain(enum GoldenYellowDebugRivalPat
     GoldenYellowDebug_ApplyThroughSSAnneRival(rivalPath);
     FlagSet(FLAG_GOT_HM01);
     FlagSet(FLAG_HIDE_SS_ANNE);
+    VarSet(VAR_MAP_SCENE_VERMILION_CITY, 3);
     AddBagItem(ITEM_HM01, 1);
 }
 
@@ -494,7 +516,9 @@ static void GoldenYellowDebug_ApplyThroughSurge(enum GoldenYellowDebugRivalPath 
 {
     GoldenYellowDebug_ApplyThroughCaptain(rivalPath);
     GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER | GY_BADGE_CASCADE | GY_BADGE_THUNDER);
+    FlagSet(FLAG_DEFEATED_LT_SURGE);
     FlagSet(FLAG_GOT_TM34_FROM_SURGE);
+    AddBagItem(ITEM_TM24, 1);
 }
 
 static void GoldenYellowDebug_Warp(const struct GoldenYellowDebugWarp *warp)
@@ -574,13 +598,7 @@ bool32 GoldenYellowDebug_ApplyCheckpoint(enum GoldenYellowDebugCheckpoint checkp
         GoldenYellowDebug_SetTestParty(&sPartnerCerulean, sPartyCerulean, ARRAY_COUNT(sPartyCerulean));
         break;
     case GY_DEBUG_CP_SS_ANNE_RIVAL:
-        GoldenYellowDebug_ApplyOakLabComplete();
-        GoldenYellowDebug_ApplyPokedexState();
-        GoldenYellowDebug_CompleteViridianTeachyTV();
-        GoldenYellowDebug_CompleteRoute22Early();
-        GoldenYellowDebug_CompletePewterProgression();
-        GoldenYellowDebug_CompleteCeruleanRival();
-        GoldenYellowDebug_SetRivalPath(GY_DEBUG_RIVAL_JOLTEON);
+        GoldenYellowDebug_ApplyThroughVermilionArrival(rivalPath);
         VarSet(VAR_MAP_SCENE_S_S_ANNE_2F_CORRIDOR, 0);
         FlagClear(FLAG_HIDE_SS_ANNE_RIVAL);
         GoldenYellowDebug_SetBadgeMask(GY_BADGE_BOULDER | GY_BADGE_CASCADE);
